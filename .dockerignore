@@ -10,3 +10,7 @@ PLANS.md
 BUILD_NOTES.md
 BUILD_NOTES_FR.md
 .github
+# NEVER bake into images: real config (secrets) + received submissions (PII)
+api/config.php
+_submissions/
+Dockerfile.php

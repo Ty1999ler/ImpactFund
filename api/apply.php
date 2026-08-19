@@ -8,8 +8,22 @@ require __DIR__ . '/_lib.php';
 
 require_post();
 $cfg = load_config();
+
+/* When the request body exceeds post_max_size PHP silently delivers EMPTY
+   $_POST and $_FILES — catch that before it reads as "all fields missing". */
+if (empty($_POST) && empty($_FILES) && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+    respond(413, ['ok' => false, 'error' => 'The submission is too large. Each file must be 10 MB or less.']);
+}
+
 honeypot_check();
 rate_limit('apply', 5, 3600);
+
+/* Server-side open date — the client-side reveal (?preview-form=1) only
+   changes what is VISIBLE; actual submissions are gated here. */
+$opensAt = strtotime((string)($cfg['opens_at'] ?? ''));
+if ($opensAt && time() < $opensAt) {
+    respond(403, ['ok' => false, 'error' => 'Submissions are not open yet.']);
+}
 
 /* ---------- fields ---------- */
 

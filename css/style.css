@@ -1010,3 +1010,4 @@ img[src$="shape-blob-orange.svg"] { display: none; }
   color: var(--text);
 }
 .form-status.is-error { color: #b3261e; }
+.contact-form [aria-invalid="true"] { border-color: #b3261e !important; }

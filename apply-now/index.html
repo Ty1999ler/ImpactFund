@@ -113,12 +113,10 @@
         </div>
         <div class="apply-form-card apply-form-open" hidden>
           <!-- ==================================================================
-               APPLICATION FORM (front-end only — recreation of the live
-               Gravity Forms "Multi Step" form, id=2).
-               TODO (backend): wire submissions to SharePoint via a Power
-               Automate HTTP trigger. /js/apply-form.js intercepts submit
-               (data-handler="sharepoint") and currently shows a preview notice
-               instead of posting. Replace the stub there when the flow exists.
+               APPLICATION FORM (recreation of the live Gravity Forms
+               "Multi Step" form, id=2). /js/apply-form.js handles the steps,
+               validation, and POSTs to /api/apply.php (see api/config.example.php
+               for delivery to SharePoint / email).
                ================================================================== -->
           <form class="apply-form" action="#" method="post" enctype="multipart/form-data" data-handler="sharepoint" novalidate>
             <div class="apply-form-logo" aria-hidden="true"></div>
@@ -306,31 +304,31 @@
                     <label for="af-file-budget">Detailed budget<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include all sources of income and expenditure.</p>
                     <input type="file" id="af-file-budget" name="file_budget" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 128 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-team">Team Members<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include: name, role, years of study, school attended</p>
                     <input type="file" id="af-file-team" name="file_team_members" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 128 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-plan">Action plan and schedule<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include key milestones leading up to the project or event date.</p>
                     <input type="file" id="af-file-plan" name="file_action_plan" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 128 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-extra">Additional information (optional)</label>
                     <p class="field-desc">Marketing material, photographs, or any other documents that may assist us in understanding your project</p>
                     <input type="file" id="af-file-extra" name="file_additional" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 128 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-letter">Letter of support<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Upload the letter of support from your student association or school.</p>
                     <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 128 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
                   </div>
                 </div>
               </div>

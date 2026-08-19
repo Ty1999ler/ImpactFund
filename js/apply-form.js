@@ -25,7 +25,7 @@
   var current = 0;
 
   var FILE_TYPES = [".doc", ".docx", ".xls", ".xlsx", ".csv", ".pdf"];
-  var FILE_MAX_BYTES = 128 * 1024 * 1024; /* 128 MB */
+  var FILE_MAX_BYTES = 10 * 1024 * 1024; /* 10 MB — must match api/config max_file_mb */
 
   /* ---- Institution / Association options from window.ALUMO_SCHOOLS ----
      Option text: the association, unless it is "N/A"/"NA" — then the
@@ -112,7 +112,7 @@
     }
     if (file.size > FILE_MAX_BYTES) {
       input.value = "";
-      setError(input, "This file exceeds the maximum size of 128 MB.");
+      setError(input, "This file exceeds the maximum size of 10 MB.");
       return false;
     }
     return true;
@@ -256,6 +256,21 @@
             ". We will be in touch by email.</p></div>";
           form.scrollIntoView({ behavior: "smooth", block: "center" });
         } else {
+          /* Surface the server's per-field errors on the matching inputs and
+             jump back to the first step that has one. */
+          var firstErrStep = -1;
+          if (res.j && res.j.fields) {
+            Object.keys(res.j.fields).forEach(function (name) {
+              var el = form.querySelector('[name="' + name + '"]');
+              if (!el) return;
+              setError(el, res.j.fields[name] === 'Required'
+                ? "This field is required." : String(res.j.fields[name]));
+              panels.forEach(function (p, i) {
+                if (p.contains(el) && (firstErrStep === -1 || i < firstErrStep)) firstErrStep = i;
+              });
+            });
+          }
+          if (firstErrStep !== -1) showStep(firstErrStep, true);
           statusEl.textContent = (res.j && res.j.error) ||
             "Your application could not be submitted. Please try again later.";
           statusEl.classList.add("is-error");

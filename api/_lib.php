@@ -29,14 +29,15 @@ function require_post(): void {
 }
 
 /* One value from $_POST, trimmed, hard length cap, control chars stripped
-   (except newlines when $multiline). */
+   (except newlines when $multiline). Invalid UTF-8 input yields '' (preg_replace
+   with /u returns null on bad UTF-8, which would otherwise fatal). */
 function field(string $name, int $max, bool $multiline = false): string {
     $v = $_POST[$name] ?? '';
     if (!is_string($v)) return '';
     $v = trim($v);
-    $v = $multiline
+    $v = ($multiline
         ? preg_replace('/[^\P{C}\r\n\t]+/u', '', $v)
-        : preg_replace('/\p{C}+/u', '', $v);
+        : preg_replace('/\p{C}+/u', '', $v)) ?? '';
     if (mb_strlen($v) > $max) $v = mb_substr($v, 0, $max);
     return $v;
 }
@@ -47,9 +48,22 @@ function header_safe(string $v): string {
 }
 
 /* Fixed-window file-based rate limit (shared-hosting friendly).
-   Fails open if the temp dir is unwritable. */
+   Fails open if the temp dir is unwritable.
+   CF-Connecting-IP is attacker-controlled unless Cloudflare really is the
+   direct peer, so it is only honored when config trust_cloudflare_header
+   is true (i.e. the origin is ONLY reachable through Cloudflare). */
 function rate_limit(string $bucket, int $max, int $windowSeconds): void {
-    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    static $trustCf = null;
+    if ($trustCf === null) {
+        $cfgPath = __DIR__ . '/config.php';
+        $cfg = is_file($cfgPath) ? (require $cfgPath) : [];
+        $trustCf = is_array($cfg) && !empty($cfg['trust_cloudflare_header']);
+    }
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    if ($trustCf && !empty($_SERVER['HTTP_CF_CONNECTING_IP'])
+        && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP)) {
+        $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+    }
     $file = sys_get_temp_dir() . '/impactfund-rl-' . $bucket . '-' . hash('sha256', $ip);
     $now = time();
     $stamps = [];
@@ -89,10 +103,15 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
     }
     $headers[] = 'MIME-Version: 1.0';
 
+    /* -f sets the envelope sender so SPF aligns with the From: domain on
+       GoDaddy (otherwise Return-Path is the hosting account's server identity
+       and strict receivers junk the mail). Only used when it's a clean email. */
+    $extra = filter_var($from, FILTER_VALIDATE_EMAIL) ? '-f' . $from : '';
+
     if (!$attachments) {
         $headers[] = 'Content-Type: text/plain; charset=UTF-8';
         $headers[] = 'Content-Transfer-Encoding: 8bit';
-        return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+        return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers), $extra);
     }
 
     $boundary = 'b' . bin2hex(random_bytes(16));
@@ -113,7 +132,7 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
     }
     $msg .= "--$boundary--\r\n";
 
-    return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $msg, implode("\r\n", $headers));
+    return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $msg, implode("\r\n", $headers), $extra);
 }
 
 /* ---------- Microsoft Graph (delivery_mode = 'graph') ---------- */
@@ -135,6 +154,8 @@ function graph_token(array $g): string {
     return $resp['access_token'];
 }
 
+/* Throws on transport errors and HTTP >= 400 so callers can't silently
+   "succeed" — apply.php catches and falls back to archive-only. */
 function http_json(string $url, $body, array $headers, string $method = 'POST'): array {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
@@ -145,7 +166,15 @@ function http_json(string $url, $body, array $headers, string $method = 'POST'):
         CURLOPT_TIMEOUT        => 60,
     ]);
     $out = curl_exec($ch);
+    $errno = curl_errno($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
     curl_close($ch);
+    if ($out === false || $errno !== 0) {
+        throw new RuntimeException("HTTP request failed (curl errno $errno): $url");
+    }
+    if ($status >= 400) {
+        throw new RuntimeException("HTTP $status from $url: " . substr((string)$out, 0, 500));
+    }
     $decoded = json_decode((string)$out, true);
     return is_array($decoded) ? $decoded : [];
 }
@@ -156,11 +185,14 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
     $token = graph_token($g);
     $auth  = ["Authorization: Bearer $token"];
 
-    http_json(
+    $item = http_json(
         "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items",
         json_encode(['fields' => $fields]),
         array_merge($auth, ['Content-Type: application/json'])
     );
+    if (empty($item['id'])) {
+        throw new RuntimeException('SharePoint list item was not created');
+    }
 
     foreach ($files as $f) {
         $path = "/{$submissionId}/" . rawurlencode($f['name']);
@@ -169,7 +201,9 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
             json_encode(['item' => ['@microsoft.graph.conflictBehavior' => 'rename']]),
             array_merge($auth, ['Content-Type: application/json'])
         );
-        if (empty($session['uploadUrl'])) continue;
+        if (empty($session['uploadUrl'])) {
+            throw new RuntimeException("No upload session for {$f['name']}");
+        }
 
         $size = filesize($f['path']);
         $fh = fopen($f['path'], 'rb');
@@ -177,6 +211,10 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
         $offset = 0;
         while ($offset < $size) {
             $chunk = fread($fh, $chunkSize);
+            if ($chunk === false || $chunk === '') {
+                fclose($fh);
+                throw new RuntimeException("Read failed while uploading {$f['name']}");
+            }
             $len = strlen($chunk);
             $end = $offset + $len - 1;
             http_json($session['uploadUrl'], $chunk, [

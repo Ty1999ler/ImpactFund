@@ -101,6 +101,12 @@
             form.reset();
             status.textContent = MSG.ok;
           } else {
+            if (res.j && res.j.fields) {
+              Object.keys(res.j.fields).forEach(function (n) {
+                var el = form.querySelector('[name="' + n + '"]');
+                if (el) el.setAttribute("aria-invalid", "true");
+              });
+            }
             status.textContent = (res.j && res.j.error) || MSG.fail;
             status.classList.add("is-error");
           }

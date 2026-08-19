@@ -15,8 +15,18 @@ return [
        The directory is created on first use. */
     'submissions_dir' => dirname(__DIR__) . '/_submissions',
 
-    /* Per-file upload cap for the application form, in MB. */
+    /* Per-file upload cap for the application form, in MB.
+       Must match FILE_MAX_BYTES in js/apply-form.js and api/.user.ini. */
     'max_file_mb'  => 10,
+
+    /* Applications are rejected server-side before this moment (ISO date with
+       timezone). Empty string = always open. */
+    'opens_at' => '2026-09-01T00:00:00-04:00',
+
+    /* Set true ONLY when the origin is reachable exclusively through
+       Cloudflare — then rate limiting keys on the CF-Connecting-IP header.
+       When false (default) the direct peer IP is used. */
+    'trust_cloudflare_header' => false,
 
     /* How application submissions reach the team. One of:
        'email' — mail the fields + attachments to sharepoint.relay_to
