@@ -5,7 +5,6 @@ _tools
 .claude
 Dockerfile
 docker-compose.yml
-nginx.conf
 README.md
 PLANS.md
 BUILD_NOTES.md
