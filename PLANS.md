@@ -3,31 +3,40 @@
 ## Forms (two) — NO Power Automate (decided 2026-08-18)
 
 Power Automate's HTTP-request trigger is a premium connector (~$15/user/mo) — not
-worth it for two forms. Instead: one tiny self-hosted **forms-api** container on the
-same server as the site (behind the same Cloudflare hostname under `/api/`).
+worth it for two forms. Final hosting is GoDaddy shared hosting (decided
+2026-08-18), which runs PHP natively — so the forms are **two small PHP handlers
+deployed with the static site**. $0, nothing extra to run.
 
-### forms-api container (Node or Python, ~100 lines)
-- `POST /api/contact` — contact form (Name/Email/Message from Home/About/Past
-  Winners): sends an email to the team inbox. Email via free transactional SMTP
-  (Resend 3k/mo free, or Brevo 300/day free, or M365 SMTP AUTH from a mailbox).
-- `POST /api/apply` — application form (multipart: fields + 5 file uploads):
-  1. always saves a local backup on the server (JSON + files folder), then
-  2. delivers to SharePoint — pick ONE:
-     a. **Graph API direct** (preferred): one-time Entra app registration with
-        Sites.Selected on the target site; backend creates the list item and
-        uploads files to a document library. $0 forever, needs tenant admin
-        consent once.
-     b. **Email relay**: backend emails the submission + attachments to a
-        dedicated mailbox; an optional STANDARD-tier Power Automate flow
-        ("When a new email arrives" → save to SharePoint) files it — standard
-        connectors are included in existing M365 licenses, no premium needed.
-        Caps attachments ~25MB total (email limits).
-- Spam: Cloudflare Turnstile (free) on both forms + honeypot field.
+### /api/contact.php — contact form (Name/Email/Message on Home/About/Past Winners)
+Validates + sends an email to the team inbox. PHP `mail()` works out of the box on
+GoDaddy; switch to PHPMailer + SMTP AUTH (M365 mailbox) if deliverability is poor.
+
+### /api/apply.php — application form (multipart: fields + 5 file uploads)
+1. Validates, saves a server-side backup (JSON + files folder outside webroot), then
+2. delivers to SharePoint — pick ONE:
+   a. **Graph API direct** (preferred): one-time free Entra app registration with
+      Sites.Selected on the target site; PHP calls Graph via cURL (~50 lines) to
+      create the list item + upload files to a document library. Needs tenant
+      admin consent once.
+   b. **Email relay**: PHP emails the submission + attachments to a dedicated
+      mailbox; an optional STANDARD-tier Power Automate flow ("When a new email
+      arrives" → save to SharePoint) files it — standard connectors are included
+      in M365, no premium. Caps attachments ~25MB total (email limits); file cap
+      per upload ~10MB is sensible regardless (GF's 128MB was absurd).
+
+### Interim hosting on the user's server
+Base the Docker image on `php:8-apache` instead of nginx — then the SAME PHP
+handlers work identically on the interim server and after the GoDaddy cutover.
+No rework at migration time.
+
+- Spam: Cloudflare Turnstile (free) on both forms + honeypot field. (Note: if
+  final hosting is GoDaddy without Cloudflare in front, use honeypot + simple
+  rate-limit in PHP instead.)
 - Front-end pattern stays: `<form data-handler="...">` + `fetch()` in js/main.js,
   inline success/error message.
 
 OPEN DECISIONS: (1) Graph-direct vs email-relay for SharePoint; (2) which mailbox
-receives contact messages; (3) which SMTP/sender (Resend vs M365 SMTP).
+receives contact messages; (3) sender identity for outgoing mail.
 
 ## FR/EN (long run)
 - French source content is already mirrored: `_source/pages-fr/*.html` (TranslatePress output).
