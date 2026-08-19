@@ -11,3 +11,6 @@ _submissions/
 
 # Server-side received submissions (bind mount from docker-compose)
 submissions/
+
+# Real SMTP credentials for the interim server
+msmtprc

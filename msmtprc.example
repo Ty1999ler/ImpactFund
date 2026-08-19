@@ -1,0 +1,24 @@
+# SMTP relay config for the Docker deployment (interim server only — GoDaddy
+# sends natively and does not need this).
+#
+# Copy to ./msmtprc next to docker-compose.yml, fill in the password, then
+# uncomment the msmtprc mount in docker-compose.yml and `docker compose up -d`.
+# Keep it private:  chmod 600 msmtprc   (msmtp refuses world-readable configs)
+# ./msmtprc is git-ignored — never commit the real one.
+#
+# NOTE: authenticated SMTP sends AS the login mailbox — set mail_from in
+# api/config.php to the same address (e.g. impact@alumo.ca) on this host.
+
+defaults
+auth           on
+tls            on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        -
+
+# Microsoft 365 example (impact@alumo.ca)
+account        default
+host           smtp.office365.com
+port           587
+from           impact@alumo.ca
+user           impact@alumo.ca
+password       PUT-APP-PASSWORD-HERE
