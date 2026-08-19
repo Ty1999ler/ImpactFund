@@ -11,7 +11,9 @@ function respond(int $status, array $payload): void {
 
 function load_config(): array {
     $path = __DIR__ . '/config.php';
-    if (!is_file($path)) {
+    /* is_readable also catches a present-but-wrongly-permissioned file
+       (e.g. created 600 by another user) — fail clean, not with a fatal. */
+    if (!is_file($path) || !is_readable($path)) {
         respond(503, ['ok' => false, 'error' => 'Form backend is not configured yet.']);
     }
     $cfg = require $path;

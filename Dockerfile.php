@@ -20,6 +20,9 @@
 
 FROM php:8.3-apache
 
+# Production PHP settings: no error traces to visitors, log to stderr instead
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
 # Mail relay for PHP mail() (configure via mounted /etc/msmtprc)
 RUN apt-get update && apt-get install -y --no-install-recommends msmtp-mta \
  && rm -rf /var/lib/apt/lists/* \
