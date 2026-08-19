@@ -27,6 +27,84 @@
   var FILE_TYPES = [".doc", ".docx", ".xls", ".xlsx", ".csv", ".pdf"];
   var FILE_MAX_BYTES = 10 * 1024 * 1024; /* 10 MB — must match api/config max_file_mb */
 
+  /* ---- UI strings (EN / FR, keyed off <html lang>, same pattern as the
+     contact handler in main.js). The 1000-char counter is NOT translated:
+     the live FR form shows it in English. ---- */
+  var IS_FR = (document.documentElement.lang || "").toLowerCase().indexOf("fr") === 0;
+  var T = IS_FR ? {
+    fileType: "Ce type de fichier n'est pas autorisé. Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf.",
+    fileSize: "Ce fichier dépasse la taille maximale de 10 MB.",
+    uploadFile: "Veuillez téléverser un fichier.",
+    selectOption: "Veuillez sélectionner une option.",
+    required: "Ce champ est obligatoire.",
+    invalidEmail: "Veuillez entrer une adresse courriel valide.",
+    invalidNumber: "Veuillez entrer un nombre valide.",
+    checkField: "Veuillez vérifier ce champ.",
+    chooseOption: "Veuillez choisir une option.",
+    submitting: "Envoi de votre demande en cours…",
+    successTitle: "Demande reçue !",
+    successBody: "Merci — votre soumission a bien été reçue",
+    successRef: "référence",
+    successOutro: ". Nous vous contacterons par courriel.",
+    uploadFailed: "Le téléversement a échoué — veuillez réessayer.",
+    errFields: "Veuillez vérifier les champs surlignés.",
+    errNotOpen: "Les soumissions ne sont pas encore ouvertes.",
+    errTooLarge: "La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins.",
+    errServer: "Votre demande n'a pas pu être envoyée. Veuillez réessayer plus tard.",
+    errNetwork: "Votre demande n'a pas pu être envoyée. Veuillez vérifier votre connexion et réessayer."
+  } : {
+    fileType: "This type of file is not allowed. Accepted file types: doc, docx, xls, xlsx, csv, pdf.",
+    fileSize: "This file exceeds the maximum size of 10 MB.",
+    uploadFile: "Please upload a file.",
+    selectOption: "Please select an option.",
+    required: "This field is required.",
+    invalidEmail: "Please enter a valid email address.",
+    invalidNumber: "Please enter a valid number.",
+    checkField: "Please check this field.",
+    chooseOption: "Please choose an option.",
+    submitting: "Submitting your application…",
+    successTitle: "Application received!",
+    successBody: "Thank you — your submission has been received",
+    successRef: "reference",
+    successOutro: ". We will be in touch by email.",
+    uploadFailed: "Upload failed — please retry.",
+    errFields: "Please check the highlighted fields.",
+    errNotOpen: "Submissions are not open yet.",
+    errTooLarge: "The submission is too large. Each file must be 10 MB or less.",
+    errServer: "Your application could not be submitted. Please try again later.",
+    errNetwork: "Your application could not be submitted. Please check your connection and try again."
+  };
+
+  /* ---- api/apply.php answers in English only: map its known error strings
+     onto the T table so they localize on /fr/. Unknown strings pass through
+     verbatim (better an English message than none). ---- */
+  var SERVER_FIELD_ERRORS = {
+    "Required": T.required,
+    "Invalid email": T.invalidEmail,
+    "Invalid category": T.selectOption,
+    "File type not accepted": T.fileType,
+    "Upload failed — please retry": T.uploadFailed
+  };
+  var SERVER_ERRORS = {
+    "Please check the highlighted fields.": T.errFields,
+    "Submissions are not open yet.": T.errNotOpen,
+    "The submission is too large. Each file must be 10 MB or less.": T.errTooLarge,
+    "Could not store the submission. Please try again later.": T.errServer
+  };
+  function localizeFieldError(message) {
+    message = String(message);
+    if (Object.prototype.hasOwnProperty.call(SERVER_FIELD_ERRORS, message)) {
+      return SERVER_FIELD_ERRORS[message];
+    }
+    if (message.indexOf("File is larger than") === 0) return T.fileSize;
+    return message;
+  }
+  function localizeServerError(message) {
+    message = String(message);
+    return Object.prototype.hasOwnProperty.call(SERVER_ERRORS, message)
+      ? SERVER_ERRORS[message] : message;
+  }
+
   /* ---- Institution / Association options from window.ALUMO_SCHOOLS ----
      Option text: the association, unless it is "N/A"/"NA" — then the
      school name. De-duplicated, source order preserved. */
@@ -107,12 +185,12 @@
     var allowed = FILE_TYPES.some(function (ext) { return name.endsWith(ext); });
     if (!allowed) {
       input.value = "";
-      setError(input, "This type of file is not allowed. Accepted file types: doc, docx, xls, xlsx, csv, pdf.");
+      setError(input, T.fileType);
       return false;
     }
     if (file.size > FILE_MAX_BYTES) {
       input.value = "";
-      setError(input, "This file exceeds the maximum size of 10 MB.");
+      setError(input, T.fileSize);
       return false;
     }
     return true;
@@ -133,14 +211,14 @@
   /* ---- Step validation ---- */
   function messageFor(field) {
     var v = field.validity;
-    if (field.type === "file") return "Please upload a file.";
+    if (field.type === "file") return T.uploadFile;
     if (v.valueMissing) {
-      if (field.tagName === "SELECT") return "Please select an option.";
-      return "This field is required.";
+      if (field.tagName === "SELECT") return T.selectOption;
+      return T.required;
     }
-    if (v.typeMismatch && field.type === "email") return "Please enter a valid email address.";
-    if (v.badInput || v.rangeUnderflow || v.stepMismatch) return "Please enter a valid number.";
-    return "Please check this field.";
+    if (v.typeMismatch && field.type === "email") return T.invalidEmail;
+    if (v.badInput || v.rangeUnderflow || v.stepMismatch) return T.invalidNumber;
+    return T.checkField;
   }
 
   function validateStep(index) {
@@ -160,7 +238,7 @@
         var required = Array.prototype.some.call(group, function (r) { return r.required; });
         var checked = Array.prototype.some.call(group, function (r) { return r.checked; });
         if (required && !checked) {
-          setError(field, "Please choose an option.");
+          setError(field, T.chooseOption);
           invalid.push(field);
         }
         return;
@@ -170,7 +248,7 @@
         if (!validateFileField(field)) {
           invalid.push(field);
         } else if (field.required && !(field.files && field.files.length)) {
-          setError(field, "Please upload a file.");
+          setError(field, T.uploadFile);
           invalid.push(field);
         }
         return;
@@ -243,17 +321,17 @@
     submitBtn.disabled = true;
     statusEl.hidden = false;
     statusEl.classList.remove("is-error");
-    statusEl.textContent = "Submitting your application…";
+    statusEl.textContent = T.submitting;
 
     fetch("/api/apply.php", { method: "POST", body: new FormData(form) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok, j: j }; }); })
       .then(function (res) {
         if (res.ok) {
           form.innerHTML =
-            '<div class="apply-success"><h2>Application received!</h2>' +
-            "<p>Thank you — your submission has been received" +
-            (res.j.id ? " (reference <strong>" + res.j.id + "</strong>)" : "") +
-            ". We will be in touch by email.</p></div>";
+            '<div class="apply-success"><h2>' + T.successTitle + "</h2>" +
+            "<p>" + T.successBody +
+            (res.j.id ? " (" + T.successRef + " <strong>" + res.j.id + "</strong>)" : "") +
+            T.successOutro + "</p></div>";
           form.scrollIntoView({ behavior: "smooth", block: "center" });
         } else {
           /* Surface the server's per-field errors on the matching inputs and
@@ -263,22 +341,21 @@
             Object.keys(res.j.fields).forEach(function (name) {
               var el = form.querySelector('[name="' + name + '"]');
               if (!el) return;
-              setError(el, res.j.fields[name] === 'Required'
-                ? "This field is required." : String(res.j.fields[name]));
+              setError(el, localizeFieldError(res.j.fields[name]));
               panels.forEach(function (p, i) {
                 if (p.contains(el) && (firstErrStep === -1 || i < firstErrStep)) firstErrStep = i;
               });
             });
           }
           if (firstErrStep !== -1) showStep(firstErrStep, true);
-          statusEl.textContent = (res.j && res.j.error) ||
-            "Your application could not be submitted. Please try again later.";
+          statusEl.textContent = (res.j && res.j.error)
+            ? localizeServerError(res.j.error) : T.errServer;
           statusEl.classList.add("is-error");
           submitBtn.disabled = false;
         }
       })
       .catch(function () {
-        statusEl.textContent = "Your application could not be submitted. Please check your connection and try again.";
+        statusEl.textContent = T.errNetwork;
         statusEl.classList.add("is-error");
         submitBtn.disabled = false;
       });

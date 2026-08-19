@@ -14,3 +14,8 @@ BUILD_NOTES_FR.md
 api/config.php
 _submissions/
 Dockerfile.php
+
+# CI fixtures — the smoke-test workflow bind-mounts these from the checkout,
+# so they must never ride into the image/webroot
+ci/
+api/config.ci.php

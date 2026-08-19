@@ -10,6 +10,7 @@ on:
     paths:
       - 'api/**'
       - 'Dockerfile.php'
+      - '.dockerignore'
       - 'ci/**'
       - '.github/workflows/forms-smoke.yml'
   workflow_dispatch:
@@ -54,8 +55,11 @@ jobs:
       - name: Wait for the server
         run: |
           set -euo pipefail
+          # --retry-all-errors: docker-proxy accepts the connection before
+          # Apache is up and then resets it (curl exit 52/56), which plain
+          # --retry/--retry-connrefused would NOT retry.
           curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
-            http://localhost:8777/
+            --retry-all-errors http://localhost:8777/
 
       - name: Contact — valid submission returns 200 and mail is captured
         run: |

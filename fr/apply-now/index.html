@@ -7,6 +7,18 @@
   <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez la lettre de parrainage et découvrez qui peut soumettre un projet et quels projets étudiants sont admissibles.">
   <link rel="alternate" hreflang="en" href="/apply-now/">
   <link rel="alternate" hreflang="fr" href="/fr/apply-now/">
+  <link rel="canonical" href="https://alumoimpact.ca/fr/apply-now/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fonds d&#x27;impact étudiant par Alumo">
+  <meta property="og:title" content="Apply now – Alumo Fund">
+  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez la lettre de parrainage et découvrez qui peut soumettre un projet et quels projets étudiants sont admissibles.">
+  <meta property="og:url" content="https://alumoimpact.ca/fr/apply-now/">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Étudiante souriante avec un sac à dos">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=3">
@@ -116,9 +128,261 @@
           <p>Ce formulaire n’est pas encore disponible.</p>
         </div>
         <div class="apply-form-card apply-form-open" hidden>
-          <!-- FORMULAIRE DE CANDIDATURE (intégration à venir).
-               Les soumissions iront vers SharePoint via le conteneur forms-api (voir PLANS.md). -->
-          <p>Le formulaire de candidature apparaîtra ici.</p>
+          <!-- ==================================================================
+               FORMULAIRE DE CANDIDATURE (recreation of the live Gravity Forms
+               "Multi Step" form, id=2 — FR labels verbatim from the live form,
+               including its untranslated quirks: "Move forward",
+               "I acknowledge", the English char counter, category options and
+               the "échancier" typo). /js/apply-form.js handles the steps,
+               validation, and POSTs to /api/apply.php. Input names are shared
+               with the EN form — the PHP handler expects them.
+               ================================================================== -->
+          <form class="apply-form" action="#" method="post" enctype="multipart/form-data" data-handler="sharepoint" novalidate>
+            <div class="apply-form-logo" aria-hidden="true"></div>
+
+            <!-- Step indicator -->
+            <ol class="form-steps">
+              <li class="form-step is-active" aria-current="step">
+                <button type="button" class="form-step-btn" data-step="0" disabled>
+                  <span class="form-step-bar" aria-hidden="true"></span>
+                  <span class="form-step-label">1. Coordonnées</span>
+                </button>
+              </li>
+              <li class="form-step">
+                <button type="button" class="form-step-btn" data-step="1" disabled>
+                  <span class="form-step-bar" aria-hidden="true"></span>
+                  <span class="form-step-label">2. Informations sur le projet</span>
+                </button>
+              </li>
+              <li class="form-step">
+                <button type="button" class="form-step-btn" data-step="2" disabled>
+                  <span class="form-step-bar" aria-hidden="true"></span>
+                  <span class="form-step-label">3. Documents requis</span>
+                </button>
+              </li>
+            </ol>
+
+            <!-- ============ ÉTAPE 1 — Coordonnées ============ -->
+            <fieldset class="form-step-panel" data-step="0">
+              <legend class="visually-hidden">Coordonnées</legend>
+              <div class="form-grid-3">
+
+                <div class="form-col">
+                  <h3 class="block-title">Contact principal</h3>
+                  <div class="form-field">
+                    <label for="af-p-first">Prénom<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-p-first" name="primary_first_name" placeholder="Écrivez votre prénom" autocomplete="given-name" required aria-required="true">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-p-last">Nom<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-p-last" name="primary_last_name" placeholder="Écrivez votre nom" autocomplete="family-name" required aria-required="true">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-p-email">Courriel<span aria-hidden="true">*</span></label>
+                    <input type="email" id="af-p-email" name="primary_email" placeholder="Écrivez votre courriel" autocomplete="email" required aria-required="true">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-p-role">Rôle ou poste dans le projet<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-p-role" name="primary_role" placeholder="Écrivez votre rôle" required aria-required="true">
+                  </div>
+                </div>
+
+                <div class="form-col">
+                  <h3 class="block-title">Contact secondaire</h3>
+                  <p class="block-note">Facultatif — une deuxième personne que nous pouvons joindre au sujet de cette demande si le contact principal n'est pas disponible.</p>
+                  <div class="form-field">
+                    <label for="af-s-first">Prénom</label>
+                    <input type="text" id="af-s-first" name="secondary_first_name" placeholder="Écrivez votre prénom">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-s-last">Nom</label>
+                    <input type="text" id="af-s-last" name="secondary_last_name" placeholder="Écrivez votre nom">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-s-email">Courriel</label>
+                    <input type="email" id="af-s-email" name="secondary_email" placeholder="Écrivez votre courriel">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-s-role">Rôle ou poste dans le projet</label>
+                    <input type="text" id="af-s-role" name="secondary_role" placeholder="Écrivez votre rôle">
+                  </div>
+                </div>
+
+                <div class="form-col">
+                  <h3 class="block-title">Information sur l'organisme</h3>
+                  <div class="form-field">
+                    <label for="af-org-name">Nom de l'organisme ou du groupe<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-org-name" name="organization_name" placeholder="Nom de l'organisme ou du groupe" required aria-required="true">
+                  </div>
+                  <div class="form-field">
+                    <label for="af-institution">École ou association étudiante<span aria-hidden="true">*</span></label>
+                    <select id="af-institution" name="institution" required aria-required="true">
+                      <option value="">Sélectionnez votre association ou votre école</option>
+                      <!-- Options populated at runtime from /js/schools-data.js -->
+                    </select>
+                  </div>
+                  <div class="form-field form-field-radio">
+                    <span class="field-label" id="af-recognised-label">Est-ce un groupe reconnu officiellement par votre campus ?</span>
+                    <div class="radio-group" role="radiogroup" aria-labelledby="af-recognised-label">
+                      <label class="radio-option"><input type="radio" name="campus_recognised" value="Yes"><span>Oui</span></label>
+                      <label class="radio-option"><input type="radio" name="campus_recognised" value="No"><span>Non</span></label>
+                    </div>
+                  </div>
+                  <div class="form-field form-field-radio">
+                    <span class="field-label" id="af-offcampus-label">Êtes-vous une organisation officielle hors campus?</span>
+                    <div class="radio-group" role="radiogroup" aria-labelledby="af-offcampus-label">
+                      <label class="radio-option"><input type="radio" name="off_campus_org" value="Yes"><span>Oui</span></label>
+                      <label class="radio-option"><input type="radio" name="off_campus_org" value="No"><span>Non</span></label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </fieldset>
+
+            <!-- ============ ÉTAPE 2 — Informations sur le projet ============ -->
+            <fieldset class="form-step-panel" data-step="1" hidden>
+              <legend class="visually-hidden">Informations sur le projet</legend>
+
+              <div class="form-section">
+                <h3 class="block-title">Détails du projet</h3>
+                <div class="form-grid-3">
+                  <div class="form-col">
+                    <div class="form-field">
+                      <label for="af-title">Titre du projet<span aria-hidden="true">*</span></label>
+                      <input type="text" id="af-title" name="project_title" placeholder="Écrivez le titre de votre projet" required aria-required="true">
+                    </div>
+                    <div class="form-field">
+                      <label for="af-category">Catégorie<span aria-hidden="true">*</span></label>
+                      <!-- Category options are untranslated on the live FR form; the
+                           values must match the PHP whitelist. -->
+                      <select id="af-category" name="category" required aria-required="true">
+                        <option value="">Sélectionnez la catégorie du projet</option>
+                        <option value="Mental Health &amp; Wellbeing">Mental Health &amp; Wellbeing</option>
+                        <option value="Sustainability">Sustainability</option>
+                        <option value="Arts &amp; Culture">Arts &amp; Culture</option>
+                        <option value="Academics">Academics</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-col">
+                    <div class="form-field">
+                      <label for="af-funding">Montant demandé de la subvention demandée au Fonds d'impact étudiant<span aria-hidden="true">*</span></label>
+                      <div class="money-box">
+                        <input type="text" id="af-funding" name="funding_requested" placeholder="Écrivez le montant" inputmode="decimal" required aria-required="true">
+                      </div>
+                    </div>
+                    <div class="form-field">
+                      <label for="af-total">Coût total du projet<span aria-hidden="true">*</span></label>
+                      <div class="money-box">
+                        <input type="text" id="af-total" name="total_cost" placeholder="Écrivez le montant total" inputmode="decimal" required aria-required="true">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-col">
+                    <div class="form-field form-field-check">
+                      <p class="check-label" id="af-ack-label">Le Fonds d'impact étudiant ne couvrira pas les frais liés à l'alcool, aux cadeaux promotionnels, aux dons caritatifs. Pour tous les détails, visitez la page <a href="/fr/about-the-fund/">À propos</a>.</p>
+                      <label class="check-option">
+                        <!-- "I acknowledge" is untranslated on the live FR form -->
+                        <input type="checkbox" id="af-ack" name="fund_acknowledgement" value="I acknowledge" required aria-required="true">
+                        <span>I acknowledge</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="block-title">Résumé du projet et impact attendu</h3>
+                <div class="summary-row">
+                  <div class="form-field summary-textarea">
+                    <label for="af-summary">Résumé du projet<span aria-hidden="true">*</span></label>
+                    <div class="textarea-box">
+                      <textarea id="af-summary" name="project_summary" maxlength="1000" placeholder="Veuillez nous faire parvenir un résumé du projet et des impacts attendus sur le campus." required aria-required="true" aria-describedby="af-summary-count"></textarea>
+                      <!-- Counter text stays English on the live FR form -->
+                      <span class="char-counter" id="af-summary-count">0 of 1000 max characters</span>
+                    </div>
+                  </div>
+                  <div class="summary-numbers">
+                    <div class="form-field">
+                      <label for="af-org-count">Nombre d'étudiant·es dans votre organisation<span aria-hidden="true">*</span></label>
+                      <input type="number" id="af-org-count" name="students_in_org" placeholder="0" min="0" step="1" inputmode="numeric" required aria-required="true">
+                    </div>
+                    <div class="form-field">
+                      <label for="af-reach-count">Nombre d'étudiant·es visé·es par le projet<span aria-hidden="true">*</span></label>
+                      <input type="number" id="af-reach-count" name="students_reached" placeholder="0" min="0" step="1" inputmode="numeric" required aria-required="true">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ============ ÉTAPE 3 — Documents requis ============ -->
+            <fieldset class="form-step-panel" data-step="2" hidden>
+              <legend class="visually-hidden">Documents requis</legend>
+
+              <div class="form-section">
+                <h3 class="block-title">Documents requis</h3>
+                <div class="form-grid-2 file-grid">
+                  <div class="form-field form-field-file">
+                    <label for="af-file-budget">Budget détaillé<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Doit inclure toutes les sources de revenus et de dépenses.</p>
+                    <input type="file" id="af-file-budget" name="file_budget" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
+                    <p class="field-filetypes">Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf, Taille maximum des fichiers : 10 MB.</p>
+                  </div>
+                  <div class="form-field form-field-file">
+                    <label for="af-file-team">Membres de l'équipe<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Doit inclure : nom, rôle, années d'études, école fréquentée</p>
+                    <input type="file" id="af-file-team" name="file_team_members" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
+                    <p class="field-filetypes">Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf, Taille maximum des fichiers : 10 MB.</p>
+                  </div>
+                  <div class="form-field form-field-file">
+                    <!-- "échancier" typo verbatim from the live FR form -->
+                    <label for="af-file-plan">Plan d'action et échancier<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Doit inclure les étapes clés menant à la date du projet ou de l'événement.</p>
+                    <input type="file" id="af-file-plan" name="file_action_plan" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
+                    <p class="field-filetypes">Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf, Taille maximum des fichiers : 10 MB.</p>
+                  </div>
+                  <div class="form-field form-field-file">
+                    <label for="af-file-extra">Information supplémentaire (facultatif)</label>
+                    <p class="field-desc">Matériel promotionnel, photographies ou tout autre document pouvant nous aider à comprendre votre projet</p>
+                    <input type="file" id="af-file-extra" name="file_additional" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf">
+                    <p class="field-filetypes">Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf, Taille maximum des fichiers : 10 MB.</p>
+                  </div>
+                  <div class="form-field form-field-file">
+                    <label for="af-file-letter">Lettre de parrainage<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Téléversez la lettre de parrainage de votre association étudiante ou de votre école.</p>
+                    <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
+                    <p class="field-filetypes">Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf, Taille maximum des fichiers : 10 MB.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field form-field-check consent-field">
+                <label class="check-option">
+                  <input type="checkbox" id="af-consent" name="consent" required aria-required="true">
+                  <span>Je confirme qu'à ma connaissance, les informations fournies dans cette demande sont exactes, et je comprends que des informations incomplètes ou inexactes peuvent affecter l'examen de cette demande.</span>
+                </label>
+              </div>
+
+              <p class="form-fineprint">Toutes les données fournies seront utilisées par Alumo pour analyser les soumissions de projets et seront traitées conformément à notre <a href="https://aseq.ca/RTEContent/Document/Privacy_Policy/ASEQ_Politique_confidentialit%C3%A9_2025.pdf" target="_blank" rel="noopener">politique de confidentialité</a>.</p>
+            </fieldset>
+
+            <!-- Honeypot — ignored by validation, checked on submit -->
+            <div class="hp-field" aria-hidden="true">
+              <label for="af-website">Laissez ce champ vide</label>
+              <input type="text" id="af-website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <p class="form-status" role="status" aria-live="polite" hidden></p>
+
+            <div class="form-nav">
+              <button type="button" class="apply-btn apply-btn-prev" data-nav="prev" hidden><span>Précédent</span></button>
+              <!-- "Move forward" is untranslated on the live FR form -->
+              <button type="button" class="apply-btn apply-btn-next" data-nav="next"><span>Move forward</span></button>
+              <button type="submit" class="apply-btn apply-btn-submit" hidden><span>Terminé</span></button>
+            </div>
+          </form>
         </div>
       </div>
     </section>
@@ -157,5 +421,7 @@
   </footer>
 
   <script src="/js/main.js?v=3"></script>
+  <script src="/js/schools-data.js?v=3"></script>
+  <script src="/js/apply-form.js?v=3"></script>
 </body>
 </html>

@@ -41,7 +41,8 @@ COPY . /var/www/html/
 RUN rm -rf /var/www/html/_source /var/www/html/_tools \
            /var/www/html/.git /var/www/html/Dockerfile* \
            /var/www/html/docker-compose.yml /var/www/html/.github \
-           /var/www/html/_submissions /var/www/html/api/config.php
+           /var/www/html/_submissions /var/www/html/api/config.php \
+           /var/www/html/ci /var/www/html/api/config.ci.php
 
 # Submissions land outside the webroot
 RUN mkdir -p /var/www/_submissions && chown www-data:www-data /var/www/_submissions
