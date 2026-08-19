@@ -83,7 +83,7 @@
 
     <!-- ============ PARTENAIRES (liste des écoles — filtre province + tri A–Z) ============
          Hidden at every breakpoint on the live site (list update pending); built
-         VISIBLE here with PLACEHOLDER school data — see /js/partner-schools.js. -->
+         VISIBLE here. Data: /js/schools-data.js (rendered by /js/partner-schools.js). -->
     <section class="partner-list">
       <div class="container">
         <div class="partner-list-header">
@@ -104,9 +104,9 @@
               <div class="partner-school-header">
                 <div class="province-filter">
                   <label class="instruction-text" for="school-province">Sélectionnez votre province :</label>
-                  <!-- Option values stay in English: they key into the shared
-                       PARTNER_SCHOOLS data in /js/partner-schools.js. The visible
-                       labels are the FR names from the live FR mirror. -->
+                  <!-- Option values stay in English: /js/partner-schools.js maps
+                       them to the two-letter province codes in /js/schools-data.js.
+                       The visible labels are the FR names from the live FR mirror. -->
                   <select id="school-province" class="sort-select province-select">
                     <option value="" selected>Toutes les provinces</option>
                     <option value="Alberta">Alberta</option>
@@ -123,6 +123,10 @@
                     <option value="Saskatchewan">Saskatchewan</option>
                     <option value="Yukon">Yukon</option>
                   </select>
+                </div>
+                <div class="school-search-wrap">
+                  <label class="visually-hidden" for="school-search">Rechercher une école</label>
+                  <input type="search" id="school-search" class="school-search" placeholder="Rechercher une école ou une association" autocomplete="off">
                 </div>
                 <select id="school-sort-table" class="sort-select">
                   <option value="asc">A&ndash;Z</option>

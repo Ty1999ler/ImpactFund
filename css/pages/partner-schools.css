@@ -97,7 +97,7 @@
    Partners — school list (province filter + A–Z table)
    Ported from the live hidden section: hello-elementor-child custom.css
    "Partner School" block + post-29.css container rules. Hidden at every
-   breakpoint on the live site; built visible here with placeholder data.
+   breakpoint on the live site; built visible here (data: /js/schools-data.js).
    ------------------------------ */
 .partner-list {
   padding: 0 0 80px;                 /* live: container b04ca82 */
@@ -127,6 +127,44 @@
   font-family: var(--font-source-serif);
   font-weight: 400;
   color: var(--text);
+}
+
+/* Search box (site addition — filters school/association/email as you type) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.partner-school-header .school-search-wrap {
+  flex: 1 1 260px;
+  display: flex;
+  justify-content: flex-end;
+}
+.partner-school-header .school-search {
+  width: 100%;
+  max-width: 320px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  color: var(--black);
+  background: transparent;
+  border: 1px solid var(--gray-1, #dfdfdf);
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
+}
+.partner-school-header .school-search::placeholder { color: #7a7a7a; }
+.partner-school-header .school-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+@media (max-width: 768px) {
+  .partner-school-header .school-search-wrap { flex-basis: 100%; justify-content: flex-start; }
+  .partner-school-header .school-search { max-width: none; }
 }
 
 /* Selects (live .sort-select; the province filter reuses it) */
@@ -219,8 +257,22 @@
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td:last-child {
   padding-right: 0;
 }
+/* Three columns: school (serif) | association | email (both Inter, smaller) */
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col {
-  width: 252px;
+  width: 30%;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col,
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col {
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: var(--lh-24);
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col {
+  width: 45%;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col {
+  width: 25%;
+  overflow-wrap: anywhere;
 }
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table a {
   color: var(--text);
@@ -280,9 +332,6 @@
   .partners-hero { padding: 130px 0 50px; }
   .partners-card-text { width: 50%; }
 
-  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col {
-    width: auto;
-  }
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th,
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td {
     padding: 12px 8px;
@@ -307,10 +356,6 @@
     flex-wrap: wrap;
     gap: 14px;
   }
-  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr th,
-  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr td {
-    white-space: nowrap;
-  }
 
   .questions-card {
     background-position: center center;
@@ -326,6 +371,37 @@
   .partners-card-shape img { width: 100%; max-width: 100%; height: auto; }
 
   .partner-list-download { width: 100%; }
+
+  /* Stack the three values inside each row instead of horizontal scrolling */
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tbody {
+    display: block;
+    width: 100%;
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr {
+    display: block;
+    padding: 12px 0;
+    border-top: 1px solid var(--gray-3);
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr:last-child {
+    border-bottom: 1px solid var(--gray-3);
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td {
+    display: block;
+    width: auto;
+    padding: 2px 0;
+    border-bottom: none;
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col {
+    width: auto;
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr:first-child th,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr:first-child td {
+    border-top: none;
+  }
 
   .questions-card { padding: 32px; }
   .questions-card::before { opacity: 0.3; }

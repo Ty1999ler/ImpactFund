@@ -79,7 +79,7 @@
 
     <!-- ============ PARTNERS (school list — province filter + A–Z table) ============
          Hidden at every breakpoint on the live site (list update pending); built
-         VISIBLE here with PLACEHOLDER school data — see /js/partner-schools.js. -->
+         VISIBLE here. Data: /js/schools-data.js (rendered by /js/partner-schools.js). -->
     <section class="partner-list">
       <div class="container">
         <div class="partner-list-header">
@@ -116,6 +116,10 @@
                     <option value="Saskatchewan">Saskatchewan</option>
                     <option value="Yukon">Yukon</option>
                   </select>
+                </div>
+                <div class="school-search-wrap">
+                  <label class="visually-hidden" for="school-search">Search schools</label>
+                  <input type="search" id="school-search" class="school-search" placeholder="Search school or association" autocomplete="off">
                 </div>
                 <select id="school-sort-table" class="sort-select">
                   <option value="asc">A&ndash;Z</option>

@@ -1,10 +1,12 @@
 /* Student Impact Fund by Alumo — partner schools list
    Used by /partner-schools/ and /fr/partner-schools/.
-   Renders the schools table (school | association | contact email), filters it
-   by province and sorts A–Z / Z–A by school name.
-   DATA: window.ALUMO_SCHOOLS in /js/schools-data.js — edit the list there only.
-   (The live WordPress site loads this via DataTables/AJAX from a custom post
-   type; here it is a static file.) */
+   Renders the schools table, filters it by province and sorts A–Z / Z–A.
+
+   DATA lives in /js/schools-data.js (window.ALUMO_SCHOOLS — the single source
+   of truth, also used by the application form). To update the list, edit that
+   file only; this script just renders it. Each row: { school, association,
+   province (two-letter code), email }. Load order matters: schools-data.js
+   must be included before this file. */
 
 (function () {
   "use strict";
@@ -12,27 +14,54 @@
   var table = document.getElementById("schools-table");
   var provinceSelect = document.getElementById("school-province");
   var sortSelect = document.getElementById("school-sort-table");
-  if (!table || !provinceSelect || !sortSelect || !window.ALUMO_SCHOOLS) return;
+  var searchInput = document.getElementById("school-search");
+  var schools = window.ALUMO_SCHOOLS;
+  if (!table || !provinceSelect || !sortSelect || !schools) return;
+
+  /* Accent-insensitive, case-insensitive matching (École = ecole) */
+  function fold(text) {
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "");
+  }
 
   var tbody = table.querySelector("tbody");
-  var tableContainer = document.getElementById("schools-table-container");
+  var tableWrap = document.querySelector(".table-data-list-loader-wrap");
   var noResult = document.querySelector(".no-result-found");
 
-  /* schools-data.js stores two-letter codes; the <option value="..."> values
-     are full English province names on both language pages. */
-  var CODE_TO_PROVINCE = {
-    AB: "Alberta", BC: "British Columbia", MB: "Manitoba",
-    NB: "New Brunswick", NL: "Newfoundland and Labrador",
-    NT: "Northwest Territories", NS: "Nova Scotia", NU: "Nunavut",
-    ON: "Ontario", PE: "Prince Edward Island", QC: "Quebec",
-    SK: "Saskatchewan", YT: "Yukon"
+  /* Two-letter province codes (as used in schools-data.js) → the English
+     province names used as <option value> on both the EN and FR pages
+     (the FR page shows French labels from its own option text). */
+  var PROVINCE_NAMES = {
+    AB: "Alberta",
+    BC: "British Columbia",
+    MB: "Manitoba",
+    NB: "New Brunswick",
+    NL: "Newfoundland and Labrador",
+    NT: "Northwest Territories",
+    NS: "Nova Scotia",
+    NU: "Nunavut",
+    ON: "Ontario",
+    PE: "Prince Edward Island",
+    QC: "Quebec",
+    SK: "Saskatchewan",
+    YT: "Yukon"
   };
 
-  function cell(tr, cls, content) {
+  function emailCell(email) {
     var td = document.createElement("td");
-    td.className = cls;
-    if (content) td.appendChild(content);
-    tr.appendChild(td);
+    td.className = "email-col";
+    if (email && email.indexOf("@") !== -1) {
+      var link = document.createElement("a");
+      link.href = "mailto:" + email;
+      link.textContent = email;
+      td.appendChild(link);
+    } else {
+      /* "TBD" and malformed values (no @) stay plain text — shown verbatim,
+         never turned into a link. */
+      td.textContent = email || "";
+    }
     return td;
   }
 
@@ -40,38 +69,45 @@
     var province = provinceSelect.value;
     var order = sortSelect.value;
 
-    var rows = window.ALUMO_SCHOOLS.filter(function (s) {
-      return !province || CODE_TO_PROVINCE[s.province] === province;
+    var query = searchInput ? fold(searchInput.value.trim()) : "";
+    var rows = schools.filter(function (school) {
+      if (province && PROVINCE_NAMES[school.province] !== province) return false;
+      if (!query) return true;
+      return fold(school.school).indexOf(query) !== -1 ||
+             fold(school.association).indexOf(query) !== -1 ||
+             fold(school.email).indexOf(query) !== -1;
     });
-    rows.sort(function (a, b) {
+    rows = rows.slice().sort(function (a, b) {
       return order === "desc"
         ? b.school.localeCompare(a.school)
         : a.school.localeCompare(b.school);
     });
 
     tbody.innerHTML = "";
-    rows.forEach(function (s) {
+    rows.forEach(function (school) {
       var tr = document.createElement("tr");
-      cell(tr, "name-col", document.createTextNode(s.school));
-      cell(tr, "association-col", document.createTextNode(s.association || ""));
-      var emailContent;
-      if (s.email && s.email.indexOf("@") !== -1) {
-        emailContent = document.createElement("a");
-        emailContent.href = "mailto:" + s.email;
-        emailContent.textContent = s.email;
-      } else {
-        emailContent = document.createTextNode(s.email || "");
-      }
-      cell(tr, "email-col", emailContent);
+      var nameTd = document.createElement("td");
+      nameTd.className = "name-col";
+      nameTd.textContent = school.school;
+      var associationTd = document.createElement("td");
+      associationTd.className = "association-col";
+      associationTd.textContent = school.association; /* verbatim, incl. "N/A" */
+      tr.appendChild(nameTd);
+      tr.appendChild(associationTd);
+      tr.appendChild(emailCell(school.email));
       tbody.appendChild(tr);
     });
 
     var hasRows = rows.length > 0;
-    if (tableContainer) tableContainer.style.display = hasRows ? "" : "none";
+    if (tableWrap) tableWrap.style.display = hasRows ? "" : "none";
     if (noResult) noResult.style.display = hasRows ? "none" : "";
   }
 
   provinceSelect.addEventListener("change", render);
   sortSelect.addEventListener("change", render);
+  if (searchInput) {
+    searchInput.addEventListener("input", render);
+    searchInput.addEventListener("search", render); /* clear (x) button */
+  }
   render();
 })();

@@ -98,3 +98,618 @@
 @media (max-width: 576px) {
   .apply-form-section .apply-form-card { padding: 16px; }
 }
+
+/* ============================================================
+   MULTI-STEP APPLICATION FORM (inside .apply-form-open)
+   Field look mirrors the shared .contact-form (style.css); step
+   indicator, columns, radios, checkboxes, CAD prefix and file
+   fields follow the live Gravity Form styling
+   (hello-elementor-child custom.css + responsive.css).
+   ============================================================ */
+
+.apply-form { scroll-margin-top: 120px; }
+.apply-form [hidden] { display: none !important; }
+
+.apply-form .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Dark ALUMO wordmark at the top of the card (live: gform_title::after) */
+.apply-form .apply-form-logo {
+  width: 117px;
+  height: 24px;
+  margin-bottom: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 117 24'%3E%3Cpath fill='%23222222' d='M64.9111 23.6468L64.9491 11.896L64.9871 0.148438L69.1446 0.268731C72.8779 0.376362 73.489 0.477662 75.1229 1.2564C76.1234 1.73125 77.3362 2.61445 78.6851 4.31123L79.635 3.18427C80.1575 2.5638 81.3702 1.6806 82.3265 1.22158C83.897 0.471331 84.4828 0.382693 92.459 0.221247V23.6468H86.7595V14.6248C86.7595 6.24542 86.7215 5.6028 86.2053 5.59963C85.9014 5.59647 84.9388 5.94785 84.068 6.37837C83.1276 6.84372 82.2283 7.58131 81.8515 8.20177C81.2752 9.15146 81.2119 9.88272 81.0599 23.6468H76.3103L76.3071 17.0782C76.3071 13.4662 76.1709 10.0125 76.0031 9.40154C75.8353 8.79058 75.3033 7.91053 74.8189 7.43886C74.3313 6.97035 73.4003 6.36571 72.748 6.09347C72.0958 5.82439 71.3453 5.6028 71.0857 5.6028C70.674 5.6028 70.6107 6.81523 70.6107 23.6468H64.9111Z'/%3E%3Cpath fill='%23222222' d='M42.8451 18.7376C42.3543 17.6423 42.2625 16.3064 42.1738 8.84506L42.0693 0.21875H47.8132V7.97451C47.8132 14.1538 47.9082 15.9392 48.2819 16.7591C48.5415 17.3257 49.1811 18.038 49.7068 18.3419C50.2387 18.6521 51.328 18.9022 52.1671 18.9054C53.2627 18.9149 53.9213 18.7218 54.5989 18.1931C55.1087 17.7974 55.7135 17.0092 55.9446 16.4425C56.2518 15.6891 56.3626 13.3877 56.3626 0.21875H61.6632L61.5872 18.5255L60.6373 19.8804C60.1148 20.6275 59.1174 21.6247 58.4208 22.1027C57.7241 22.5775 56.3721 23.1885 55.4127 23.4607C54.4532 23.733 52.9587 23.9546 52.0879 23.9546C51.2171 23.9546 49.7922 23.7646 48.9215 23.5304C48.0507 23.2993 46.9108 22.8846 46.3883 22.6123C45.8659 22.3401 44.9824 21.6405 44.4252 21.0612C43.8679 20.4787 43.1586 19.434 42.8451 18.7376Z'/%3E%3Cpath fill='%23222222' d='M25.3311 23.6443V11.9315V0.21875H31.0306V19.2125H40.5299V23.6443H25.3311Z'/%3E%3Cpath fill='%23222222' d='M17.7793 7.10352C19.0237 10.8895 20.7363 15.9833 21.585 18.4209C22.433 20.8569 23.1234 23.0273 23.1211 23.248C23.1179 23.5424 22.3607 23.6256 17.2881 23.4863L16.6865 21.4287C16.3572 20.2986 15.9202 19.1867 15.7207 18.9619C15.4572 18.6646 14.265 18.5538 7.59961 18.5791L6.15527 23.4863L0 23.6445L2.79883 15.4932C4.3408 11.0109 6.1301 5.74002 6.7793 3.78027L7.95703 0.21875H15.5156L17.7793 7.10352ZM12.998 10.3486C12.3236 8.17069 11.687 6.60663 11.5889 6.86621C11.4906 7.12606 10.9429 8.87947 10.373 10.7627C9.80331 12.6423 9.30323 14.2439 9.26172 14.3242C9.21739 14.4002 10.3227 14.4639 11.7158 14.4639C13.1083 14.4639 14.2443 14.429 14.2393 14.3848C14.2329 14.3404 13.6757 12.5234 12.998 10.3486Z'/%3E%3Cpath fill='%23222222' d='M106.55 0.0175781C108.013 0.0935717 109.358 0.397587 110.508 0.907227C111.464 1.3346 112.819 2.18916 113.516 2.80957C114.212 3.43003 115.175 4.74057 115.653 5.71875C116.131 6.70007 116.667 8.49806 116.841 9.7168C117.052 11.1939 117.052 12.6713 116.841 14.1484C116.664 15.3892 116.125 17.1652 115.615 18.1846C115.115 19.1849 114.155 20.4925 113.478 21.0908C112.803 21.6859 111.464 22.5311 110.508 22.9648C109.457 23.4397 107.949 23.8108 106.708 23.8994C105.302 23.9975 104.048 23.8701 102.75 23.4902C101.705 23.1864 100.354 22.6203 99.7422 22.2373C99.1312 21.8512 98.0954 20.9047 97.4336 20.1387C96.775 19.3694 95.9704 18.0268 95.6475 17.1562C95.3245 16.2857 94.9602 14.6458 94.8398 13.5156C94.71 12.2969 94.7708 10.6191 94.9893 9.40039C95.1919 8.27027 95.6062 6.77259 95.9102 6.07617C96.2142 5.37972 96.9526 4.25257 97.5479 3.5752C98.1464 2.89465 99.1692 2.00593 99.8213 1.59766C100.474 1.18929 101.756 0.640671 102.671 0.37793C103.69 0.0867495 105.192 -0.0520588 106.55 0.0175781ZM106.392 5.13574C105.606 5.07243 104.621 5.09226 104.2 5.17773C103.779 5.26327 102.99 5.78494 102.452 6.33887C101.911 6.88968 101.281 7.98567 101.053 8.76758C100.809 9.59699 100.68 11.1824 100.746 12.5654C100.822 14.1701 101.071 15.3482 101.515 16.2061C101.904 16.9563 102.677 17.7608 103.412 18.1787C104.093 18.5679 105.185 18.8873 105.837 18.8906C106.489 18.8938 107.487 18.6783 108.054 18.4092C108.62 18.1433 109.472 17.3241 109.95 16.5898C110.498 15.7478 110.891 14.6173 111.015 13.5156C111.125 12.5564 111.128 11.062 111.021 10.1914C110.913 9.32093 110.505 8.12439 110.112 7.5293C109.72 6.93733 109.044 6.18102 108.607 5.84863C108.174 5.51633 107.177 5.19591 106.392 5.13574Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+/* ------------------------------
+   Step indicator
+   Bar above the label; pending = darker green, active = cream,
+   completed = near-black + check icon + underlined clickable label.
+   ------------------------------ */
+.apply-form .form-steps {
+  display: flex;
+  gap: 40px;
+  margin: 0 0 80px;
+  padding: 0;
+  list-style: none;
+}
+.apply-form .form-steps .form-step { width: calc(33.33% - 26.66px); }
+.apply-form .form-step-btn {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  cursor: default;
+}
+.apply-form .form-step.is-complete .form-step-btn { cursor: pointer; }
+.apply-form .form-step-bar {
+  display: block;
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;
+  margin-bottom: 16px;
+  background-color: var(--secondary-dark-2);
+}
+.apply-form .form-step.is-active .form-step-bar { background-color: var(--primary-light-1); }
+.apply-form .form-step.is-complete .form-step-bar { background-color: var(--accent); }
+.apply-form .form-step-label {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-right: 22px;
+  font-family: var(--font-inter);
+  font-size: 18px;
+  line-height: 26.5px;
+  font-weight: 400;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  opacity: 0.6;
+}
+.apply-form .form-step-label::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  right: 0;
+  display: block;
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23222222' d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: ease 0.3s all;
+  opacity: 0;
+  visibility: hidden;
+}
+.apply-form .form-step.is-active .form-step-label { font-weight: 500; opacity: 1; }
+.apply-form .form-step.is-complete .form-step-label {
+  font-weight: 600;
+  text-decoration: underline;
+  opacity: 1;
+}
+.apply-form .form-step.is-complete .form-step-label::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ------------------------------
+   Step panels, sections, column grids
+   ------------------------------ */
+.apply-form .form-step-panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.apply-form .form-section { margin-bottom: 40px; }
+.apply-form .form-section:last-of-type { margin-bottom: 0; }
+.apply-form .form-section > .block-title { margin-bottom: 16px; }
+
+.apply-form .block-title {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: var(--fs-12);
+  line-height: var(--lh-26-5);
+  font-weight: 700;
+  letter-spacing: var(--ls-tight);
+  color: var(--secondary-dark-1);
+  text-transform: uppercase;
+}
+
+.apply-form .form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+.apply-form .form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px 40px;
+}
+.apply-form .form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ------------------------------
+   Labels + inputs (same look as the shared contact form)
+   ------------------------------ */
+.apply-form .form-field > label:not(.check-option),
+.apply-form .form-field .field-label,
+.apply-form .check-label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26);
+  letter-spacing: var(--ls-tight);
+  font-weight: 600;
+  color: var(--text);
+}
+.apply-form .check-label a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.apply-form .field-desc {
+  margin: 0 0 8px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+}
+.apply-form .field-filetypes {
+  margin: 8px 0 0;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+.apply-form input[type="text"],
+.apply-form input[type="email"],
+.apply-form input[type="number"],
+.apply-form input[type="file"],
+.apply-form select,
+.apply-form textarea {
+  display: block;
+  width: 100%;
+  padding: 9px 17px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+  background-color: transparent;
+  border: 1px solid var(--text);
+  border-radius: 30px;
+  resize: none;
+  min-height: 47px;
+}
+.apply-form input:focus,
+.apply-form select:focus,
+.apply-form textarea:focus {
+  outline: none;
+  box-shadow: none;
+}
+.apply-form input::placeholder,
+.apply-form textarea::placeholder {
+  color: rgba(17, 35, 55, 0.8);
+  opacity: 1;
+}
+
+/* Select — chevron + placeholder tint */
+.apply-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 40px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23222222' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center;
+}
+.apply-form select.is-placeholder { color: rgba(17, 35, 55, 0.8); }
+
+/* Money inputs — CAD prefix inside the pill (live: usd-text-input-wrap) */
+.apply-form .money-box { position: relative; }
+.apply-form .money-box::before {
+  content: "CAD";
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  transform: translateY(-50%);
+}
+.apply-form .money-box input { padding-left: 56px; }
+.apply-form .money-box input::placeholder { color: var(--secondary-dark-3); }
+
+/* Project summary — textarea with live character counter */
+.apply-form .summary-row {
+  display: flex;
+  gap: 40px;
+}
+.apply-form .summary-textarea {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.apply-form .summary-textarea .textarea-box {
+  position: relative;
+  flex: 1 1 auto;
+}
+.apply-form .summary-textarea textarea {
+  height: 100%;
+  min-height: 190px;
+  padding-bottom: 44px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.apply-form .summary-textarea textarea::-webkit-scrollbar { display: none; }
+.apply-form .char-counter {
+  position: absolute;
+  bottom: 10px;
+  left: 18px;
+  right: 18px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-12);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  background-color: var(--secondary);
+}
+.apply-form .summary-numbers {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.apply-form .summary-numbers input { max-width: 200px; }
+
+/* ------------------------------
+   Radios + checkboxes (custom, live look)
+   ------------------------------ */
+.apply-form .radio-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+  min-height: 47px;
+}
+.apply-form .radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+  cursor: pointer;
+}
+.apply-form input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--text);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.apply-form input[type="radio"]::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--text);
+  transform: scale(0);
+  transition: transform 0.15s ease-out;
+}
+.apply-form input[type="radio"]:checked::before { transform: scale(1); }
+
+.apply-form .check-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+  cursor: pointer;
+}
+.apply-form input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--text);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+.apply-form input[type="checkbox"]:checked::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3E%3Cpath d='M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+.apply-form .consent-field { margin-top: 40px; }
+
+/* ------------------------------
+   File fields
+   ------------------------------ */
+.apply-form input[type="file"] {
+  padding: 6px;
+  cursor: pointer;
+}
+.apply-form input[type="file"]::file-selector-button {
+  margin-right: 14px;
+  padding: 4px 16px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--primary-light-1);
+  background-color: #819b5c;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+/* ------------------------------
+   Errors, status, fine print, honeypot
+   ------------------------------ */
+.apply-form .form-field.has-error input,
+.apply-form .form-field.has-error select,
+.apply-form .form-field.has-error textarea { border-color: #c02b0a; }
+.apply-form .field-error {
+  margin: 6px 0 0;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: #8f1d00;
+}
+
+.apply-form .form-status {
+  margin-top: 24px;
+  width: fit-content;
+  padding: 12px 24px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26);
+  letter-spacing: var(--ls-tight);
+  font-weight: 600;
+  color: var(--text);
+  background-color: var(--primary-light-1);
+  border-radius: 10px;
+}
+
+.apply-form .form-fineprint {
+  margin-top: 16px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.6;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  opacity: 0.85;
+}
+.apply-form .form-fineprint a { text-decoration: underline; }
+
+.apply-form .hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ------------------------------
+   Footer buttons — same mechanics as the contact form's Send pill;
+   Previous points left with a gray circle (live: gf-btn-prev).
+   ------------------------------ */
+.apply-form .form-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+.apply-form .form-nav .apply-btn-next,
+.apply-form .form-nav .apply-btn-submit { margin-left: auto; }
+
+.apply-form .apply-btn {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  color: var(--text);
+  font-weight: 600;
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  transition: 0.2s 0.1s;
+  border: 1px solid var(--primary-light-1);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  overflow: hidden;
+  padding: 11px 49px 11px 15px;
+  position: relative;
+  background: transparent;
+}
+.apply-form .apply-btn > span { position: relative; z-index: 2; }
+.apply-form .apply-btn::before {
+  content: "";
+  position: absolute;
+  left: calc(100% - 39px);
+  top: 50%;
+  transform: translateY(-50%) rotate(360deg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  transition: 0.4s all ease-out;
+  background-color: var(--secondary);
+  background-image: url("data:image/svg+xml,%3Csvg width='11' height='11' viewBox='0 0 11 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.14867 0.210776C5.42978 -0.07033 5.8856 -0.0701875 6.1668 0.210776L10.7491 4.79304C11.0302 5.07422 11.0302 5.52999 10.7491 5.81117L6.1668 10.3934C5.8856 10.6744 5.42978 10.6745 5.14867 10.3934C4.86757 10.1123 4.86771 9.6565 5.14867 9.37531L8.50187 6.0221H0V4.5821H8.50187L5.14867 1.2289C4.86771 0.947707 4.86757 0.491883 5.14867 0.210776Z' fill='black'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 40%;
+  background-position: center;
+  z-index: 3;
+}
+.apply-form .apply-btn::after {
+  content: "";
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  z-index: 1;
+  transition: 0.3s ease-out;
+  background: var(--primary-light-1);
+}
+.apply-form .apply-btn:hover {
+  padding: 11px 15px 11px 49px;
+  border-color: var(--text);
+}
+.apply-form .apply-btn:hover::before {
+  background-color: var(--primary-light-1);
+  right: unset;
+  left: 9px;
+  transform: translateY(-50%) rotate(0);
+}
+.apply-form .apply-btn:hover::after { width: 0; }
+
+/* Previous — icon on the left, gray circle, arrow pointing back */
+.apply-form .apply-btn-prev { padding: 11px 15px 11px 49px; }
+.apply-form .apply-btn-prev::before {
+  left: 9px;
+  background-color: var(--gray);
+  transform: translateY(-50%) rotate(180deg);
+}
+.apply-form .apply-btn-prev:hover { padding: 11px 49px 11px 15px; }
+.apply-form .apply-btn-prev:hover::before {
+  left: calc(100% - 39px);
+  background-color: var(--primary-light-1);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* ------------------------------
+   Form responsive
+   ------------------------------ */
+@media (max-width: 1200px) {
+  .apply-form .summary-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .apply-form .summary-numbers { width: 100%; }
+  .apply-form .summary-numbers input { max-width: 100%; }
+}
+
+@media (max-width: 992px) {
+  .apply-form .form-steps {
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+  .apply-form .form-steps .form-step { width: calc(33.33% - 21.33px); }
+  .apply-form .form-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  .apply-form .form-nav { margin-top: 32px; }
+}
+
+@media (max-width: 768px) {
+  .apply-form .form-steps {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .apply-form .form-steps .form-step { width: 100%; }
+  .apply-form .form-step-bar {
+    order: 2;
+    margin: 16px 0 0;
+  }
+  .apply-form .form-step-label { order: 1; }
+  .apply-form .form-grid-3,
+  .apply-form .form-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .apply-form .form-section { margin-bottom: 32px; }
+  .apply-form .consent-field { margin-top: 32px; }
+}
+
+@media (max-width: 576px) {
+  .apply-form .form-nav { justify-content: flex-end; }
+  .apply-form .form-nav .apply-btn-next,
+  .apply-form .form-nav .apply-btn-submit { margin-left: unset; }
+  .apply-form .apply-form-logo { margin-bottom: 32px; }
+}
+
+@media (max-width: 380px) {
+  .apply-form .apply-btn {
+    padding: 8px 40px 8px 12px;
+    font-size: var(--fs-14);
+  }
+  .apply-form .apply-btn:hover { padding: 8px 12px 8px 40px; }
+  .apply-form .apply-btn::before {
+    width: 24px;
+    height: 24px;
+    left: calc(100% - 32px);
+  }
+  .apply-form .apply-btn-prev { padding: 8px 12px 8px 40px; }
+  .apply-form .apply-btn-prev::before { left: 9px; }
+  .apply-form .apply-btn-prev:hover { padding: 8px 40px 8px 12px; }
+  .apply-form .apply-btn-prev:hover::before { left: calc(100% - 32px); }
+}
