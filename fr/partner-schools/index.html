@@ -9,8 +9,8 @@
   <link rel="alternate" hreflang="fr" href="/fr/partner-schools/">
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/pages/partner-schools.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
+  <link rel="stylesheet" href="/css/pages/partner-schools.css?v=3">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -70,7 +70,7 @@
         <h1 class="partners-title text-size-72-72-tight">Écoles partenaires</h1>
         <div class="partners-card">
           <div class="partners-card-text">
-            <p class="text-size-16-24-tightpx">Les étudiant·es de toutes les écoles partenaires d'Alumo peuvent soumettre un projet au Fonds. Vous ne savez pas si vous pouvez soumettre votre projet ? Vérifiez si votre établissement d'enseignement est dans la liste ci-dessous.<br><br>Note : La liste des partenaires admissibles sera mise à jour avant l'ouverture de la période de candidature en septembre prochain. Consultez cette page en août pour obtenir la liste actualisée !</p>
+            <p class="text-size-16-24-tightpx">Les étudiant·es de toutes les écoles partenaires d'Alumo peuvent soumettre un projet au Fonds. Vous ne savez pas si vous pouvez soumettre votre projet ? <a href="#partner-list"><strong>Vérifiez si votre établissement d'enseignement est dans la liste ci-dessous.</strong></a></p>
             <!-- Source has "Lettre de soutien" / "Lettre de parraînage" download buttons here,
                  hidden at every breakpoint (list update pending). Skipped until re-enabled. -->
           </div>
@@ -84,7 +84,7 @@
     <!-- ============ PARTENAIRES (liste des écoles — filtre province + tri A–Z) ============
          Hidden at every breakpoint on the live site (list update pending); built
          VISIBLE here. Data: /js/schools-data.js (rendered by /js/partner-schools.js). -->
-    <section class="partner-list">
+    <section class="partner-list" id="partner-list">
       <div class="container">
         <div class="partner-list-header">
           <h2 class="partner-list-title text-size-60-70-tight">Partenaires</h2>
@@ -252,9 +252,7 @@
             <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
           </ul>
         </nav>
-        <div class="btn btn-primary btn-lg">
-          <a href="/fr/about-the-fund/"><span>En savoir plus</span></a>
-        </div>
+        <!-- Footer "En savoir plus" removed on this page per user fix list -->
       </div>
       <div class="footer-bottom">
         <p>Alumo 2026 - Tous droits réservés</p>
@@ -267,8 +265,8 @@
     </div>
   </footer>
 
-  <script src="/js/main.js"></script>
-  <script src="/js/schools-data.js"></script>
-  <script src="/js/partner-schools.js"></script>
+  <script src="/js/main.js?v=3"></script>
+  <script src="/js/schools-data.js?v=3"></script>
+  <script src="/js/partner-schools.js?v=3"></script>
 </body>
 </html>

@@ -713,3 +713,13 @@
   .apply-form .apply-btn-prev:hover { padding: 8px 40px 8px 12px; }
   .apply-form .apply-btn-prev:hover::before { left: calc(100% - 32px); }
 }
+
+/* Helper note under section titles (e.g. secondary contact purpose) */
+.apply-form .block-note {
+  margin: -8px 0 16px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: var(--lh-24);
+  color: var(--accent);
+  opacity: .75;
+}

@@ -451,3 +451,16 @@
 .contact-section {
   padding-bottom: 0;
 }
+
+/* Overlap guard (993-1240px): the absolute-positioned idea art shrank slower
+   than the card and covered the text ("wording covered by the M"). */
+@media (max-width: 1240px) and (min-width: 993px) {
+  .every-idea .idea-art { width: 40%; right: 40px; }
+}
+
+/* Period-card "Learn more" button (added per user fix list — matches About's) */
+.period .period-btn { margin-top: 8px; }
+.period .period-btn > a:hover::before { background-color: var(--white); }
+@media (max-width: 576px) {
+  .period .period-btn { align-self: flex-end; margin-left: auto; }
+}
