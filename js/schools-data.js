@@ -395,7 +395,7 @@ window.ALUMO_SCHOOLS = [
   "school": "Fanshawe Student's Union - FSU (SA)",
   "association": "Fanshawe Student's Union - FSU (SA)",
   "province": "ON",
-  "email": "j_riddell2fanshawec.ca"
+  "email": "j_riddell2@fanshawec.ca"
  },
  {
   "school": "Humber and Guelph-Humber IGNITE (SA)",

@@ -1,0 +1,13 @@
+# Server deployment: docker compose up -d
+# Pulls the image built by GitHub Actions (.github/workflows/docker-publish.yml).
+# If the GHCR package is private, `docker login ghcr.io` with a read:packages
+# token first — same pattern as the FlightWall setup.
+services:
+  impactfund:
+    image: ghcr.io/ty1999ler/impactfund:latest
+    container_name: impactfund
+    restart: unless-stopped
+    ports:
+      - "8777:8777"
+    labels:
+      - com.centurylinklabs.watchtower.enable=true

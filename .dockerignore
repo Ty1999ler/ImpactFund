@@ -1,0 +1,13 @@
+.git
+.gitignore
+_source
+_tools
+.claude
+Dockerfile
+docker-compose.yml
+nginx.conf
+README.md
+PLANS.md
+BUILD_NOTES.md
+BUILD_NOTES_FR.md
+.github
