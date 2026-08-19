@@ -1,7 +1,14 @@
 # Server deployment: docker compose up -d
-# Pulls the image built by GitHub Actions (.github/workflows/docker-publish.yml).
+# Pulls the image built by GitHub Actions (.github/workflows/docker-publish.yml,
+# Dockerfile.php: Apache + PHP on :8777 so the /api form endpoints work).
 # If the GHCR package is private, `docker login ghcr.io` with a read:packages
 # token first — same pattern as the FlightWall setup.
+#
+# One-time server setup next to this file:
+#   1. create api/config.php (copy api/config.example.php and fill it in —
+#      git-ignored, never committed)
+#   2. only if delivery_mode is 'email': create msmtprc with real SMTP
+#      credentials (see README "Forms backend") and uncomment its mount below.
 services:
   impactfund:
     image: ghcr.io/ty1999ler/impactfund:latest
@@ -9,5 +16,17 @@ services:
     restart: unless-stopped
     ports:
       - "8777:8777"
+    volumes:
+      # form backend config (the image ships without one; forms answer 503 until this exists)
+      - ./api/config.php:/var/www/html/api/config.php:ro
+      # received applications (JSON + uploaded files) survive image updates
+      - impactfund_submissions:/var/www/_submissions
+      # SMTP relay config for PHP mail() inside the container — required for
+      # delivery_mode 'email'; without it, mail sending fails (submissions are
+      # still archived in the volume above).
+      # - ./msmtprc:/etc/msmtprc:ro
     labels:
       - com.centurylinklabs.watchtower.enable=true
+
+volumes:
+  impactfund_submissions:

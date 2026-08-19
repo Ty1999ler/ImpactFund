@@ -23,6 +23,9 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
+          # Dockerfile.php = Apache + PHP so the /api form endpoints run
+          # (the old nginx Dockerfile serves static only — kept for reference)
+          file: Dockerfile.php
           push: true
           tags: |
             ghcr.io/ty1999ler/impactfund:latest
