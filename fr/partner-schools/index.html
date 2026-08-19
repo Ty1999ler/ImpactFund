@@ -99,34 +99,93 @@
         </div>
 
         <div class="partner-school-list-wrap">
+          <!-- Flag icon used by every province card (live: FlagBanner.svg, inlined once) -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+            <symbol id="icon-flag-banner" viewBox="0 0 30 30"><path d="M27.9804 6.06211C27.896 5.92833 27.7791 5.81809 27.6406 5.74166C27.502 5.66524 27.3464 5.6251 27.1882 5.625H4.68824C4.50271 5.62485 4.32131 5.67976 4.16701 5.78276C4.0127 5.88577 3.89242 6.03224 3.8214 6.20363C3.75039 6.37503 3.73182 6.56365 3.76805 6.7456C3.80429 6.92755 3.8937 7.09467 4.02496 7.22578L8.98785 12.1875L4.02496 17.1492C3.8937 17.2803 3.80429 17.4474 3.76805 17.6294C3.73182 17.8114 3.75039 18 3.8214 18.1714C3.89242 18.3428 4.0127 18.4892 4.16701 18.5922C4.32131 18.6952 4.50271 18.7501 4.68824 18.75H20.3468L16.9671 25.8469C16.9106 25.9584 16.877 26.0801 16.8682 26.2049C16.8595 26.3296 16.8757 26.4548 16.9161 26.5732C16.9564 26.6915 17.02 26.8006 17.1032 26.894C17.1863 26.9874 17.2873 27.0632 17.4002 27.117C17.513 27.1707 17.6355 27.2014 17.7605 27.2071C17.8854 27.2129 18.0101 27.1936 18.1275 27.1503C18.2448 27.1071 18.3523 27.0409 18.4436 26.9555C18.535 26.8701 18.6083 26.7673 18.6593 26.6531L28.0343 6.96563C28.1023 6.82272 28.1331 6.66492 28.1236 6.50693C28.1142 6.34895 28.0649 6.19592 27.9804 6.06211ZM21.2386 16.875H6.95113L10.9765 12.8508C11.0637 12.7637 11.1328 12.6603 11.18 12.5465C11.2272 12.4327 11.2515 12.3107 11.2515 12.1875C11.2515 12.0643 11.2272 11.9423 11.18 11.8285C11.1328 11.7147 11.0637 11.6113 10.9765 11.5242L6.95113 7.5H25.7011L21.2386 16.875Z" fill="#D6D1CB"></path></symbol>
+          </svg>
+
+          <div class="school-controls">
+            <label class="visually-hidden" for="school-search">Écrivez le nom de votre école</label>
+            <input type="search" id="school-search" class="search-input" placeholder="Écrivez le nom de votre école" autocomplete="off">
+            <!-- "Lettre de parraînage" download is hidden on the live site (list update
+                 pending). Keep it hidden until re-enabled. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener" class="support-letter-link"><span>Lettre de parraînage</span></a>
+            </div>
+          </div>
+
           <div class="school-card">
-            <div class="partner-school-list">
+            <!-- Default view: province cards. data-province slugs stay in English —
+                 /js/partner-schools.js maps them to the two-letter codes in
+                 /js/schools-data.js. Visible names are FR (live FR mirror). -->
+            <div class="province-list-wrap">
+              <div class="school-results-header">
+                <p class="instruction-text">Sélectionnez votre province :</p>
+                <select id="school-sort" class="sort-select">
+                  <option value="asc">A&ndash;Z</option>
+                  <option value="desc">Z&ndash;A</option>
+                </select>
+              </div>
+              <div id="school-results" class="school-results"></div>
+              <div class="province-grid">
+                <button class="province-card" type="button" data-province="alberta" data-search="alberta" data-index="0">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Alberta</span>
+                </button>
+                <button class="province-card" type="button" data-province="british-columbia" data-search="british columbia" data-index="1">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Colombie Britannique</span>
+                </button>
+                <button class="province-card" type="button" data-province="manitoba" data-search="manitoba" data-index="2">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Manitoba</span>
+                </button>
+                <button class="province-card" type="button" data-province="new-brunswick" data-search="new brunswick" data-index="3">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Nouveau Brunswick</span>
+                </button>
+                <button class="province-card" type="button" data-province="newfoundland-and-labrador" data-search="newfoundland and labrador" data-index="4">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Terre Neuve et Labrador</span>
+                </button>
+                <button class="province-card" type="button" data-province="northwest-territories" data-search="northwest territories" data-index="5">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Territoires du Nord-Ouest</span>
+                </button>
+                <button class="province-card" type="button" data-province="nova-scotia" data-search="nova scotia" data-index="6">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Nouvelle Écosse</span>
+                </button>
+                <!-- Live grid omits Nunavut (data-index 7) — kept identical. -->
+                <button class="province-card" type="button" data-province="ontario" data-search="ontario" data-index="8">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Ontario</span>
+                </button>
+                <button class="province-card" type="button" data-province="prince-edward-island" data-search="prince edward island" data-index="9">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Île du Prince Edward</span>
+                </button>
+                <button class="province-card" type="button" data-province="quebec" data-search="quebec" data-index="10">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Québec</span>
+                </button>
+                <button class="province-card" type="button" data-province="saskatchewan" data-search="saskatchewan" data-index="11">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Saskatchewan</span>
+                </button>
+                <button class="province-card" type="button" data-province="yukon" data-search="yukon" data-index="12">
+                  <div class="province-icon"><svg class="province-icon-image" width="30" height="30" aria-hidden="true" focusable="false"><use href="#icon-flag-banner"></use></svg></div>
+                  <span class="province-name">Yukon</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Province / search view: breadcrumb + schools table -->
+            <div class="partner-school-list" style="display:none;">
               <div class="partner-school-header">
-                <div class="province-filter">
-                  <label class="instruction-text" for="school-province">Sélectionnez votre province :</label>
-                  <!-- Option values stay in English: /js/partner-schools.js maps
-                       them to the two-letter province codes in /js/schools-data.js.
-                       The visible labels are the FR names from the live FR mirror. -->
-                  <select id="school-province" class="sort-select province-select">
-                    <option value="" selected>Toutes les provinces</option>
-                    <option value="Alberta">Alberta</option>
-                    <option value="British Columbia">Colombie Britannique</option>
-                    <option value="Manitoba">Manitoba</option>
-                    <option value="New Brunswick">Nouveau Brunswick</option>
-                    <option value="Newfoundland and Labrador">Terre Neuve et Labrador</option>
-                    <option value="Northwest Territories">Territoires du Nord-Ouest</option>
-                    <option value="Nova Scotia">Nouvelle Écosse</option>
-                    <option value="Nunavut">Nunavut</option>
-                    <option value="Ontario">Ontario</option>
-                    <option value="Prince Edward Island">Île du Prince Edward</option>
-                    <option value="Quebec">Québec</option>
-                    <option value="Saskatchewan">Saskatchewan</option>
-                    <option value="Yukon">Yukon</option>
-                  </select>
-                </div>
-                <div class="school-search-wrap">
-                  <label class="visually-hidden" for="school-search">Rechercher une école</label>
-                  <input type="search" id="school-search" class="school-search" placeholder="Rechercher une école ou une association" autocomplete="off">
+                <div class="province-breadcrumb">
+                  <button class="back-to-provinces" type="button">Toutes les provinces</button>
+                  <h3 class="current-province"></h3>
                 </div>
                 <select id="school-sort-table" class="sort-select">
                   <option value="asc">A&ndash;Z</option>
@@ -150,6 +209,7 @@
                 </div>
               </div>
             </div>
+
             <!-- "No results found" is untranslated on the live FR page too. -->
             <div class="no-result-found" style="display:none;">
               <p>No results found</p>

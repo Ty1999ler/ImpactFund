@@ -1,10 +1,12 @@
 /* ============================================================
    Apply-now — multi-step application form (front-end only)
 
-   TODO (backend): submissions are NOT wired yet. The <form>
-   carries data-handler="sharepoint"; when the Power Automate
-   HTTP trigger (→ SharePoint) exists, replace the stub inside
-   the submit handler below with a real POST of FormData(form).
+   TODO (backend): submissions are NOT wired yet. Per PLANS.md,
+   the backend is the self-hosted forms-api container: replace
+   the stub inside the submit handler below with
+   fetch("/api/apply", { method: "POST", body: new FormData(form) })
+   once that endpoint exists (multipart: fields + 5 files
+   -> local backup + SharePoint via Graph or email relay).
    ============================================================ */
 (function () {
   "use strict";
@@ -237,11 +239,34 @@
     if (honeypot && honeypot.value) return; /* spam trap — silently drop */
     if (!validateStep(current)) return;
 
-    /* TODO (backend): POST new FormData(form) to the Power Automate HTTP
-       trigger that writes to SharePoint, then show a success message.
-       Until that endpoint exists, this form is preview-only: */
-    statusEl.textContent = "Submissions are not open yet — this form is in preview.";
+    /* POST to the PHP handler (see PLANS.md / api/apply.php). */
+    submitBtn.disabled = true;
     statusEl.hidden = false;
+    statusEl.classList.remove("is-error");
+    statusEl.textContent = "Submitting your application…";
+
+    fetch("/api/apply.php", { method: "POST", body: new FormData(form) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok) {
+          form.innerHTML =
+            '<div class="apply-success"><h2>Application received!</h2>' +
+            "<p>Thank you — your submission has been received" +
+            (res.j.id ? " (reference <strong>" + res.j.id + "</strong>)" : "") +
+            ". We will be in touch by email.</p></div>";
+          form.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          statusEl.textContent = (res.j && res.j.error) ||
+            "Your application could not be submitted. Please try again later.";
+          statusEl.classList.add("is-error");
+          submitBtn.disabled = false;
+        }
+      })
+      .catch(function () {
+        statusEl.textContent = "Your application could not be submitted. Please check your connection and try again.";
+        statusEl.classList.add("is-error");
+        submitBtn.disabled = false;
+      });
   });
 
   showStep(0, false);

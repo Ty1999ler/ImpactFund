@@ -52,10 +52,9 @@ category, funding amounts, acknowledgement, summary w/ 1000-char cap, student co
 letter of support + consent). Buttons: Move forward / Previous / Done.
 Scheduled reveal on /apply-now/: data-opens-at="2026-09-01T00:00:00-04:00";
 preview early with ?preview-form=1. FR version pending FR copy.
-NOTE for SharePoint wiring: the file uploads mean the Power Automate flow must be
-an HTTP trigger accepting multipart (files → SharePoint document library, fields →
-list item). Microsoft Forms is NOT viable (file upload requires tenant sign-in;
-student applicants are external).
+NOTE for SharePoint wiring: handled by the self-hosted forms-api (see "Forms" section
+above) — multipart POST to /api/apply. Microsoft Forms is NOT viable (file upload
+requires tenant sign-in; student applicants are external).
 
 ## Partner schools data
 Real list (128 rows, provided 2026-08-18) lives in js/schools-data.js

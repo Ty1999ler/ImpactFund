@@ -69,11 +69,47 @@
     onScroll();
   }
 
-  /* ---- Contact form (backend wired later) ---- */
+  /* ---- Contact form → POST /api/contact (PHP handler, see PLANS.md) ---- */
   document.querySelectorAll('form[data-handler="email"]').forEach(function (form) {
+    var fr = (document.documentElement.lang || "").toLowerCase().indexOf("fr") === 0;
+    var MSG = {
+      sending: fr ? "Envoi en cours…" : "Sending…",
+      ok: fr ? "Merci ! Votre message a bien été envoyé." : "Thank you! Your message has been sent.",
+      fail: fr ? "Le message n'a pas pu être envoyé. Veuillez réessayer plus tard."
+               : "The message could not be sent. Please try again later."
+    };
+    var status = document.createElement("p");
+    status.className = "form-status";
+    status.hidden = true;
+    status.setAttribute("role", "status");
+    form.appendChild(status);
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      // Placeholder: email backend is wired in a later phase.
+      var hp = form.querySelector('input[name="website"]');
+      if (hp && hp.value) return; /* spam trap — silently drop */
+      var btn = form.querySelector('[type="submit"]');
+      if (btn) btn.disabled = true;
+      status.hidden = false;
+      status.textContent = MSG.sending;
+      status.classList.remove("is-error");
+
+      fetch("/api/contact.php", { method: "POST", body: new FormData(form) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok) {
+            form.reset();
+            status.textContent = MSG.ok;
+          } else {
+            status.textContent = (res.j && res.j.error) || MSG.fail;
+            status.classList.add("is-error");
+          }
+        })
+        .catch(function () {
+          status.textContent = MSG.fail;
+          status.classList.add("is-error");
+        })
+        .finally(function () { if (btn) btn.disabled = false; });
     });
   });
 

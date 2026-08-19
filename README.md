@@ -56,11 +56,21 @@ Any static file server works — serve this directory as the document root at th
 domain root (the site uses root-relative URLs): e.g. `python -m http.server 8777`
 or `caddy file-server --listen :8777`.
 
-## Pending wiring (see PLANS.md)
+## Forms backend (PHP — works on GoDaddy and in the php:apache image)
 
-- Contact form → email (Power Automate HTTP trigger planned); form stub is
-  `data-handler="email"` in the markup, submit handler in `js/main.js`.
-- Application form → SharePoint list (Power Automate); shows on Apply Now when
-  submissions open.
-- Partner-schools list: placeholder rows live in ONE array at the top of
-  `js/partner-schools.js` — swap in the real list there.
+- `api/contact.php` — contact form → email to the team inbox.
+- `api/apply.php` — application form (fields + 5 uploads) → archived on the
+  server under `_submissions/`, then delivered per `delivery_mode` in the
+  config: `email` relay / `graph` (Microsoft Graph → SharePoint) / `off`.
+- Setup: copy `api/config.example.php` to `api/config.php` and fill it in
+  (config.php is git-ignored — this repo is public; never commit it).
+- The nginx image does NOT run PHP: once the forms go live, build with
+  `Dockerfile.php` instead — or serve from GoDaddy, where PHP just works.
+- Front-end wiring: `js/main.js` (contact) and `js/apply-form.js` (application;
+  3-step, scheduled reveal on Sept 1, preview early with `?preview-form=1`).
+
+## Data
+
+- Partner-schools list: `js/schools-data.js` (window.ALUMO_SCHOOLS) —
+  single source of truth for the list page and the application form's
+  institution dropdown. Edit only there.

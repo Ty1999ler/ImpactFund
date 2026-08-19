@@ -992,3 +992,21 @@ img[src$="shape-blob-orange.svg"] { display: none; }
   .hidden-tablet { display: none; }
   .hidden-mobile { display: none; }
 }
+
+/* ------------------------------
+   FORM BACKEND UI (honeypot + status line)
+   ------------------------------ */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.form-status {
+  margin-top: 12px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  color: var(--text);
+}
+.form-status.is-error { color: #b3261e; }
