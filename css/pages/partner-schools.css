@@ -1,0 +1,350 @@
+/* ==========================================================================
+   Partner schools page (/partner-schools/)
+   Matches the live partner-schools page styling
+   ========================================================================== */
+
+/* ------------------------------
+   Hero — "Partner schools" title + orange intro card
+   ------------------------------ */
+.partners-hero {
+  padding: 170px 0 80px;
+}
+.partners-title {
+  margin: 0 0 32px;
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  color: var(--text);
+}
+.partners-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 24px 60px;
+  background-color: var(--primary);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.partners-card-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 411px;
+  max-width: 100%;
+}
+.partners-card-text p {
+  margin: 0 0 32px;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  color: var(--accent);
+}
+.partners-card-shape {
+  flex-shrink: 0;
+}
+.partners-card-shape img {
+  display: block;
+  width: auto;
+  height: 180px;
+}
+
+/* ------------------------------
+   "Questions?" green CTA card
+   ------------------------------ */
+.questions-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 80px;
+  background-color: var(--secondary);
+  background-image: url("/assets/img/shape-questions-m.svg");
+  background-position: calc(100% - 80px) center;
+  background-repeat: no-repeat;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+/* Green overlay — invisible on desktop, tints the cover background ≤768 */
+.questions-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--secondary);
+  opacity: 0;
+  pointer-events: none;
+}
+.questions-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 489px;
+  max-width: 100%;
+}
+.questions-inner h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  color: var(--text);
+}
+.questions-inner p {
+  margin: 0 0 51px;
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* ------------------------------
+   Partners — school list (province filter + A–Z table)
+   Ported from the live hidden section: hello-elementor-child custom.css
+   "Partner School" block + post-29.css container rules. Hidden at every
+   breakpoint on the live site; built visible here with placeholder data.
+   ------------------------------ */
+.partner-list {
+  padding: 0 0 80px;                 /* live: container b04ca82 */
+}
+
+/* "Partners" heading + Support-letter note (live band 4c4fa23) */
+.partner-list-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 60px;
+}
+.partner-list-title {
+  margin: 0;
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  color: var(--text);
+}
+.partner-list-download {
+  width: 381px;                      /* live: d860f0a --width:381px */
+  max-width: 100%;
+}
+.partner-list-download p {
+  margin: 0;
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* Selects (live .sort-select; the province filter reuses it) */
+.partner-school-list-wrap .sort-select:focus-visible,
+.partner-school-list-wrap .sort-select:focus {
+  outline: none;
+}
+.partner-school-list-wrap .sort-select {
+  padding: 0 4px 0 0;
+  width: fit-content;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--black);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.partner-school-list-wrap .school-card .no-result-found p,
+.partner-school-list-wrap .school-card .instruction-text {
+  margin: 0;
+  font-family: var(--font-source-serif);
+  font-size: var(--fs-24);
+  line-height: var(--lh-36);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+}
+.partner-school-list-wrap .school-card .no-result-found p {
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* Header row: province filter left, sort right (live .partner-school-header) */
+.partner-school-list-wrap .school-card .partner-school-list .partner-school-header {
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+/* label + dropdown replace the live back-button / province cards */
+.partner-school-list-wrap .school-card .partner-school-header .province-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+}
+
+/* Schools table (live .schools-table-container .table) */
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container {
+  overflow: auto;
+  padding-bottom: 10px;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table {
+  width: 100%;
+  border: none;
+  border-collapse: collapse;
+  box-shadow: none;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr {
+  padding: 0;
+  border-top: 1px solid var(--gray-3);
+  background: transparent;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th,
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td {
+  padding: 20px 8px;
+  font-family: var(--font-source-serif);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+  border: none;
+  border-bottom: 1px solid var(--gray-3);
+  background: transparent;
+  vertical-align: middle;
+  text-align: left;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th:first-child,
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td:first-child {
+  padding-left: 0;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th:last-child,
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td:last-child {
+  padding-right: 0;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col {
+  width: 252px;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table a {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* Loader — kept to match the live structure; only shown with .active */
+.partner-school-list-wrap .school-card .table-data-list-loader-wrap {
+  position: relative;
+  min-height: 300px;
+}
+.partner-school-list-wrap .school-card .table-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--primary-light-1);
+  z-index: 1;
+  display: none;
+}
+.partner-school-list-wrap .school-card .table-loader.active {
+  display: flex;
+}
+.partner-school-list-wrap .school-card .table-data-list-loader-wrap:has(.table-loader.active) .schools-table-container {
+  display: none;
+}
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.partner-school-list-wrap .school-card .loader-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--secondary-dark-2);
+  border-top: 4px solid var(--secondary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+.partner-school-list-wrap .school-card .table-loader p {
+  font-family: var(--font-source-serif);
+  font-size: var(--fs-20);
+  line-height: var(--lh-36);
+  letter-spacing: var(--ls-tight);
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* ------------------------------
+   Responsive
+   ------------------------------ */
+@media (max-width: 1200px) {
+  .partners-hero { padding: 130px 0 50px; }
+  .partners-card-text { width: 50%; }
+
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col {
+    width: auto;
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td {
+    padding: 12px 8px;
+  }
+
+  .questions-card {
+    padding: 64px;
+    background-size: 43% auto;
+  }
+  .questions-inner p { margin-bottom: 32px; }
+}
+
+@media (max-width: 992px) {
+  .partners-hero { padding: 120px 0 50px; }
+  .partners-title { margin: 32px 0; }
+  .partners-card { flex-wrap: wrap; padding: 24px; }
+  .partners-card-text p { margin-bottom: 24px; }
+
+  .partner-list { padding-bottom: 50px; }
+  .partner-list-header { margin-bottom: 32px; }
+  .partner-school-list-wrap .school-card .partner-school-list .partner-school-header {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr th,
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr td {
+    white-space: nowrap;
+  }
+
+  .questions-card {
+    background-position: center center;
+    background-size: cover;
+  }
+}
+
+@media (max-width: 768px) {
+  .partners-card { padding: 32px; }
+  .partners-card-text { width: 100%; }
+  .partners-card-text p { margin-bottom: 16px; }
+  .partners-card-shape { order: -1; width: 100%; }
+  .partners-card-shape img { width: 100%; max-width: 100%; height: auto; }
+
+  .partner-list-download { width: 100%; }
+
+  .questions-card { padding: 32px; }
+  .questions-card::before { opacity: 0.3; }
+  .questions-inner { width: 100%; }
+  .questions-inner p { margin-bottom: 24px; }
+}
+
+@media (max-width: 576px) {
+  .partners-title { margin: 32px 0 16px; }
+  .partners-card { padding: 24px; }
+
+  .questions-card { padding: 16px; }
+  .questions-inner .btn { align-self: flex-end; }
+}
+
+/* Three-column layout for the real list (school | association | email). */
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col {
+  padding-right: 24px;
+}
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col a {
+  word-break: break-all;
+}

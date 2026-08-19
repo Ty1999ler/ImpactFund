@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partner Schools &#8211; Alumo Fund</title>
+  <meta name="description" content="Les étudiant·es des écoles partenaires d'Alumo peuvent soumettre un projet au Fonds d'impact étudiant. La liste des partenaires admissibles sera mise à jour avant l'ouverture de la période de candidature en septembre.">
+  <link rel="alternate" hreflang="en" href="/partner-schools/">
+  <link rel="alternate" hreflang="fr" href="/fr/partner-schools/">
+  <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/pages/partner-schools.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Aller au contenu</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header is-pinned">
+    <div class="container">
+      <div class="nav-bar">
+        <a class="brand-logo" href="/fr/" aria-label="Fonds d'impact étudiant par Alumo — accueil">
+          <img src="/assets/img/logo-fr.svg" alt="Fonds d'impact étudiant par Alumo" width="117" height="52">
+        </a>
+
+        <div class="hamburger-menu-toggle-btn-wrap">
+          <button class="hamburger-menu-toggle-btn" type="button" aria-label="Basculer le menu">
+            <span></span><span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <div class="nav-menu-container">
+          <nav class="nav-menu-wrap" aria-label="Menu principal">
+            <ul class="nav-menu">
+              <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
+              <li class="menu-item"><a href="/fr/how-to-apply/">Soumissions de projets</a></li>
+              <li class="menu-item"><a href="/fr/partner-schools/" aria-current="page">Partenaires</a></li>
+              <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
+              <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
+            </ul>
+          </nav>
+
+          <div class="header-button-wrap">
+            <!-- "Soumettre" button exists in the source but is hidden at every
+                 breakpoint while submissions are closed. Kept for re-enabling. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/fr/apply-now/"><span>Soumettre</span></a>
+            </div>
+
+            <div class="lang-switcher">
+              <button class="lang-current" type="button" aria-haspopup="true" aria-expanded="false">
+                FR
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L5 5L9 1" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <div class="lang-dropdown">
+                <a href="/partner-schools/">EN</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ============ PARTNER SCHOOLS HERO (title + orange intro card) ============ -->
+    <section class="partners-hero">
+      <div class="container">
+        <h1 class="partners-title text-size-72-72-tight">Écoles partenaires</h1>
+        <div class="partners-card">
+          <div class="partners-card-text">
+            <p class="text-size-16-24-tightpx">Les étudiant·es de toutes les écoles partenaires d'Alumo peuvent soumettre un projet au Fonds. Vous ne savez pas si vous pouvez soumettre votre projet ? Vérifiez si votre établissement d'enseignement est dans la liste ci-dessous.<br><br>Note : La liste des partenaires admissibles sera mise à jour avant l'ouverture de la période de candidature en septembre prochain. Consultez cette page en août pour obtenir la liste actualisée !</p>
+            <!-- Source has "Lettre de soutien" / "Lettre de parraînage" download buttons here,
+                 hidden at every breakpoint (list update pending). Skipped until re-enabled. -->
+          </div>
+          <div class="partners-card-shape">
+            <img src="/assets/img/shape-blob-orange.svg" alt="" width="452" height="422">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PARTENAIRES (liste des écoles — filtre province + tri A–Z) ============
+         Hidden at every breakpoint on the live site (list update pending); built
+         VISIBLE here with PLACEHOLDER school data — see /js/partner-schools.js. -->
+    <section class="partner-list">
+      <div class="container">
+        <div class="partner-list-header">
+          <h2 class="partner-list-title text-size-60-70-tight">Partenaires</h2>
+          <div class="partner-list-download">
+            <p class="text-size-28-42-tight">Téléchargez le formulaire de lettre de parrainage que vous pouvez envoyer à votre contact et que vous devrez fournir lors de la soumission.</p>
+            <!-- "Lettre de parraînage" download is hidden at every breakpoint in the
+                 source (list update pending). Keep it hidden until re-enabled. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Lettre de parraînage</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="partner-school-list-wrap">
+          <div class="school-card">
+            <div class="partner-school-list">
+              <div class="partner-school-header">
+                <div class="province-filter">
+                  <label class="instruction-text" for="school-province">Sélectionnez votre province :</label>
+                  <!-- Option values stay in English: they key into the shared
+                       PARTNER_SCHOOLS data in /js/partner-schools.js. The visible
+                       labels are the FR names from the live FR mirror. -->
+                  <select id="school-province" class="sort-select province-select">
+                    <option value="" selected>Toutes les provinces</option>
+                    <option value="Alberta">Alberta</option>
+                    <option value="British Columbia">Colombie Britannique</option>
+                    <option value="Manitoba">Manitoba</option>
+                    <option value="New Brunswick">Nouveau Brunswick</option>
+                    <option value="Newfoundland and Labrador">Terre Neuve et Labrador</option>
+                    <option value="Northwest Territories">Territoires du Nord-Ouest</option>
+                    <option value="Nova Scotia">Nouvelle Écosse</option>
+                    <option value="Nunavut">Nunavut</option>
+                    <option value="Ontario">Ontario</option>
+                    <option value="Prince Edward Island">Île du Prince Edward</option>
+                    <option value="Quebec">Québec</option>
+                    <option value="Saskatchewan">Saskatchewan</option>
+                    <option value="Yukon">Yukon</option>
+                  </select>
+                </div>
+                <select id="school-sort-table" class="sort-select">
+                  <option value="asc">A&ndash;Z</option>
+                  <option value="desc">Z&ndash;A</option>
+                </select>
+              </div>
+              <div class="table-data-list-loader-wrap">
+                <!-- Loader kept to match the live structure; never shown (static data).
+                     "Loading schools..." is untranslated on the live FR page too. -->
+                <div class="table-loader">
+                  <div class="loader-spinner"></div>
+                  <p>Loading schools...</p>
+                </div>
+                <div id="schools-table-container" class="schools-table-container">
+                  <table id="schools-table" class="table">
+                    <thead style="display:none"></thead>
+                    <tbody>
+                      <!-- Rows rendered by /js/partner-schools.js -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!-- "No results found" is untranslated on the live FR page too. -->
+            <div class="no-result-found" style="display:none;">
+              <p>No results found</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUESTIONS? (green CTA card) ============ -->
+    <section class="questions">
+      <div class="container">
+        <div class="questions-card">
+          <div class="questions-inner">
+            <h2 class="text-size-60-70-tight">Des questions ?</h2>
+            <p class="text-size-28-42-tight">Vous ne savez pas par où commencer pour soumettre votre projet ? Nous pouvons vous aider !</p>
+            <div class="btn btn-outline-dark btn-icon">
+              <a href="/fr/#contact-form"><span>Nous joindre</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main">
+        <a class="brand-logo" href="/fr/" aria-label="Fonds d'impact étudiant par Alumo — accueil">
+          <img src="/assets/img/logo-fr.svg" alt="Fonds d'impact étudiant par Alumo" width="117" height="52">
+        </a>
+        <nav aria-label="Menu de pied de page">
+          <ul class="footer-menu">
+            <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
+            <li class="menu-item"><a href="/fr/how-to-apply/">Soumission de projets</a></li>
+            <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
+            <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
+            <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
+          </ul>
+        </nav>
+        <div class="btn btn-primary btn-lg">
+          <a href="/fr/about-the-fund/"><span>En savoir plus</span></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Alumo 2026 - Tous droits réservés</p>
+        <div class="footer-legal">
+          <a href="/fr/terms-conditions/">Conditions d'utilisation</a>
+          <a href="#" role="button">Gérer mon consentement</a>
+          <a href="https://aseq.ca/RTEContent/Document/Privacy_Policy/ASEQ_Politique_confidentialit%C3%A9_2025.pdf" target="_blank" rel="noopener">Politique de confidentialité</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/schools-data.js"></script>
+  <script src="/js/partner-schools.js"></script>
+</body>
+</html>

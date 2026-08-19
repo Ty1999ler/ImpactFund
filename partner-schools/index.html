@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partner Schools &#8211; Alumo Fund</title>
+  <meta name="description" content="Students at participating Alumo partner schools are eligible to apply for the Student Impact Fund. The list of eligible schools will be updated before applications open in September.">
+  <link rel="alternate" hreflang="en" href="/partner-schools/">
+  <link rel="alternate" hreflang="fr" href="/fr/partner-schools/">
+  <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/pages/partner-schools.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header is-pinned">
+    <div class="container">
+      <div class="nav-bar">
+        <a class="brand-logo" href="/" aria-label="Student Impact Fund by Alumo — home">
+          <img src="/assets/img/logo-en.svg" alt="Student Impact Fund by Alumo" width="117" height="60">
+        </a>
+        <div class="hamburger-menu-toggle-btn-wrap">
+          <button class="hamburger-menu-toggle-btn" type="button" aria-label="Toggle menu">
+            <span></span><span></span><span></span><span></span>
+          </button>
+        </div>
+        <div class="nav-menu-container">
+          <nav class="nav-menu-wrap" aria-label="Main menu">
+            <ul class="nav-menu">
+              <li class="menu-item"><a href="/about-the-fund/">About</a></li>
+              <li class="menu-item"><a href="/how-to-apply/">Submitting a Project</a></li>
+              <li class="menu-item"><a href="/partner-schools/" aria-current="page">Partners</a></li>
+              <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
+              <li class="menu-item"><a href="/#contact-form">Contact</a></li>
+            </ul>
+          </nav>
+          <div class="header-button-wrap">
+            <!-- "Submit now" exists in the source but is hidden at every breakpoint
+                 (submissions closed). Keep it hidden until re-enabled. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/apply-now/"><span>Submit now</span></a>
+            </div>
+            <div class="lang-switcher">
+              <button class="lang-current" type="button" aria-haspopup="true" aria-expanded="false">
+                EN
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L5 5L9 1" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <div class="lang-dropdown">
+                <a href="/fr/partner-schools/">FR</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ============ PARTNER SCHOOLS HERO (title + orange intro card) ============ -->
+    <section class="partners-hero">
+      <div class="container">
+        <h1 class="partners-title text-size-72-72-tight">Partner schools</h1>
+        <div class="partners-card">
+          <div class="partners-card-text">
+            <p class="text-size-16-24-tightpx">Students at participating Alumo partner schools are eligible to apply for the Student Impact Fund. Not sure if your school is participating? Browse the list below to see if your institution is included.<br><br>Please note: The list of eligible partner schools will be updated before applications open this September. Be sure to check back in August for the latest list, along with the required Letter of Support template.</p>
+            <!-- Source has "Support letter" / "Lettre de soutien" download buttons here,
+                 hidden at every breakpoint (list update pending). Skipped until re-enabled. -->
+          </div>
+          <div class="partners-card-shape">
+            <img src="/assets/img/shape-blob-orange.svg" alt="" width="452" height="422">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PARTNERS (school list — province filter + A–Z table) ============
+         Hidden at every breakpoint on the live site (list update pending); built
+         VISIBLE here with PLACEHOLDER school data — see /js/partner-schools.js. -->
+    <section class="partner-list">
+      <div class="container">
+        <div class="partner-list-header">
+          <h2 class="partner-list-title text-size-60-70-tight">Partners</h2>
+          <div class="partner-list-download">
+            <p class="text-size-28-42-tight">Download the Support letter form that you can send to your contact that you will need to provide during the submission</p>
+            <!-- "Support letter" download is hidden at every breakpoint in the source
+                 (list update pending). Keep it hidden until re-enabled. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><span>Support letter</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="partner-school-list-wrap">
+          <div class="school-card">
+            <div class="partner-school-list">
+              <div class="partner-school-header">
+                <div class="province-filter">
+                  <label class="instruction-text" for="school-province">Select your province:</label>
+                  <select id="school-province" class="sort-select province-select">
+                    <option value="" selected>All provinces</option>
+                    <option value="Alberta">Alberta</option>
+                    <option value="British Columbia">British Columbia</option>
+                    <option value="Manitoba">Manitoba</option>
+                    <option value="New Brunswick">New Brunswick</option>
+                    <option value="Newfoundland and Labrador">Newfoundland and Labrador</option>
+                    <option value="Northwest Territories">Northwest Territories</option>
+                    <option value="Nova Scotia">Nova Scotia</option>
+                    <option value="Nunavut">Nunavut</option>
+                    <option value="Ontario">Ontario</option>
+                    <option value="Prince Edward Island">Prince Edward Island</option>
+                    <option value="Quebec">Quebec</option>
+                    <option value="Saskatchewan">Saskatchewan</option>
+                    <option value="Yukon">Yukon</option>
+                  </select>
+                </div>
+                <select id="school-sort-table" class="sort-select">
+                  <option value="asc">A&ndash;Z</option>
+                  <option value="desc">Z&ndash;A</option>
+                </select>
+              </div>
+              <div class="table-data-list-loader-wrap">
+                <!-- Loader kept to match the live structure; never shown (static data). -->
+                <div class="table-loader">
+                  <div class="loader-spinner"></div>
+                  <p>Loading schools...</p>
+                </div>
+                <div id="schools-table-container" class="schools-table-container">
+                  <table id="schools-table" class="table">
+                    <thead style="display:none"></thead>
+                    <tbody>
+                      <!-- Rows rendered by /js/partner-schools.js -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="no-result-found" style="display:none;">
+              <p>No results found</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUESTIONS? (green CTA card) ============ -->
+    <section class="questions">
+      <div class="container">
+        <div class="questions-card">
+          <div class="questions-inner">
+            <h2 class="text-size-60-70-tight">Questions?</h2>
+            <p class="text-size-28-42-tight">Not sure where to start with your submission? We can help!</p>
+            <div class="btn btn-outline-dark btn-icon">
+              <a href="/#contact-form"><span>Contact us</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main">
+        <a class="brand-logo" href="/" aria-label="Student Impact Fund by Alumo — home">
+          <img src="/assets/img/logo-en.svg" alt="Student Impact Fund by Alumo" width="117" height="60">
+        </a>
+        <nav aria-label="Footer menu">
+          <ul class="footer-menu">
+            <li class="menu-item"><a href="/about-the-fund/">About</a></li>
+            <li class="menu-item"><a href="/how-to-apply/">Submitting a project</a></li>
+            <li class="menu-item"><a href="/partner-schools/">Partners</a></li>
+            <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
+            <li class="menu-item"><a href="/#contact-form">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="btn btn-primary btn-lg">
+          <a href="/about-the-fund/"><span>Learn more</span></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Alumo 2026 - All rights reserved</p>
+        <div class="footer-legal">
+          <a href="/terms-conditions/">Terms and conditions</a>
+          <a href="#" role="button">Consent preferences</a>
+          <a href="https://studentcare.ca/RTEContent/Document/Privacy_Policy/Studentcare_Privacy_Policy_2025.pdf" target="_blank" rel="noopener">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="/js/main.js"></script>
+  <script src="/js/schools-data.js"></script>
+  <script src="/js/partner-schools.js"></script>
+</body>
+</html>

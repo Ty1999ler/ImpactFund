@@ -32,5 +32,31 @@ Both forms share the same front-end pattern: `<form data-handler="...">` + a sma
   text. The header language switcher already links EN pages ↔ `/fr/...` equivalents.
 - `<html lang="en">` / `lang="fr"` + `hreflang` link tags when FR ships.
 
-## Deployment note
-`_source/` and `_tools/` are reference/build-time only — exclude from any upload to hosting.
+## Application form (structure captured 2026-08-18 from Gravity Forms id=2 "Multi Step")
+3 steps: 1. Contact information (primary + secondary contact, organization info,
+institution select fed from js/schools-data.js) · 2. Project Information (title,
+category, funding amounts, acknowledgement, summary w/ 1000-char cap, student counts)
+· 3. Required Documents (5 file uploads: budget, team, action plan, additional,
+letter of support + consent). Buttons: Move forward / Previous / Done.
+Scheduled reveal on /apply-now/: data-opens-at="2026-09-01T00:00:00-04:00";
+preview early with ?preview-form=1. FR version pending FR copy.
+NOTE for SharePoint wiring: the file uploads mean the Power Automate flow must be
+an HTTP trigger accepting multipart (files → SharePoint document library, fields →
+list item). Microsoft Forms is NOT viable (file upload requires tenant sign-in;
+student applicants are external).
+
+## Partner schools data
+Real list (128 rows, provided 2026-08-18) lives in js/schools-data.js
+(window.ALUMO_SCHOOLS) — single source of truth for the partner-schools list page
+and the form's institution dropdown. Raw table: _tools/partner-schools-raw.tsv.
+Display columns on the list page: school, association, contact email (no names).
+Data flags: one email missing its @ ("j_riddell2fanshawec.ca" — Fanshawe Students'
+Union), several TBD contacts.
+
+## Hosting / deployment
+GitHub: https://github.com/Ty1999ler/ImpactFund (public). Deploy = clone on the
+user's server, serve this directory at the server root (port 8777 planned), put
+Cloudflare in front (tunnel preferred — avoids opening the port). Site uses
+root-relative URLs: must be served at a domain root, not a subpath.
+`_source/` and `_tools/` are reference/build-time only — never deployed
+(_source/ is git-ignored).
