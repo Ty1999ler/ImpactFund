@@ -101,6 +101,15 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
     if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
         $headers[] = 'Reply-To: ' . header_safe($replyTo);
     }
+    /* Optional blind copies (config mail_bcc: list of addresses). Sendmail
+       strips the Bcc header before delivery, so recipients never see it. */
+    $bcc = array_filter(array_map(
+        fn($a) => filter_var(header_safe(trim((string)$a)), FILTER_VALIDATE_EMAIL) ?: null,
+        (array)($cfg['mail_bcc'] ?? [])
+    ));
+    if ($bcc) {
+        $headers[] = 'Bcc: ' . implode(', ', $bcc);
+    }
     $headers[] = 'MIME-Version: 1.0';
 
     /* -f sets the envelope sender so SPF aligns with the From: domain on

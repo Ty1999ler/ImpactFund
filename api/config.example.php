@@ -6,9 +6,12 @@ return [
     'contact_to'   => 'team@example.com',
 
     /* Envelope/From for all outgoing mail. Use an address on the site's own
-       domain so GoDaddy's SPF passes (e.g. noreply@alumoimpact.ca). */
-    'mail_from'    => 'noreply@alumoimpact.ca',
+       domain so GoDaddy's SPF passes (e.g. admin@alumoimpact.ca). */
+    'mail_from'    => 'admin@alumoimpact.ca',
     'mail_from_name' => 'Student Impact Fund',
+
+    /* Blind copies added to every form email (contact + application relay). */
+    'mail_bcc'     => [],
 
     /* Where application submissions (JSON + uploaded files) are archived.
        On GoDaddy point this ABOVE the webroot, e.g. dirname(__DIR__, 2).'/impactfund-submissions'.
