@@ -1,0 +1,178 @@
+name: Forms smoke test
+
+# End-to-end smoke test of the PHP form backend: builds the Dockerfile.php
+# image, runs it with the committable CI config (api/config.ci.php) mounted
+# over api/config.php, and exercises /api/contact.php and /api/apply.php
+# with plain curl + bash assertions.
+
+on:
+  push:
+    paths:
+      - 'api/**'
+      - 'Dockerfile.php'
+      - 'ci/**'
+      - '.github/workflows/forms-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the PHP site image
+        run: docker build -f Dockerfile.php -t site .
+
+      - name: Run the container (CI config + fake sendmail mounted)
+        run: |
+          set -euo pipefail
+          # MAIL STRATEGY: contact.php delivers via PHP mail(), which pipes
+          # the message to sendmail_path ("/usr/sbin/sendmail -t -i"; the
+          # image installs msmtp-mta). Without an /etc/msmtprc msmtp exits
+          # non-zero, mail() returns false, and contact.php answers 500. So
+          # we bind-mount ci/fake-sendmail.sh over /usr/sbin/sendmail: it
+          # swallows stdin into /tmp/mail.out and exits 0. mail()'s return
+          # value is simply the sendmail exit status, so it reports success,
+          # contact.php returns 200, and we can docker-exec the captured
+          # message back out to assert the recipient and body made it.
+          # (/usr/sbin/sendmail is a symlink to msmtp; the runtime resolves
+          # the mount destination, so invoking /usr/sbin/sendmail still
+          # executes our script either way.)
+          #
+          # CONFIG MOUNT: Dockerfile.php rm's api/config.php from the image,
+          # but a single-file bind mount creates the missing destination
+          # path, so mounting config.ci.php over it works.
+          sed -i 's/\r$//' ci/fake-sendmail.sh   # guard against a CRLF checkout breaking the shebang
+          chmod +x ci/fake-sendmail.sh           # exec bit may not survive a Windows-side commit
+          docker run -d --name site -p 8777:8777 \
+            -v "$PWD/api/config.ci.php:/var/www/html/api/config.php:ro" \
+            -v "$PWD/ci/fake-sendmail.sh:/usr/sbin/sendmail:ro" \
+            site
+
+      - name: Wait for the server
+        run: |
+          set -euo pipefail
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            http://localhost:8777/
+
+      - name: Contact — valid submission returns 200 and mail is captured
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' \
+            -d name='Smoke Test' \
+            -d email='smoke@example.com' \
+            -d message='Smoke test message from CI' \
+            http://localhost:8777/api/contact.php)
+          cat /tmp/body.json; echo
+          test "$status" = "200"
+          test "$(jq -r .ok /tmp/body.json)" = "true"
+          # The fake sendmail captured the raw message inside the container.
+          docker exec site cat /tmp/mail.out > /tmp/mail.captured
+          grep -q 'contact-ci@example.invalid' /tmp/mail.captured   # To: header = config contact_to
+          grep -q 'Smoke test message from CI' /tmp/mail.captured   # body made it through
+
+      - name: Contact — bad email returns 422 with fields.email
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' \
+            -d name='Smoke Test' \
+            -d email='not-an-email' \
+            -d message='hello' \
+            http://localhost:8777/api/contact.php)
+          cat /tmp/body.json; echo
+          test "$status" = "422"
+          test "$(jq -r .ok /tmp/body.json)" = "false"
+          test "$(jq -r '.fields.email' /tmp/body.json)" = "Invalid email"
+
+      - name: Create upload fixtures
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/fixtures
+          for f in budget team-members action-plan support-letter additional; do
+            printf '%s\n%s\n' '%PDF-1.4' '%%EOF' > "/tmp/fixtures/$f.pdf"
+          done
+          # 11 MB file for the oversize test (per-file cap is 10 MB)
+          { printf '%s\n' '%PDF-1.4'; head -c 11534336 /dev/zero; } > /tmp/fixtures/too-big.pdf
+
+      - name: Apply — full valid submission returns 200 and is archived
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' \
+            -F primary_first_name='Ada' \
+            -F primary_last_name='Lovelace' \
+            -F primary_email='ada@example.com' \
+            -F primary_role='President' \
+            -F organization_name='CI Test Org' \
+            -F institution='Test University' \
+            -F project_title='CI Smoke Project' \
+            -F category='Sustainability' \
+            -F funding_requested='1000' \
+            -F total_cost='1500' \
+            -F fund_acknowledgement='yes' \
+            -F project_summary='A smoke-test submission from CI.' \
+            -F students_in_org='12' \
+            -F students_reached='300' \
+            -F consent='yes' \
+            -F file_budget=@/tmp/fixtures/budget.pdf \
+            -F file_team_members=@/tmp/fixtures/team-members.pdf \
+            -F file_action_plan=@/tmp/fixtures/action-plan.pdf \
+            -F file_support_letter=@/tmp/fixtures/support-letter.pdf \
+            -F file_additional=@/tmp/fixtures/additional.pdf \
+            http://localhost:8777/api/apply.php)
+          cat /tmp/body.json; echo
+          test "$status" = "200"
+          test "$(jq -r .ok /tmp/body.json)" = "true"
+          id=$(jq -r .id /tmp/body.json)
+          echo "$id" | grep -Eq '^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$'
+          # Archived on disk: submission.json + 5 uploads named <slot>--<original>
+          docker exec site test -f "/var/www/_submissions/$id/submission.json"
+          for f in 'file_budget--budget.pdf' 'file_team_members--team-members.pdf' \
+                   'file_action_plan--action-plan.pdf' 'file_support_letter--support-letter.pdf' \
+                   'file_additional--additional.pdf'; do
+            docker exec site test -f "/var/www/_submissions/$id/$f"
+          done
+          docker exec site cat "/var/www/_submissions/$id/submission.json" > /tmp/submission.json
+          test "$(jq -r .fields.project_title /tmp/submission.json)" = "CI Smoke Project"
+          test "$(jq -r '.files | length' /tmp/submission.json)" = "5"
+
+      - name: Apply — honeypot pretends success but archives nothing
+        run: |
+          set -euo pipefail
+          before=$(docker exec site sh -c 'find /var/www/_submissions -mindepth 1 -maxdepth 1 -type d | wc -l')
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' \
+            -F website='https://spam.example.com' \
+            -F primary_first_name='Bot' \
+            http://localhost:8777/api/apply.php)
+          cat /tmp/body.json; echo
+          test "$status" = "200"
+          test "$(jq -r .ok /tmp/body.json)" = "true"
+          test "$(jq -r .id /tmp/body.json)" = "null"   # no id — nothing was stored
+          after=$(docker exec site sh -c 'find /var/www/_submissions -mindepth 1 -maxdepth 1 -type d | wc -l')
+          test "$before" = "$after"
+
+      - name: Apply — 11 MB file is rejected
+        run: |
+          set -euo pipefail
+          # The image's PHP limits (upload_max_filesize 12M, post_max_size 60M)
+          # are ABOVE the 11 MB payload, so the upload reaches apply.php and
+          # its own max_file_mb=10 check answers 422 with a per-field error.
+          # We also accept 413 — apply.php's answer when post_max_size trips
+          # first and PHP hands it an empty request — in case the image limits
+          # are ever lowered. Other fields are deliberately omitted: their
+          # "Required" errors ride along in the same 422, and the assertion
+          # targets the size error on file_budget specifically.
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' \
+            -F file_budget=@/tmp/fixtures/too-big.pdf \
+            http://localhost:8777/api/apply.php)
+          cat /tmp/body.json; echo
+          case "$status" in
+            422) jq -e '.fields.file_budget | test("larger")' /tmp/body.json > /dev/null ;;
+            413) ;;  # post limit tripped first — also a correct rejection
+            *)   echo "unexpected status: $status"; exit 1 ;;
+          esac
+
+      - name: Container logs (on failure)
+        if: failure()
+        run: docker logs site || true

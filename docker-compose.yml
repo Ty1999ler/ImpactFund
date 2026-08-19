@@ -19,14 +19,14 @@ services:
     volumes:
       # form backend config (the image ships without one; forms answer 503 until this exists)
       - ./api/config.php:/var/www/html/api/config.php:ro
-      # received applications (JSON + uploaded files) survive image updates
-      - impactfund_submissions:/var/www/_submissions
+      # received applications (JSON + uploaded files) as a plain folder next to
+      # this file — browsable in Synology File Station (home/ImpactFund/submissions).
+      # One-time setup so the container (www-data, uid 33) can write to it:
+      #   mkdir -p submissions && sudo chown 33:33 submissions
+      - ./submissions:/var/www/_submissions
       # SMTP relay config for PHP mail() inside the container — required for
       # delivery_mode 'email'; without it, mail sending fails (submissions are
-      # still archived in the volume above).
+      # still archived in the folder above).
       # - ./msmtprc:/etc/msmtprc:ro
     labels:
       - com.centurylinklabs.watchtower.enable=true
-
-volumes:
-  impactfund_submissions:

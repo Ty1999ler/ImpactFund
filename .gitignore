@@ -8,3 +8,6 @@ _tools/ps_old.html
 # Form backend — real config and received submissions never leave the server
 api/config.php
 _submissions/
+
+# Server-side received submissions (bind mount from docker-compose)
+submissions/
