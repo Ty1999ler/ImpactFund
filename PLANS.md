@@ -1,30 +1,33 @@
 # Alumo Impact static rebuild — forward plans
 
-## Forms (two, to wire after the static build)
+## Forms (two) — NO Power Automate (decided 2026-08-18)
 
-The static site can't process forms by itself; each form posts to a small backend.
+Power Automate's HTTP-request trigger is a premium connector (~$15/user/mo) — not
+worth it for two forms. Instead: one tiny self-hosted **forms-api** container on the
+same server as the site (behind the same Cloudflare hostname under `/api/`).
 
-### Form 1 — Contact form → sends an email
-Appears on Home / About the Fund / Past Winners (Name, Email, Message).
-Options, in order of preference:
-1. **Power Automate flow** — "When an HTTP request is received" trigger → "Send an email (V2)"
-   via the org's M365. Form JS POSTs JSON to the flow URL. No hosting dependency,
-   stays in Microsoft stack, same pattern as the SharePoint form below.
-2. **Tiny PHP handler on GoDaddy** (`/contact.php` + `mail()`) — works on the existing
-   shared hosting even with a static site; no third party.
-3. **Formspree/Basin** — zero code, external service, free tier limits.
+### forms-api container (Node or Python, ~100 lines)
+- `POST /api/contact` — contact form (Name/Email/Message from Home/About/Past
+  Winners): sends an email to the team inbox. Email via free transactional SMTP
+  (Resend 3k/mo free, or Brevo 300/day free, or M365 SMTP AUTH from a mailbox).
+- `POST /api/apply` — application form (multipart: fields + 5 file uploads):
+  1. always saves a local backup on the server (JSON + files folder), then
+  2. delivers to SharePoint — pick ONE:
+     a. **Graph API direct** (preferred): one-time Entra app registration with
+        Sites.Selected on the target site; backend creates the list item and
+        uploads files to a document library. $0 forever, needs tenant admin
+        consent once.
+     b. **Email relay**: backend emails the submission + attachments to a
+        dedicated mailbox; an optional STANDARD-tier Power Automate flow
+        ("When a new email arrives" → save to SharePoint) files it — standard
+        connectors are included in existing M365 licenses, no premium needed.
+        Caps attachments ~25MB total (email limits).
+- Spam: Cloudflare Turnstile (free) on both forms + honeypot field.
+- Front-end pattern stays: `<form data-handler="...">` + `fetch()` in js/main.js,
+  inline success/error message.
 
-### Form 2 — Application form → writes to SharePoint
-New form (live site currently has no application form — submissions closed).
-Recommended: **Power Automate** — "When an HTTP request is received" → "Create item"
-in a SharePoint list. Static form JS POSTs JSON; flow validates + creates the list item
-and can also send a confirmation email. Notes:
-- The trigger URL embeds a SAS token — fine for this risk level; can front with an
-  Azure Function later if abuse becomes a concern.
-- Alternative if speed matters over look: embed a Microsoft Form styled around the page.
-
-Both forms share the same front-end pattern: `<form data-handler="...">` + a small
-`fetch()` submit in `/js/main.js`, success/error message inline, honeypot field for spam.
+OPEN DECISIONS: (1) Graph-direct vs email-relay for SharePoint; (2) which mailbox
+receives contact messages; (3) which SMTP/sender (Resend vs M365 SMTP).
 
 ## FR/EN (long run)
 - French source content is already mirrored: `_source/pages-fr/*.html` (TranslatePress output).
