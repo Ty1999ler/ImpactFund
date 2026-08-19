@@ -1,0 +1,15 @@
+name: PHP lint
+on:
+  push:
+    paths: ['api/**.php']
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: php -l on every api file
+        run: |
+          docker run --rm -v "$PWD:/app" -w /app php:8.3-cli \
+            sh -c 'set -e; for f in api/*.php; do php -l "$f"; done'
