@@ -1,0 +1,100 @@
+/* ============================================================
+   Apply now (Submit Now) page — section styles (values from post-166.css)
+   ============================================================ */
+
+/* ------------------------------
+   HERO — "Submit Now"
+   Source: 5c9c3be padding-top 170; ce891a0 column, gap 24,
+   margin-bottom 60 + parent gap 60 = 120 to the cards.
+   ------------------------------ */
+.hero {
+  padding-top: 170px;
+  margin-bottom: 120px;
+}
+.hero .hero-title {
+  margin-bottom: 24px;
+}
+.hero .hero-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 500px;
+  max-width: 100%;
+}
+.hero .hero-sub p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+
+@media (max-width: 1200px) {
+  .hero { padding-top: 130px; }
+}
+@media (max-width: 992px) {
+  .hero { padding-top: 120px; margin-bottom: 84px; }  /* 42 + 42 */
+  .hero .hero-sub { width: 100%; }
+}
+@media (max-width: 768px) {
+  .hero { margin-bottom: 64px; }                      /* 32 + 32 */
+  .hero .hero-sub { gap: 16px; }
+}
+@media (max-width: 576px) {
+  .hero .hero-sub .btn { align-self: flex-end; }
+}
+
+/* ------------------------------
+   INFO CARDS — Who can submit / Project Eligibility / Questions
+   Source: c1fed15 grid 3×1fr gap 80; cards column gap 20.
+   ------------------------------ */
+.info-cards {
+  margin-bottom: 60px;   /* parent gap to the form card */
+}
+.info-cards .cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 80px;
+}
+.info-cards .info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.info-cards .info-card p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.info-cards .info-card p a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+@media (max-width: 992px) {
+  .info-cards { margin-bottom: 42px; }
+  .info-cards .cards-grid { gap: 48px; }
+}
+@media (max-width: 768px) {
+  .info-cards { margin-bottom: 32px; }
+  .info-cards .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .info-cards .info-card { gap: 16px; }
+}
+@media (max-width: 576px) {
+  .info-cards .cards-grid { grid-template-columns: 1fr; gap: 24px; }
+  .info-cards .info-card { gap: 10px; }
+}
+
+/* ------------------------------
+   APPLICATION FORM — green card
+   Source: 1143e99 bg secondary, radius 20, padding 60.
+   Footer's own padding-top (80px) provides the gap below.
+   ------------------------------ */
+.apply-form-section .apply-form-card {
+  background-color: var(--secondary);
+  border-radius: var(--radius-card);
+  padding: 60px;
+}
+
+@media (max-width: 992px) {
+  .apply-form-section .apply-form-card { padding: 32px; }
+}
+@media (max-width: 576px) {
+  .apply-form-section .apply-form-card { padding: 16px; }
+}

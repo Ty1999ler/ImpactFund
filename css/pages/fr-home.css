@@ -1,0 +1,10 @@
+/* FR-only overrides for the home page (loaded after home.css).
+   The live FR page differs from EN in two measured ways. */
+
+/* Live FR: intro section starts at y=1159 — 35px lower than the shared
+   layout produces (FR pill/bar block is taller on live). */
+.hero { padding-bottom: 35px; }
+
+/* Live FR: the intro side column is 440px wide (EN uses 520px), which
+   changes the paragraph wrapping (6 lines) and the band height. */
+.intro .intro-side { width: 440px; }

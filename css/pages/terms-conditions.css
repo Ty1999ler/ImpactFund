@@ -1,0 +1,146 @@
+/* ============================================================
+   Terms & conditions — /terms-conditions/
+   Source: post-1008.css (Elementor page 1008)
+   ============================================================ */
+
+/* ------------------------------
+   LEGAL COPY SECTION
+   ------------------------------ */
+.legal-section {
+  padding: 180px 0 110px; /* 6f4fb55b */
+}
+
+.legal-title {
+  margin: 0 0 56px; /* 63f9b1e */
+}
+
+/* "Last updated: 2026" — text-editor at kit default size, Source Serif Pro */
+.legal-updated {
+  margin: 0;
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--text);
+}
+
+/* Decorative banner illustration (sits directly under "Last updated") */
+.legal-banner {
+  width: 100%;
+  height: auto;
+  margin: 0 0 52px; /* 41755dc */
+}
+
+/* Long-copy block — shared .legal-text-box handles > p and > h2.
+   Width + list styling are page concerns. */
+.legal-text-box {
+  max-width: 1095px; /* 6406c989 */
+  font-family: var(--font-source-serif); /* widget font — inherited by lists */
+  color: var(--text);
+}
+
+/* Our global reset strips list styling; restore the source's rendered look
+   (browser-default disc list, Source Serif Pro at body size) */
+.legal-text-box ul {
+  margin: 0;
+  padding: 0 0 0 40px;
+  list-style: disc;
+}
+.legal-text-box li {
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--text);
+}
+
+/* ------------------------------
+   TALK TO OUR TEAM CTA (green band)
+   ------------------------------ */
+.legal-cta-section {
+  padding: 0;
+}
+
+.legal-cta-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 80px; /* 3553f7f5 */
+  background-color: var(--secondary);
+  background-image: url("/assets/img/legal-cta-shape.svg");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 80px) center;
+}
+
+/* Green wash over the shape on small screens (background overlay) */
+.legal-cta-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--secondary);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.legal-cta-content {
+  position: relative; /* above the overlay */
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 489px; /* 645dbded */
+  max-width: 100%;
+}
+
+.legal-cta-title {
+  margin: 0 0 8px; /* 5d49329 */
+}
+
+.legal-cta-sub {
+  margin: 0 0 51px; /* 3c22db5e */
+  font-family: var(--font-source-serif);
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* ------------------------------
+   RESPONSIVE
+   ------------------------------ */
+@media (max-width: 1200px) {
+  .legal-section { padding: 130px 0 110px; }
+}
+
+@media (max-width: 992px) {
+  .legal-section { padding: 120px 0 100px; }
+  .legal-title { margin: 0 0 42px; }
+  .legal-banner { margin: 0 0 42px; }
+  .legal-text-box { max-width: 100%; }
+  .legal-cta-card {
+    padding: 64px;
+    background-position: calc(100% - 64px) center;
+    background-size: 38% auto;
+  }
+  .legal-cta-sub { margin: 0 0 32px; }
+}
+
+@media (max-width: 768px) {
+  .legal-title { margin: 0 0 32px; }
+  .legal-banner { margin: 0 0 32px; }
+  .legal-cta-card {
+    padding: 32px;
+    background-position: center center;
+    background-size: cover;
+  }
+  .legal-cta-card::before { opacity: 0.3; }
+  .legal-cta-content { width: 100%; }
+  .legal-cta-sub { margin: 0 0 24px; }
+}
+
+@media (max-width: 576px) {
+  .legal-cta-card {
+    padding: 16px;
+    background-size: 100% auto;
+  }
+}

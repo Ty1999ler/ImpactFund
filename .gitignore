@@ -1,0 +1,6 @@
+# Reference mirror of the live WordPress site — build-time reference only,
+# never deployed. Regenerate with: python _tools/mirror.py
+_source/
+
+# Scratch files
+_tools/ps_old.html

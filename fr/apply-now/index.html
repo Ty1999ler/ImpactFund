@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apply now – Alumo Fund</title>
+  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez la lettre de parrainage et découvrez qui peut soumettre un projet et quels projets étudiants sont admissibles.">
+  <link rel="alternate" hreflang="en" href="/apply-now/">
+  <link rel="alternate" hreflang="fr" href="/fr/apply-now/">
+  <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/pages/apply-now.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Aller au contenu</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header is-pinned">
+    <div class="container">
+      <div class="nav-bar">
+        <a class="brand-logo" href="/fr/" aria-label="Fonds d'impact étudiant par Alumo — accueil">
+          <img src="/assets/img/logo-fr.svg" alt="Fonds d'impact étudiant par Alumo" width="117" height="52">
+        </a>
+
+        <div class="hamburger-menu-toggle-btn-wrap">
+          <button class="hamburger-menu-toggle-btn" type="button" aria-label="Basculer le menu">
+            <span></span><span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <div class="nav-menu-container">
+          <nav class="nav-menu-wrap" aria-label="Menu principal">
+            <ul class="nav-menu">
+              <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
+              <li class="menu-item"><a href="/fr/how-to-apply/">Soumissions de projets</a></li>
+              <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
+              <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
+              <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
+            </ul>
+          </nav>
+
+          <div class="header-button-wrap">
+            <!-- "Soumettre" button exists in the source but is hidden at every
+                 breakpoint while submissions are closed. Kept for re-enabling. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/fr/apply-now/"><span>Soumettre</span></a>
+            </div>
+
+            <div class="lang-switcher">
+              <button class="lang-current" type="button" aria-haspopup="true" aria-expanded="false">
+                FR
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L5 5L9 1" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <div class="lang-dropdown">
+                <a href="/apply-now/">EN</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ============ HERO — Soumettre ============ -->
+    <!-- The source contains a second, older hero block hidden at every breakpoint —
+         skipped, as in the EN build. On the FR page the visible download button is
+         the btn-fr "Lettre de parraînage" (typo verbatim from source); the btn-en
+         "Lettre de soutien" is the hidden EN-page variant — skipped. -->
+    <section class="hero">
+      <div class="container">
+        <h1 class="hero-title text-size-72-72-tight">Soumettre </h1>
+        <div class="hero-sub">
+          <p class="text-size-24-36-tight">Téléchargez la lettre de parrainage que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
+          <!-- Real document downloaded from the live site (sample-pdf-fr-1.pdf). -->
+          <div class="btn btn-primary">
+            <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Lettre de parraînage</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INFO CARDS ============ -->
+    <section class="info-cards">
+      <div class="container">
+        <div class="cards-grid">
+
+          <div class="info-card">
+            <h2 class="text-size-40-42-tight">Qui peut soumettre un projet ? </h2>
+            <p class="text-size-16-24-tight">Les étudiant·es inscrit·es dans une <a href="/fr/partner-schools/"><strong>école partenaire</strong></a> peut soumettre un projet, avec l’accord du campus.</p>
+          </div>
+
+          <div class="info-card">
+            <h2 class="text-size-40-42-tight">Admissibilité des projets</h2>
+            <p class="text-size-16-24-tight">Des projets pensés par des étudiant·es pour des étudiant·es. Faites la différence sur votre campus en proposant une initiative inclusive, durable et bienveillante, neutre sur le plan politique et sans objectif commercial. <br><br>Pour les détails sur les projets admissibles, consultez la page <a href="/fr/about-the-fund/"><strong>À propos</strong></a> .</p>
+          </div>
+
+          <div class="info-card">
+            <h2 class="text-size-40-42-tight">Des questions ? </h2>
+            <p class="text-size-16-24-tight">Vous avez besoin d'aide avec la soumission de votre projet ? Nous pouvons vous aider !</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ APPLICATION FORM (green card) ============ -->
+    <!-- On the live site this card holds a Gravity Forms application form that
+         currently renders only the message below (submissions closed). -->
+    <!-- Scheduled reveal — see /js/main.js; preview early with ?preview-form=1 -->
+    <section class="apply-form-section" data-opens-at="2026-09-01T00:00:00-04:00">
+      <div class="container">
+        <div class="apply-form-card apply-form-closed">
+          <p>Ce formulaire n’est pas encore disponible.</p>
+        </div>
+        <div class="apply-form-card apply-form-open" hidden>
+          <!-- FORMULAIRE DE CANDIDATURE (intégration à venir).
+               Les soumissions iront vers SharePoint via Power Automate. -->
+          <p>Le formulaire de candidature apparaîtra ici.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main">
+        <a class="brand-logo" href="/fr/" aria-label="Fonds d'impact étudiant par Alumo — accueil">
+          <img src="/assets/img/logo-fr.svg" alt="Fonds d'impact étudiant par Alumo" width="117" height="52">
+        </a>
+        <nav aria-label="Menu de pied de page">
+          <ul class="footer-menu">
+            <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
+            <li class="menu-item"><a href="/fr/how-to-apply/">Soumission de projets</a></li>
+            <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
+            <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
+            <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
+          </ul>
+        </nav>
+        <div class="btn btn-primary btn-lg">
+          <a href="/fr/about-the-fund/"><span>En savoir plus</span></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Alumo 2026 - Tous droits réservés</p>
+        <div class="footer-legal">
+          <a href="/fr/terms-conditions/">Conditions d'utilisation</a>
+          <a href="#" role="button">Gérer mon consentement</a>
+          <a href="https://aseq.ca/RTEContent/Document/Privacy_Policy/ASEQ_Politique_confidentialit%C3%A9_2025.pdf" target="_blank" rel="noopener">Politique de confidentialité</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

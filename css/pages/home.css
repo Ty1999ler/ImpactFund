@@ -1,0 +1,453 @@
+/* ============================================================
+   Home page — section styles (values from post-12.css + post-359.css)
+   ============================================================ */
+
+/* ------------------------------
+   HERO (template 359)
+   ------------------------------ */
+.hero {
+  padding-top: 170px;
+  overflow: clip;
+}
+.hero .hero-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  position: relative;
+  z-index: 5;
+}
+.hero .hero-title {
+  max-width: 435px;
+}
+.hero .hero-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 268px;
+  flex-shrink: 0;
+}
+
+.hero .hero-media {
+  position: relative;
+  margin-top: -200px;
+  /* Live: the M banners are constrained to the 1280px hero container
+     (measured w=1280 x=311 @1912vw), not full-bleed; overflow stays visible
+     so the banner curves dip 38-60px below the student photo as on live. */
+  max-width: var(--container-max);
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+}
+.hero .hero-media .hero-m-banner {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+.hero .hero-media .hero-m-banner img { width: 100%; }
+.hero .hero-media .hero-student {
+  position: relative;
+  z-index: 3;
+}
+.hero .hero-media .hero-student img {
+  width: 614px;
+  max-width: 100%;
+  height: auto;
+}
+.hero .hero-media .hero-m-half-banner {
+  position: absolute;
+  bottom: -38px;
+  left: 0;
+  width: 100%;
+  z-index: 3;
+}
+.hero .hero-media .hero-m-half-banner img { width: 100%; }
+
+.hero .hero-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 4;
+  margin-top: -100px;
+  padding-bottom: 100px;
+}
+.hero .hero-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-inter);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26.5px;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  background-color: var(--primary);
+  border-radius: 50px;
+  padding: 8px 16px;
+  transition: 0.3s;
+}
+.hero .hero-status-pill svg { flex-shrink: 0; }
+.hero .hero-status-pill svg path { transition: 0.3s; }
+.hero .hero-status-pill:hover {
+  color: #fbf6ed;
+  background-color: var(--text);
+}
+.hero .hero-scroll-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 1px solid var(--text);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.hero .hero-scroll-btn svg { height: 16px; width: auto; display: block; }
+.hero .hero-scroll-btn svg path { transition: 0.3s; }
+.hero .hero-scroll-btn:hover {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+@media (max-width: 1200px) {
+  .hero { padding-top: 130px; }
+  .hero .hero-media { margin-top: -130px; }
+  .hero .hero-media .hero-student img { width: 420px; }
+  .hero .hero-media .hero-m-half-banner { bottom: -26px; }
+}
+@media (max-width: 992px) {
+  .hero { padding-top: 120px; }
+  .hero .hero-media { margin-top: 0; }
+  .hero .hero-media .hero-m-banner { bottom: 0; }
+  .hero .hero-media .hero-student img { width: 400px; }
+  .hero .hero-media .hero-m-half-banner { bottom: 0; }
+}
+@media (max-width: 768px) {
+  .hero .hero-media .hero-student img { width: 350px; }
+  .hero .hero-bar { margin-top: -50px; padding-bottom: 50px; }
+}
+@media (max-width: 576px) {
+  .hero .hero-top { flex-wrap: wrap; }
+  .hero .hero-side { width: 100%; }
+  .hero .hero-side .btn { align-self: flex-end; }
+  .hero .hero-media .hero-m-banner { bottom: 16px; }
+  .hero .hero-media .hero-student img { width: 60%; }
+  .hero .hero-media .hero-m-half-banner { bottom: 0; }
+  .hero .hero-bar { margin-top: 0; justify-content: flex-end; flex-wrap: wrap; }
+}
+
+/* ------------------------------
+   INTRO — “What is the Student Impact Fund?” (green band)
+   ------------------------------ */
+.intro {
+  position: relative;
+  background-color: #b9d989;
+  padding: 100px 0 90px;
+  overflow: hidden;
+}
+.intro .intro-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 32px;
+  position: relative;
+  z-index: 2;
+}
+.intro .intro-row h2 {
+  max-width: 468px;
+}
+.intro .intro-side {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 520px;
+}
+.intro .intro-side p {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  color: var(--accent);
+}
+.intro .intro-wave {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+.intro .intro-wave img { width: 100%; }
+
+@media (max-width: 1200px) {
+  .intro .intro-row h2 { max-width: 418px; }
+}
+@media (max-width: 992px) {
+  .intro .intro-row h2 { max-width: 40%; }
+}
+@media (max-width: 768px) {
+  .intro .intro-row { flex-direction: column; gap: 16px; }
+  .intro .intro-row h2 { max-width: 100%; }
+  .intro .intro-side { gap: 16px; }
+  .intro .intro-wave { display: none; }
+}
+
+/* ------------------------------
+   FAQ CARDS — “Fueling student innovation …”
+   ------------------------------ */
+/* Note: the source's "Fueling..." heading (18e161a) is hidden at every
+   breakpoint, so the grid sits directly inside the section padding. */
+.fueling {
+  margin-top: -4px;
+  padding: 128px 0;
+}
+.fueling .fueling-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 64px;
+}
+.fueling .fueling-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.fueling .fueling-card .card-icon img,
+.fueling .fueling-card .card-icon svg {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+/* Live: the icon widget wrapper is 56px tall (50px svg + 6px), which sets
+   the card rows at 282/330px. */
+.fueling .fueling-card .card-icon { height: 56px; }
+.fueling .fueling-card p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.fueling .fueling-card p a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+@media (max-width: 992px) {
+  .fueling { padding: 50px 0 100px; }
+}
+@media (max-width: 768px) {
+  .fueling { margin-top: 0; }
+  .fueling .fueling-grid { gap: 64px 32px; }
+  .fueling .fueling-card { gap: 16px; }
+}
+@media (max-width: 576px) {
+  .fueling .fueling-grid { grid-template-columns: 1fr; gap: 32px; }
+  .fueling .fueling-card { gap: 10px; }
+}
+
+/* ------------------------------
+   SUBMISSION PERIOD — orange card
+   ------------------------------ */
+.period .period-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 32px;
+  overflow: hidden;
+  border-radius: 20px;
+  background-color: var(--primary);
+  padding: 100px 100px 95px 60px;
+}
+.period .period-content {
+  /* Live text column measures 411px inside the 1120px card content box
+     (36.7%) — column width drives paragraph wrapping and card height. */
+  width: 36.7%;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+.period .period-logo {
+  width: 117px;
+  margin-bottom: 36px;
+}
+.period .period-kicker { }
+.period .period-date {
+  font-weight: 300;
+  margin-bottom: 24px;
+}
+.period .period-status {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.period .period-note {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  color: var(--accent);
+  /* Live: 59px bottom margin below the note sets the card height (668px). */
+  margin-bottom: 59px;
+}
+.period .period-art {
+  align-self: flex-end;
+  /* Live: shap-1.svg has no intrinsic size and renders 0x0 at every viewport
+     (naturalWidth=0, parent fit-content collapses) — the orange blob is
+     effectively invisible on the live site. Hidden here to match; the asset
+     (/assets/img/shape-blob-orange.svg) is kept for the improvements phase. */
+  display: none;
+}
+.period .period-art img {
+  width: 100%;
+  max-width: 452px;
+}
+
+@media (max-width: 992px) {
+  .period .period-card { padding: 48px; }
+  .period .period-content { width: 100%; }
+  .period .period-logo { margin-bottom: 0; }
+  .period .period-date { margin-bottom: 16px; }
+  .period .period-note { margin-bottom: 32px; }
+  .period .period-art { max-width: 40%; }
+}
+@media (max-width: 768px) {
+  .period .period-card { padding: 32px; flex-wrap: wrap; }
+  .period .period-art { max-width: 100%; width: 100%; }
+  .period .period-art img { width: 100%; max-width: 100%; }
+}
+@media (max-width: 576px) {
+  .period .period-card { padding: 24px; }
+}
+
+/* ------------------------------
+   EVERY IDEA — green card with student photo
+   ------------------------------ */
+.every-idea {
+  padding-top: 77px;
+}
+.every-idea .idea-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  border-radius: 20px;
+  background-color: var(--secondary);
+  padding: 82px 80px;
+}
+.every-idea .idea-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 421px;
+  max-width: 100%;
+}
+.every-idea .idea-content p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.every-idea .idea-art {
+  position: absolute;
+  right: 80px;
+  bottom: 0;
+  width: 554px;
+}
+.every-idea .idea-art .idea-photo {
+  position: relative;
+  z-index: 2;
+}
+.every-idea .idea-art .idea-blob {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  z-index: 1;
+}
+.every-idea .idea-art .idea-blob img { width: 100%; }
+.every-idea .idea-art-mobile {
+  display: none;
+  position: relative;
+}
+.every-idea .idea-art-mobile .idea-photo {
+  position: relative;
+  z-index: 2;
+}
+.every-idea .idea-art-mobile .idea-photo img { width: 50%; }
+.every-idea .idea-art-mobile .idea-blob {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  z-index: 1;
+}
+.every-idea .idea-art-mobile .idea-blob img { width: 100%; }
+
+@media (max-width: 992px) {
+  .every-idea { padding-top: 50px; }
+  .every-idea .idea-card {
+    flex-direction: column;
+    gap: 24px;
+    padding: 64px 64px 0;
+  }
+  .every-idea .idea-content { gap: 24px; width: 70%; }
+  .every-idea .idea-art { display: none; }
+  .every-idea .idea-art-mobile { display: block; }
+}
+@media (max-width: 576px) {
+  .every-idea .idea-card { padding: 16px 16px 0; gap: 24px; }
+  .every-idea .idea-content { width: 100%; }
+  .every-idea .idea-art-mobile .idea-photo img { width: 59%; }
+}
+
+/* ------------------------------
+   FAQ
+   ------------------------------ */
+.faq {
+  padding: 100px 0 120px;
+}
+.faq .faq-title {
+  max-width: 346px;
+  margin-bottom: 40px;
+}
+.faq .faq-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 32px;
+}
+.faq .faq-intro {
+  width: 218px;
+  max-width: 218px;
+  flex-shrink: 0;
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.faq .faq-intro a {
+  color: #222222;
+  text-decoration: underline;
+  font-weight: 700;
+}
+.faq .faq-list {
+  width: 861px;
+  max-width: 100%;
+}
+.faq .accordion-content a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+@media (max-width: 992px) {
+  .faq { padding: 100px 0; }
+  .faq .faq-title { margin-bottom: 32px; }
+}
+@media (max-width: 768px) {
+  .faq .faq-title { margin-bottom: 24px; }
+  .faq .faq-row { flex-direction: column; }
+  .faq .faq-intro { width: 100%; max-width: 100%; }
+}
+
+/* ------------------------------
+   CONTACT — bottom of page spacing
+   ------------------------------ */
+.contact-section {
+  padding-bottom: 0;
+}
