@@ -1,5 +1,17 @@
 # Alumo Impact static rebuild — forward plans
 
+## CMS (client asked 2026-08-19 — quote in preparation)
+Two-tier plan, both compatible with the existing pipeline (git → Actions → GHCR → Watchtower):
+1. **CMS-lite** (~2-3 dev-days): small password-protected admin page on the existing
+   PHP container editing a content.json + schools-data.js — covers the things that
+   actually change (submission dates/status, schools list, FAQ, winners). Pages read
+   those values at load. No new infra.
+2. **Full CMS** (~2-3 dev-weeks): extract page copy to markdown/JSON, add a static
+   site generator (Eleventy) build step in Actions, put a git-based CMS UI on top
+   (Sveltia/Decap at /admin/, GitHub OAuth via a tiny proxy on the server). Client
+   edits any text in a browser; every save = commit = auto-deploy. Site stays static
+   (fast, no DB, nothing to hack).
+
 ## Forms (two) — NO Power Automate (decided 2026-08-18)
 
 Power Automate's HTTP-request trigger is a premium connector (~$15/user/mo) — not
