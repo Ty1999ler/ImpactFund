@@ -14,11 +14,12 @@
 # .github/, the Docker files and the *.md docs are excluded here.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/aseqhosting/public_html/staging
+    # Staging docroot lives OUTSIDE public_html on purpose: a "Deny from all"
+    # in public_html/.htaccess (added by the host/owner) blocks everything
+    # beneath it. Home (/home/aseqhosting) is 0711, so Apache can still
+    # traverse into this directory.
+    - export DEPLOYPATH=/home/aseqhosting/staging
     - /bin/mkdir -p $DEPLOYPATH
-    # Docroots outside public_html get forced back to 0700 on this host (403).
-    # Keep the staging docroot under public_html and world-readable.
-    - /bin/chmod 755 $DEPLOYPATH
     - >
       /usr/bin/rsync -a --delete
       --exclude='.git'
@@ -36,10 +37,11 @@ deployment:
       --exclude='msmtprc'
       --exclude='*.md'
       ./ $DEPLOYPATH/
-    # Staging must never be indexed by search engines. Written by the deploy
-    # (not stored in the repo) so production never inherits it. robots.txt is
-    # used instead of .htaccess because Header directives are not permitted
-    # here and cause Apache to refuse the directory.
+    # MUST run AFTER rsync: `rsync -a` copies the source directory's own
+    # permissions onto the destination, and the git clone is 0700 — which
+    # makes Apache answer 403. Re-open the docroot every deploy.
+    - /bin/chmod 755 $DEPLOYPATH
+    # Staging must never be indexed. Written by the deploy, not stored in the
+    # repo, so production never inherits it.
     - /bin/echo 'User-agent: *' > $DEPLOYPATH/robots.txt
     - /bin/echo 'Disallow: /' >> $DEPLOYPATH/robots.txt
-    - /bin/rm -f $DEPLOYPATH/.htaccess
