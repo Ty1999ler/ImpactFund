@@ -16,6 +16,9 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/aseqhosting/staging
     - /bin/mkdir -p $DEPLOYPATH
+    # mkdir inherits a 0700 umask on this host, which makes Apache answer 403.
+    # The docroot must stay world-executable/readable for the web server.
+    - /bin/chmod 755 $DEPLOYPATH
     - >
       /usr/bin/rsync -a --delete
       --exclude='.git'
