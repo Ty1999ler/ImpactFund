@@ -14,10 +14,10 @@
 # .github/, the Docker files and the *.md docs are excluded here.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/aseqhosting/staging
+    - export DEPLOYPATH=/home/aseqhosting/public_html/staging
     - /bin/mkdir -p $DEPLOYPATH
-    # mkdir inherits a 0700 umask on this host, which makes Apache answer 403.
-    # The docroot must stay world-executable/readable for the web server.
+    # Docroots outside public_html get forced back to 0700 on this host (403).
+    # Keep the staging docroot under public_html and world-readable.
     - /bin/chmod 755 $DEPLOYPATH
     - >
       /usr/bin/rsync -a --delete
