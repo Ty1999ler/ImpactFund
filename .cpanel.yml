@@ -32,6 +32,8 @@ deployment:
       --exclude='_submissions'
       --exclude='submissions'
       --exclude='ci'
+      --exclude='api/config.ci.php'
+      --exclude='api/config.example.php'
       --exclude='Dockerfile*'
       --exclude='docker-compose.yml'
       --exclude='nginx.conf'
