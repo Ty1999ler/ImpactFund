@@ -36,7 +36,10 @@ deployment:
       --exclude='msmtprc'
       --exclude='*.md'
       ./ $DEPLOYPATH/
-    # Staging must never be indexed by search engines. This file is written by
-    # the deploy (not stored in the repo) so production never inherits it —
-    # REMOVE this task when DEPLOYPATH points at the production docroot.
-    - /bin/echo 'Header always set X-Robots-Tag "noindex, nofollow"' > $DEPLOYPATH/.htaccess
+    # Staging must never be indexed by search engines. Written by the deploy
+    # (not stored in the repo) so production never inherits it. robots.txt is
+    # used instead of .htaccess because Header directives are not permitted
+    # here and cause Apache to refuse the directory.
+    - /bin/echo 'User-agent: *' > $DEPLOYPATH/robots.txt
+    - /bin/echo 'Disallow: /' >> $DEPLOYPATH/robots.txt
+    - /bin/rm -f $DEPLOYPATH/.htaccess
