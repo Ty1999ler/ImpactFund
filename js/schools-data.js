@@ -361,7 +361,7 @@ window.ALUMO_SCHOOLS = [
   "school": "Fanshawe College",
   "association": "N/A",
   "province": "ON",
-  "email": "McLean, Jennifer <jmclean@FanshaweC.ca>"
+  "email": "jmclean@FanshaweC.ca"
  },
  {
   "school": "Fanshawe College",
