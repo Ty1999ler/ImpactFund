@@ -281,9 +281,49 @@ function http_json(string $url, $body, array $headers, string $method = 'POST'):
 
 /* Create the SharePoint list item, then upload each file into a submission
    folder in the document library (upload session handles files > 4 MB). */
+/* Fit our canonical field names onto whatever columns the target list really
+   has. Creating lists/columns needs permissions beyond Sites.Selected, so the
+   destination schema is often not ours to change — this keeps that a config
+   change instead of a code change.
+
+   $g['field_map']      canonical => real column. Map to '' to push a field
+                        into the overflow text instead of its own column.
+                        Omit field_map entirely to send names through as-is.
+   $g['overflow_field'] one text column that receives every unmapped field as
+                        "Label: value" lines (plus the attachments folder). */
+function graph_map_fields(array $g, array $fields, string $submissionId = ''): array {
+    $map = $g['field_map'] ?? null;
+    if (!is_array($map) || !$map) return $fields;
+
+    $mapped = $overflow = [];
+    foreach ($fields as $key => $value) {
+        $target = $map[$key] ?? null;
+        if (is_string($target) && $target !== '') $mapped[$target] = $value;
+        else $overflow[$key] = $value;
+    }
+
+    $of = (string)($g['overflow_field'] ?? '');
+    if ($of !== '' && $overflow) {
+        $lines = [];
+        foreach ($overflow as $key => $value) {
+            /* PrimaryEmail -> "Primary Email" for humans reading the field */
+            $label = trim(preg_replace('/(?<!^)[A-Z]/', ' $0', $key));
+            $lines[] = $label . ': ' . $value;
+        }
+        if ($submissionId !== '') {
+            $lines[] = 'Attachments folder: /' . $submissionId . '/';
+        }
+        $prefix = isset($mapped[$of]) && $mapped[$of] !== '' ? $mapped[$of] . "\n\n" : '';
+        $mapped[$of] = $prefix . implode("\n", $lines);
+    }
+    return $mapped;
+}
+
 function graph_deliver(array $g, string $submissionId, array $fields, array $files): void {
     $token = graph_token($g);
     $auth  = ["Authorization: Bearer $token"];
+
+    $fields = graph_map_fields($g, $fields, $submissionId);
 
     $item = http_json(
         "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items",

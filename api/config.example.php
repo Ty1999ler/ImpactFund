@@ -74,5 +74,12 @@ return [
         'site_id'       => '',   // Graph site id of the SharePoint site
         'list_id'       => '',   // list that receives one item per submission
         'drive_id'      => '',   // document library drive for the files
+
+        /* Creating lists/columns needs more than Sites.Selected, so the target
+           list schema often can't be changed. Map our canonical field names
+           onto the columns that actually exist; map to '' to fold a field into
+           overflow_field instead. Leave field_map empty to send names as-is. */
+        'field_map' => [],
+        'overflow_field' => '',
     ],
 ];
