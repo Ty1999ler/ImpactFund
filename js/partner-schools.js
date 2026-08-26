@@ -170,6 +170,16 @@
     }
   }
 
+  /* Hide province cards that have no schools in the data (client rule:
+     "if there are no schools, no need to list them"). Data-driven, so a
+     card reappears automatically if schools are ever added there. */
+  cards.forEach(function (card) {
+    var code = SLUG_TO_CODE[card.getAttribute("data-province")];
+    var count = schools.filter(function (s) { return s.province === code; }).length;
+    if (count === 0) card.hidden = true;
+  });
+  cards = cards.filter(function (card) { return !card.hidden; });
+
   cards.forEach(function (card) {
     card.addEventListener("click", function () {
       if (searchInput) searchInput.value = ""; /* live clears search on card click */

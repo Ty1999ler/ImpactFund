@@ -232,6 +232,7 @@
 }
 
 /* Province cards (live .province-grid / .province-card) */
+.partner-school-list-wrap .school-card .province-grid .province-card[hidden] { display: none !important; }
 .partner-school-list-wrap .school-card .province-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
