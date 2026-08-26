@@ -40,8 +40,12 @@ deployment:
       ./ $DEPLOYPATH/
     # MUST run AFTER rsync: `rsync -a` stamps the source directory's own
     # permissions (the git clone is 0700) onto the destination, which makes
-    # Apache answer 403. 0750 is this host's standard for public_html.
-    - /bin/chmod 750 $DEPLOYPATH
+    # Apache answer 403.
+    # 0755, NOT 0750: Apache serves static files as a user outside this
+    # account's group, so the world-execute bit is required. WordPress used to
+    # work at 0750 only because PHP ran as the account itself. Setting 0750
+    # here takes down this site AND the other sites under public_html.
+    - /bin/chmod 755 $DEPLOYPATH
     # NOTE: public_html/.htaccess is deliberately NOT managed here. It is
     # shared infrastructure affecting the other sites on this account, so it
     # is maintained by hand rather than rewritten on every deploy.
