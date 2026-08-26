@@ -1,0 +1,39 @@
+---
+# cPanel Git Version Control deployment (GoDaddy shared hosting).
+#
+# The repo is cloned into ~/repos/impactfund on the server; hitting "Deploy
+# HEAD Commit" in cPanel (or `git push` + deploy) syncs the SITE FILES ONLY
+# into the target document root below.
+#
+# DEPLOYPATH is the STAGING docroot while we test. To go live, change it to
+# the production docroot (/home/aseqhosting/public_html) — that is the single
+# switch that makes this the real site, so change it deliberately.
+#
+# Build-time and private files never ship: _source/, _proposal/ and
+# api/config.php are git-ignored (never in the repo at all); _tools/, ci/,
+# .github/, the Docker files and the *.md docs are excluded here.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/aseqhosting/staging
+    - /bin/mkdir -p $DEPLOYPATH
+    - >
+      /usr/bin/rsync -a --delete
+      --exclude='.git'
+      --exclude='.github'
+      --exclude='.cpanel.yml'
+      --exclude='_tools'
+      --exclude='_source'
+      --exclude='_proposal'
+      --exclude='_submissions'
+      --exclude='submissions'
+      --exclude='ci'
+      --exclude='Dockerfile*'
+      --exclude='docker-compose.yml'
+      --exclude='nginx.conf'
+      --exclude='msmtprc'
+      --exclude='*.md'
+      ./ $DEPLOYPATH/
+    # Staging must never be indexed by search engines. This file is written by
+    # the deploy (not stored in the repo) so production never inherits it —
+    # REMOVE this task when DEPLOYPATH points at the production docroot.
+    - /bin/echo 'Header always set X-Robots-Tag "noindex, nofollow"' > $DEPLOYPATH/.htaccess
