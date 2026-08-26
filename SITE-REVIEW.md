@@ -1,5 +1,14 @@
 # Site review — mistakes found (no fixes applied)
 
+## UPDATE 2026-08-26 (later) — client edits rounds shipped
+Nav renamed ("How to submit"/"Comment soumettre" — resolves the FR header/footer
+label mismatch, 2 findings flipped below), Home tab added, scheduled "Apply Now"
+tab + orange-card Sept-1 auto-swap, Step 2 document list + Step 4 help block,
+FAQ document answer aligned with Step 2 (EN+FR), category "Other" option added
+to the form (front-end + backend), 993–1200px banner quirk removed on How to
+submit, empty province cards auto-hidden (YT/NT/NL/PE). None of the remaining
+open findings were affected except the two flipped nav findings.
+
 ## UPDATE 2026-08-26 — new partner list loaded (supersedes school-data findings below)
 
 Alumo's "Partner List Sept 2026" spreadsheet (165 rows) replaced the original
@@ -167,9 +176,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - The contact form's required-field indicator is an asterisk ("Nom*", "Courriel*", "Message*") whereas the original Gravity Forms rendering shows the visible text "(Nécessaire)" after each label (class gfield_required_text, not screen-reader-only).
   - **Should be:** "Nom (Nécessaire)", "Courriel (Nécessaire)", "Message (Nécessaire)" for exact parity — or keep the asterisk as a conscious simplification (EN page has the same deviation vs "(Required)").
 
-- **[OPEN · MINOR]** fr/index.html line 37 (header nav) vs line 346 (footer nav) — all 10 FR pages
+- **[RESOLVED · MINOR]** fr/index.html line 37 (header nav) vs line 346 (footer nav) — all 10 FR pages
   - [inherited] The header menu labels the how-to-apply link "Soumissions de projets" (plural) while the footer menu labels the same link "Soumission de projets" (singular); body copy also references "la page Soumission de projets" (singular). The inconsistency exists on the original and was copied to every FR page.
   - **Should be:** One consistent label (the original's body text favors the singular "Soumission de projets") in both header and footer across the 10 FR pages.
+  - Status: RESOLVED 2026-08-26 — header/footer nav renamed to "Comment soumettre" / "How to submit" (client edits round), eliminating the plural/singular mismatch.
 
 ## Spelling & grammar — EN (incl. schools data)
 
@@ -383,9 +393,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] "250 000 $ entièrement dédiés aux projets" — "dédié" for funds is an anglicism (dedicated); the About page correctly uses "consacré" for the same idea, so it is also inconsistent.
   - **Should be:** "250 000 $ entièrement consacrés aux projets…"
 
-- **[OPEN · MINOR]** fr/index.html line 37 (header nav) vs line 343 (footer nav) — all 10 FR pages, e.g. https://impactfund.wareham.stream/fr/
+- **[RESOLVED · MINOR]** fr/index.html line 37 (header nav) vs line 343 (footer nav) — all 10 FR pages, e.g. https://impactfund.wareham.stream/fr/
   - [inherited] The header menu says "Soumissions de projets" (plural) while the footer menu and all in-text links say "Soumission de projets" (singular). Original site has the same header/footer mismatch.
   - **Should be:** One consistent label everywhere — "Soumission de projets" (singular, the majority form) in both header and footer.
+  - Status: RESOLVED 2026-08-26 — header/footer nav renamed to "Comment soumettre" / "How to submit" (client edits round), eliminating the plural/singular mismatch.
 
 - **[OPEN · MINOR]** fr/index.html line 187 (period-note); also fr/about-the-fund/index.html lines 106, 198, 245; fr/how-to-apply/index.html line 125; fr/partner-schools/index.html line 123
   - [inherited] Spacing before punctuation is inconsistent across the FR pages: the orange-card note uses &thinsp; before ? and ! ("concrétiser&thinsp;?"), about-the-fund uses &thinsp; before ! and &nbsp; before : in one paragraph (line 106), while every other ?, ! and : sits after a plain breaking space ("Des questions ?", "date limite de soumission :", "Sélectionnez votre province :"), and one semicolon has a plain space before it ("reversés ; toutefois", about line 198). Original mixes literal U+2009/U+00A0/plain spaces the same way.

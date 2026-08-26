@@ -1,18 +1,22 @@
 # Alumo Impact static rebuild — forward plans
 
-## Client edits round (2026-08-26) — waiting on from Alumo
-Built with buttons hidden until assets arrive (unhide + drop files in /assets/docs/):
-1. Instructions PDF ("application guide") — EN (+FR?)
+## Client edits rounds (2026-08-26) — STATUS
+SHIPPED: nav rename, Home tab, scheduled Apply Now tab + orange-card Sept-1 swap,
+Step 2 doc list + Step 4 help block, apply-now help section, FAQ doc answer,
+category "Other" (+backend), banner quirk removed, empty province cards hidden.
+
+### Still waiting on from Alumo (buttons/blocks staged & hidden until these land)
+1. Instructions PDF ("application guide") — EN (+FR?) → /assets/docs/, unhide buttons
 2. The 3 templates (project overview, team members, action plan) — EN (+FR?)
-3. Possible NEW NAME for the "letter of support" — rename buttons/copy when told.
-4. OPEN QUESTION sent to client: should the application form's five upload labels
-   change to match the new How-to-submit Step 2 list (Project Overview / Team member
-   information / Action plan-timeline / Budget / Letter of Support)? Currently the
-   form says Detailed budget / Team Members / Action plan and schedule /
+3. FINAL/renamed letter of support → also unhide the Partners-page download block
+4. ANSWER: should the form's five upload labels match the Step 2 list (Project
+   Overview / Team member information / Action plan-timeline / Budget / Letter of
+   Support)? Currently: Detailed budget / Team Members / Action plan and schedule /
    Additional information (optional) / Letter of support.
-5. OPEN QUESTION: "Apply Now" tab in the footer menu too, or header only (built header-only)?
-Auto-Sept-1 items (no action needed on the day): Apply Now nav tab reveals; the
-how-to-submit orange card swaps to "submission period is now open" + Apply Now button.
+5. ANSWER: "Apply Now" (and "Home") in the footer menu too, or header only (built header-only)?
+6. Corrections doc approvals from Sophia (Alumo-Site-Issues) — spelling/content fixes on hold until then.
+7. Real privacy + cookies policy copy (EN + FR); consent-link decision (remove or add tool).
+8. Contact emails for the 10 "Coming Soon" partners; confirmations for the 4 province moves + shared-email pairs.
 
 ## Forms delivery — STATUS 2026-08-26
 Credentials RECEIVED by Tyler (held privately — never in this repo/chat): M365 SMTP
