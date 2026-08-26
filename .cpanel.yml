@@ -14,17 +14,18 @@
 # .github/, the Docker files and the *.md docs are excluded here.
 deployment:
   tasks:
-    # Staging docroot lives OUTSIDE public_html on purpose: a "Deny from all"
-    # in public_html/.htaccess (added by the host/owner) blocks everything
-    # beneath it. Home (/home/aseqhosting) is 0711, so Apache can still
-    # traverse into this directory.
-    - export DEPLOYPATH=/home/aseqhosting/staging
-    - /bin/mkdir -p $DEPLOYPATH
+    # PRODUCTION docroot. public_html is SHARED with other sites on this
+    # account (_continuumplan.com, _plancontinuum.com, _skybleu.com, _video,
+    # Assets, alumoimpact.ca, cgi-bin) — so NEVER use --delete here: it would
+    # erase them. Without --delete, rsync only adds/updates our own files.
+    - export DEPLOYPATH=/home/aseqhosting/public_html
     - >
-      /usr/bin/rsync -a --delete
+      /usr/bin/rsync -a
       --exclude='.git'
       --exclude='.github'
       --exclude='.cpanel.yml'
+      --exclude='.gitignore'
+      --exclude='.dockerignore'
       --exclude='_tools'
       --exclude='_source'
       --exclude='_proposal'
@@ -34,14 +35,13 @@ deployment:
       --exclude='Dockerfile*'
       --exclude='docker-compose.yml'
       --exclude='nginx.conf'
-      --exclude='msmtprc'
+      --exclude='msmtprc*'
       --exclude='*.md'
       ./ $DEPLOYPATH/
-    # MUST run AFTER rsync: `rsync -a` copies the source directory's own
-    # permissions onto the destination, and the git clone is 0700 — which
-    # makes Apache answer 403. Re-open the docroot every deploy.
-    - /bin/chmod 755 $DEPLOYPATH
-    # Staging must never be indexed. Written by the deploy, not stored in the
-    # repo, so production never inherits it.
-    - /bin/echo 'User-agent: *' > $DEPLOYPATH/robots.txt
-    - /bin/echo 'Disallow: /' >> $DEPLOYPATH/robots.txt
+    # MUST run AFTER rsync: `rsync -a` stamps the source directory's own
+    # permissions (the git clone is 0700) onto the destination, which makes
+    # Apache answer 403. 0750 is this host's standard for public_html.
+    - /bin/chmod 750 $DEPLOYPATH
+    # NOTE: public_html/.htaccess is deliberately NOT managed here. It is
+    # shared infrastructure affecting the other sites on this account, so it
+    # is maintained by hand rather than rewritten on every deploy.
