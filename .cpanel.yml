@@ -1,26 +1,30 @@
 ---
-# cPanel Git Version Control deployment (GoDaddy shared hosting).
+# cPanel Git Version Control deployment.
 #
-# The repo is cloned into ~/repos/impactfund on the server; hitting "Deploy
-# HEAD Commit" in cPanel (or `git push` + deploy) syncs the SITE FILES ONLY
-# into the target document root below.
+#   branch `release`  ->  PRODUCTION   alumoimpact.ca      (public_html)
+#   branch `main`     ->  STAGING      staging.alumoimpact.ca (~/staging)
 #
-# DEPLOYPATH is the STAGING docroot while we test. To go live, change it to
-# the production docroot (/home/aseqhosting/public_html) — that is the single
-# switch that makes this the real site, so change it deliberately.
-#
-# Build-time and private files never ship: _source/, _proposal/ and
-# api/config.php are git-ignored (never in the repo at all); _tools/, ci/,
-# .github/, the Docker files and the *.md docs are excluded here.
+# Two clones exist on the server, each checked out on one of those branches;
+# this single file serves both and picks its target from the current branch.
+# Workflow: land changes on `main`, check staging, then merge main -> release
+# to publish.
 deployment:
   tasks:
-    # PRODUCTION docroot. public_html is SHARED with other sites on this
-    # account (_continuumplan.com, _plancontinuum.com, _skybleu.com, _video,
-    # Assets, alumoimpact.ca, cgi-bin) — so NEVER use --delete here: it would
-    # erase them. Without --delete, rsync only adds/updates our own files.
-    - export DEPLOYPATH=/home/aseqhosting/public_html
+    # Default to STAGING. Production is opt-in via the branch name, so any
+    # failure of the check below lands on staging rather than the live site.
+    - export DEPLOYPATH=/home/aseqhosting/staging
+    - export RSYNC_DELETE=--delete
+    - export IS_PROD=no
+    - if [ "$(/usr/bin/git rev-parse --abbrev-ref HEAD)" = "release" ]; then export DEPLOYPATH=/home/aseqhosting/public_html; export IS_PROD=yes; fi
+    # public_html is SHARED with other sites on this account (_continuumplan.com,
+    # _plancontinuum.com, _skybleu.com, _video, Assets, cgi-bin). --delete there
+    # would erase them, so it is only ever used on the staging docroot.
+    - if [ "$IS_PROD" = "yes" ]; then export RSYNC_DELETE=; fi
+    # Hard guard: never rsync into an empty or missing path.
+    - test -n "$DEPLOYPATH" || exit 1
+    - /bin/mkdir -p $DEPLOYPATH
     - >
-      /usr/bin/rsync -a
+      /usr/bin/rsync -a $RSYNC_DELETE
       --exclude='.git'
       --exclude='.github'
       --exclude='.cpanel.yml'
@@ -40,14 +44,14 @@ deployment:
       --exclude='msmtprc*'
       --exclude='*.md'
       ./ $DEPLOYPATH/
-    # MUST run AFTER rsync: `rsync -a` stamps the source directory's own
-    # permissions (the git clone is 0700) onto the destination, which makes
-    # Apache answer 403.
-    # 0755, NOT 0750: Apache serves static files as a user outside this
-    # account's group, so the world-execute bit is required. WordPress used to
-    # work at 0750 only because PHP ran as the account itself. Setting 0750
-    # here takes down this site AND the other sites under public_html.
+    # MUST run AFTER rsync: `rsync -a` stamps the source directory's permissions
+    # (the git clone is 0700) onto the destination. 0755, NOT 0750 - Apache
+    # serves static files as a user outside this account's group, so without the
+    # world-execute bit every site under public_html returns 403/500.
     - /bin/chmod 755 $DEPLOYPATH
-    # NOTE: public_html/.htaccess is deliberately NOT managed here. It is
-    # shared infrastructure affecting the other sites on this account, so it
-    # is maintained by hand rather than rewritten on every deploy.
+    # Staging must never be indexed. Production keeps the repo's own robots.txt.
+    - if [ "$IS_PROD" != "yes" ]; then printf 'User-agent: *
+Disallow: /
+' > $DEPLOYPATH/robots.txt; fi
+    # NOTE: public_html/.htaccess is deliberately NOT managed here - it is shared
+    # infrastructure affecting the other sites, maintained by hand.
