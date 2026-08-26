@@ -15,7 +15,14 @@ deployment:
     - export DEPLOYPATH=/home/aseqhosting/staging
     - export RSYNC_DELETE=--delete
     - export IS_PROD=no
-    - if [ "$(/usr/bin/git rev-parse --abbrev-ref HEAD)" = "release" ]; then export DEPLOYPATH=/home/aseqhosting/public_html; export IS_PROD=yes; fi
+    - export IS_SEPT=no
+    - export BRANCH=$(/usr/bin/git rev-parse --abbrev-ref HEAD)
+    - if [ "$BRANCH" = "release" ]; then export DEPLOYPATH=/home/aseqhosting/public_html; export IS_PROD=yes; fi
+    # september-preview: identical content to main, but the deployed copy has
+    # the submissions-open date rolled back so the site renders exactly as it
+    # will on Sept 1. Keeping the branch content identical means it never
+    # conflicts when main moves forward.
+    - if [ "$BRANCH" = "september-preview" ]; then export DEPLOYPATH=/home/aseqhosting/september; export IS_SEPT=yes; fi
     # public_html is SHARED with other sites on this account (_continuumplan.com,
     # _plancontinuum.com, _skybleu.com, _video, Assets, cgi-bin). --delete there
     # would erase them, so it is only ever used on the staging docroot.
@@ -50,6 +57,11 @@ deployment:
     # serves static files as a user outside this account's group, so without the
     # world-execute bit every site under public_html returns 403/500.
     - /bin/chmod 755 $DEPLOYPATH
+    # september-preview only: roll the reveal date back in the DEPLOYED copy so
+    # the application form, the Apply Now nav item and anything else gated on
+    # data-opens-at render as they will once submissions open. The repo itself
+    # is never modified.
+    - if [ "$IS_SEPT" = "yes" ]; then /usr/bin/find $DEPLOYPATH -name '*.html' -exec /bin/sed -i 's/2026-09-01T00/2020-01-01T00/g' {} + ; fi
     # Staging must never be indexed; production keeps the repo's own robots.txt.
     # The content is copied from a file rather than echoed inline because a
     # colon-space inside an unquoted YAML task silently breaks this whole file
