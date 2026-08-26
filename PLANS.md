@@ -1,5 +1,19 @@
 # Alumo Impact static rebuild — forward plans
 
+## Client edits round (2026-08-26) — waiting on from Alumo
+Built with buttons hidden until assets arrive (unhide + drop files in /assets/docs/):
+1. Instructions PDF ("application guide") — EN (+FR?)
+2. The 3 templates (project overview, team members, action plan) — EN (+FR?)
+3. Possible NEW NAME for the "letter of support" — rename buttons/copy when told.
+4. OPEN QUESTION sent to client: should the application form's five upload labels
+   change to match the new How-to-submit Step 2 list (Project Overview / Team member
+   information / Action plan-timeline / Budget / Letter of Support)? Currently the
+   form says Detailed budget / Team Members / Action plan and schedule /
+   Additional information (optional) / Letter of support.
+5. OPEN QUESTION: "Apply Now" tab in the footer menu too, or header only (built header-only)?
+Auto-Sept-1 items (no action needed on the day): Apply Now nav tab reveals; the
+how-to-submit orange card swaps to "submission period is now open" + Apply Now button.
+
 ## Forms delivery — STATUS 2026-08-26
 Credentials RECEIVED by Tyler (held privately — never in this repo/chat): M365 SMTP
 values + SharePoint app registration (tenant/client/secret + site URL). Decision:

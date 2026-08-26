@@ -91,6 +91,46 @@
 }
 
 /* ------------------------------
+   STEP 4 — help / downloads (full-width block under the 3-step grid;
+   the grid stays 3-up, so step 4 gets its own row spanning the container)
+   ------------------------------ */
+.apply-steps .step-help {
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.apply-steps .step-help .help-blocks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 80px;
+}
+.apply-steps .step-help .help-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.apply-steps .step-help .help-block p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.apply-steps .step-help .help-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 992px) {
+  .apply-steps .step-help { margin-top: 48px; gap: 24px; }
+  .apply-steps .step-help .help-blocks { gap: 48px; }
+}
+@media (max-width: 768px) {
+  .apply-steps .step-help { margin-top: 32px; }
+  .apply-steps .step-help .help-blocks { grid-template-columns: 1fr; gap: 32px; }
+  .apply-steps .step-help .help-block { gap: 16px; }
+}
+
+/* ------------------------------
    SUBMISSION PERIOD — orange card
    (same component as the home page; source column gap 71px passes through an
    empty hidden-buttons container, so the visual gap is 71px x 2 = 142px)
@@ -144,6 +184,16 @@
   max-width: 452px;
 }
 .period .period-art-mobile { display: none; }
+/* Scheduled swap (data-opens-at, /js/main.js): the closed card renders until
+   the open date; guard [hidden] since .period-card sets display:flex. */
+.period .period-card[hidden] { display: none; }
+.period .period-cta { position: relative; z-index: 2; }
+/* btn-primary's orange fill vanishes against the orange card, so give the
+   CTA the card's native white-button palette (as the source's hidden
+   btn-white CTA used) while keeping the shared button structure. */
+.period .period-cta > a { border-color: var(--white); color: var(--text); }
+.period .period-cta > a::after { background: var(--white); }
+.period .period-cta > a:hover { color: var(--white); }
 
 @media (max-width: 1200px) {
   .period .period-content { width: 40%; }

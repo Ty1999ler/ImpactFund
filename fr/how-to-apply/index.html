@@ -21,8 +21,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
-  <link rel="stylesheet" href="/css/style.css?v=3">
-  <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=3">
+  <link rel="stylesheet" href="/css/style.css?v=4">
+  <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=4">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -43,7 +43,8 @@
           <nav class="nav-menu-wrap" aria-label="Menu principal">
             <ul class="nav-menu">
               <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
-              <li class="menu-item"><a href="/fr/how-to-apply/">Soumissions de projets</a></li>
+              <li class="menu-item"><a href="/fr/how-to-apply/">Comment soumettre</a></li>
+              <li class="menu-item" data-opens-at="2026-09-01T00:00:00-04:00" hidden><a href="/fr/apply-now/">Soumettre</a></li>
               <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
               <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
               <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
@@ -105,28 +106,65 @@
           <div class="step-card">
             <h3 class="text-size-40-42-tight">2. Complétez votre demande</h3>
             <p class="text-size-16-24-tight">Remplissez le formulaire en ligne et téléversez les documents suivants :<br>
-• Description du projet <br>• Plan d'action / calendrier  <br>• Informations sur les membres de l'équipe <br>• Budget <br>
-• Lettre de soutien <br>
-<br>
-<a href="/fr/#contact-form" target="_blank" rel="noopener"><strong>Vous avez des questions ? Contactez-nous !</strong></a></p>
+• Aperçu du projet <br>• Informations sur les membres de l'équipe <br>• Plan d'action et échéancier <br>• Budget <br>
+• Lettre de parrainage</p>
           </div>
 
           <div class="step-card">
             <h3 class="text-size-40-42-tight">3. Vérifier et soumettre</h3>
-            <p class="text-size-16-24-tight">Vérifiez vos coordonnées pour que nous puissions vous tenir informé, puis cliquez sur Envoyer. <a href="/fr/apply-now/"><strong>C'est tout !</strong></a></p>
+            <p class="text-size-16-24-tight">Vérifiez vos coordonnées pour que nous puissions vous tenir informé, puis cliquez sur Envoyer. C'est tout !</p>
           </div>
 
         </div>
         <!-- Hidden-everywhere in source (skipped): "Quels types de projets sont admissibles ?" /
              "Comment dois-je soumettre mon projet ?" / "Étape 1–3" blocks and the
              sample-submission PDF buttons. -->
+
+        <!-- ============ ÉTAPE 4 — AIDE / TÉLÉCHARGEMENTS (full-width block) ============ -->
+        <div class="step-help">
+          <h3 class="text-size-40-42-tight">4. Besoin d'aide pour commencer ?</h3>
+          <div class="help-blocks">
+            <div class="help-block">
+              <p class="text-size-16-24-tight">Besoin d'aide pour commencer votre candidature ? Voici une ressource pour vous aider à planifier votre projet et à préparer votre candidature.</p>
+              <div class="help-buttons">
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/application-guide-fr.pdf" target="_blank" rel="noopener"><span>Guide de candidature</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="help-block">
+              <p class="text-size-16-24-tight">Besoin de modèles pour préparer votre candidature ? Téléchargez ces modèles et téléversez-les dans le formulaire de candidature.</p>
+              <div class="help-buttons">
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-project-overview-fr.pdf" target="_blank" rel="noopener"><span>Aperçu du projet</span></a>
+                </div>
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-team-members-fr.pdf" target="_blank" rel="noopener"><span>Membres de l'équipe</span></a>
+                </div>
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-action-plan-fr.pdf" target="_blank" rel="noopener"><span>Plan d'action</span></a>
+                </div>
+                <div class="btn btn-primary">
+                  <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Lettre de parrainage</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- ============ SUBMISSION PERIOD (orange card) ============ -->
-    <section class="period">
+    <!-- Scheduled swap — before the date in data-opens-at the "closed" card
+         shows; from that date the "open" card shows automatically (handled in
+         /js/main.js). Preview the open state early with ?preview-form=1. -->
+    <section class="period" data-opens-at="2026-09-01T00:00:00-04:00">
       <div class="container">
-        <div class="period-card">
+        <div class="period-card apply-form-closed">
           <div class="period-content">
             <div class="period-logo">
               <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
@@ -137,6 +175,26 @@
             <p class="period-note text-size-16-24-tightpx">Vous avez une bonne idée, mais vous avez besoin de financement pour la concrétiser&thinsp;? Le Fonds d’impact étudiant est là pour vous aider&thinsp;!</p>
             <!-- "En savoir plus" (btn-white) exists in the source but is hidden at
                  every breakpoint — intentionally not built. -->
+          </div>
+          <div class="period-art">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+          <div class="period-art-mobile">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+        </div>
+        <div class="period-card apply-form-open" hidden>
+          <div class="period-content">
+            <div class="period-logo">
+              <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
+            </div>
+            <h2 class="period-kicker text-size-28-70-tight">Prochaine date limite de soumission :</h2>
+            <h3 class="period-date text-size-72-70-tight">1er septembre au 15 octobre</h3>
+            <p class="period-status text-size-20-31-9-tightpx">La période de soumission est maintenant ouverte !</p>
+            <p class="period-note text-size-16-24-tightpx">Vous avez une bonne idée, mais vous avez besoin de financement pour la concrétiser&thinsp;? Le Fonds d’impact étudiant est là pour vous aider&thinsp;!</p>
+            <div class="btn btn-primary period-cta">
+              <a href="/fr/apply-now/"><span>Soumettre</span></a>
+            </div>
           </div>
           <div class="period-art">
             <img src="/assets/img/shape-blob-orange.svg" alt="">
@@ -160,7 +218,7 @@
         <nav aria-label="Menu de pied de page">
           <ul class="footer-menu">
             <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
-            <li class="menu-item"><a href="/fr/how-to-apply/">Soumission de projets</a></li>
+            <li class="menu-item"><a href="/fr/how-to-apply/">Comment soumettre</a></li>
             <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
             <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
@@ -180,6 +238,6 @@
       </div>
     </div>
   </footer>
-  <script src="/js/main.js?v=3"></script>
+  <script src="/js/main.js?v=4"></script>
 </body>
 </html>

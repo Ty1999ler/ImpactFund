@@ -119,19 +119,26 @@
     });
   });
 
-  /* ---- Scheduled content reveal (application form) ----
-     A section with data-opens-at="<ISO date>" shows its .apply-form-closed
-     card before that moment and its .apply-form-open card from then on.
+  /* ---- Scheduled content reveal ----
+     An element with data-opens-at="<ISO date>" either:
+     - swaps its .apply-form-closed card for its .apply-form-open card from
+       that moment on (when it contains both), or
+     - simply un-hides itself from that moment on (it carries the `hidden`
+       attribute in the markup until then).
      Append ?preview-form=1 to the URL to preview the open state early. */
   document.querySelectorAll("[data-opens-at]").forEach(function (section) {
     var opensAt = new Date(section.getAttribute("data-opens-at"));
+    if (isNaN(opensAt)) return;
+    var preview = /[?&]preview-form=1/.test(window.location.search);
+    var isOpen = preview || new Date() >= opensAt;
+    if (!isOpen) return;
     var closed = section.querySelector(".apply-form-closed");
     var open = section.querySelector(".apply-form-open");
-    if (!closed || !open || isNaN(opensAt)) return;
-    var preview = /[?&]preview-form=1/.test(window.location.search);
-    if (preview || new Date() >= opensAt) {
+    if (closed && open) {
       closed.hidden = true;
       open.hidden = false;
+    } else {
+      section.hidden = false;
     }
   });
 })();

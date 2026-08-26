@@ -486,6 +486,9 @@ img[src$="shape-blob-orange.svg"] { display: none; }
   transition: 0.3s;
 }
 .site-header .nav-menu .menu-item a:hover::after { width: 100%; }
+/* Scheduled nav items (data-opens-at) stay hidden until /js/main.js reveals
+   them — the mobile menu sets display:block on .menu-item, so guard [hidden]. */
+.site-header .nav-menu .menu-item[hidden] { display: none !important; }
 
 .site-header .header-button-wrap {
   display: flex;

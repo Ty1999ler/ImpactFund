@@ -82,6 +82,43 @@
 }
 
 /* ------------------------------
+   HELP / DOWNLOADS — plain download offers between the info cards and the
+   form card (same rhythm as the info-cards grid)
+   ------------------------------ */
+.apply-help {
+  margin-bottom: 60px;   /* parent gap to the form card */
+}
+.apply-help .help-blocks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 80px;
+}
+.apply-help .help-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.apply-help .help-block p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.apply-help .help-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 992px) {
+  .apply-help { margin-bottom: 42px; }
+  .apply-help .help-blocks { gap: 48px; }
+}
+@media (max-width: 768px) {
+  .apply-help { margin-bottom: 32px; }
+  .apply-help .help-blocks { grid-template-columns: 1fr; gap: 32px; }
+  .apply-help .help-block { gap: 16px; }
+}
+
+/* ------------------------------
    APPLICATION FORM — green card
    Source: 1143e99 bg secondary, radius 20, padding 60.
    Footer's own padding-top (80px) provides the gap below.
