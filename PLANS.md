@@ -1,6 +1,18 @@
 # Alumo Impact static rebuild — forward plans
 
-## Forms delivery — FIRST ITERATION per Alumo IT (Roxanne, 2026-08-26)
+## Forms delivery — STATUS 2026-08-26
+Credentials RECEIVED by Tyler (held privately — never in this repo/chat): M365 SMTP
+values + SharePoint app registration (tenant/client/secret + site URL). Decision:
+wire everything ONCE, directly on GoDaddy, when delegate access arrives — staging
+keeps the submit stub until then. On wiring day: fill api/config.php on GoDaddy
+(delivery_mode 'graph'; resolve site_id/list_id/drive_id from the site URL via
+Graph), create the Applications list + document library (rows-not-PDFs design:
+fields → list columns, uploads → folder per application), PHPMailer+SMTP for
+outgoing mail, end-to-end test before Sept 1. The Cakemail/PDF-by-email idea
+(below) was superseded — team doesn't want PDFs; email is notification-only if
+used at all.
+
+## (superseded) Forms delivery — FIRST ITERATION per Alumo IT (Roxanne, 2026-08-26)
 No SharePoint connection for v1. Instead: on submit, api/apply.php generates a
 PDF summary of the application, attaches the uploaded documents, and sends via
 the **Cakemail API** (Alumo's existing email vendor — needs their API key +
