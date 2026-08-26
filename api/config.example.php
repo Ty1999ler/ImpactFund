@@ -13,6 +13,29 @@ return [
     /* Blind copies added to every form email (contact + application relay). */
     'mail_bcc'     => [],
 
+    /* ---- Outgoing mail transport ----
+       Leave 'host' EMPTY to use PHP mail() (the local server MTA).
+       Set it to send through authenticated SMTP instead — strongly preferred:
+       alumoimpact.ca publishes DMARC p=quarantine with no SPF record, so mail
+       sent from the web host as @alumoimpact.ca fails alignment and lands in
+       junk. Sending via the domain's real provider fixes that.
+
+       Microsoft 365:  host smtp.office365.com, port 587, encryption 'tls'
+       Google Workspace: host smtp.gmail.com,   port 587, encryption 'tls'
+
+       'username' is the full mailbox address. For M365 the mailbox must have
+       SMTP AUTH enabled (Exchange admin -> mailbox -> manage email apps), and
+       'mail_from' should be that same address (or one it may Send As), or the
+       provider will reject the envelope sender. */
+    'smtp' => [
+        'host'       => '',
+        'port'       => 587,
+        'encryption' => 'tls',   // 'tls' = STARTTLS (587) | 'ssl' = implicit (465) | '' = none
+        'username'   => '',
+        'password'   => '',
+        'timeout'    => 20,
+    ],
+
     /* Where application submissions (JSON + uploaded files) are archived.
        On GoDaddy point this ABOVE the webroot, e.g. dirname(__DIR__, 2).'/impactfund-submissions'.
        The directory is created on first use. */

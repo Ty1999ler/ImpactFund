@@ -90,6 +90,81 @@ function honeypot_check(): void {
     }
 }
 
+/* ---------- SMTP transport ----------
+   Used when config has smtp.host; otherwise send_mail() falls back to PHP
+   mail(). Authenticated SMTP is strongly preferred here: alumoimpact.ca
+   publishes DMARC p=quarantine with no SPF record, so mail sent from the
+   web host as @alumoimpact.ca fails alignment and gets junked. Sending
+   through the domain's real provider (e.g. M365) aligns properly.
+
+   $envelopeTo: every actual recipient, including Bcc. The Bcc *header* must
+   NOT be present in $data — with SMTP the recipient list is the envelope,
+   and a leftover header would expose the blind copies. */
+function smtp_send(array $smtp, string $from, array $envelopeTo, string $data): bool {
+    $host = (string)($smtp['host'] ?? '');
+    if ($host === '' || !$envelopeTo) return false;
+    $port    = (int)($smtp['port'] ?? 587);
+    $enc     = strtolower((string)($smtp['encryption'] ?? 'tls'));
+    $timeout = (int)($smtp['timeout'] ?? 20);
+
+    $transport = ($enc === 'ssl') ? "ssl://$host:$port" : "tcp://$host:$port";
+    $ctx = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+    $fp = @stream_socket_client($transport, $errno, $errstr, $timeout,
+                                STREAM_CLIENT_CONNECT, $ctx);
+    if (!$fp) { error_log("smtp: connect failed $errno $errstr"); return false; }
+    stream_set_timeout($fp, $timeout);
+
+    $read = function () use ($fp) {
+        $out = '';
+        while (($line = fgets($fp, 515)) !== false) {
+            $out .= $line;
+            /* multi-line replies keep a '-' in the 4th column */
+            if (strlen($line) < 4 || $line[3] !== '-') break;
+        }
+        return $out;
+    };
+    $cmd = function (string $c, string $expect) use ($fp, $read) {
+        if ($c !== '') fwrite($fp, $c . "\r\n");
+        $r = $read();
+        if (strncmp($r, $expect, strlen($expect)) !== 0) {
+            error_log('smtp: expected ' . $expect . ' got ' . trim(substr($r, 0, 120)));
+            return false;
+        }
+        return true;
+    };
+
+    $ehlo = 'EHLO ' . (parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'), PHP_URL_HOST) ?: 'localhost');
+    $ok = $cmd('', '220') && $cmd($ehlo, '250');
+    if ($ok && $enc === 'tls') {
+        $ok = $cmd('STARTTLS', '220')
+           && @stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)
+           && $cmd($ehlo, '250');
+    }
+    if ($ok && ($smtp['username'] ?? '') !== '') {
+        $ok = $cmd('AUTH LOGIN', '334')
+           && $cmd(base64_encode((string)$smtp['username']), '334')
+           && $cmd(base64_encode((string)$smtp['password']), '235');
+    }
+    if ($ok) $ok = $cmd('MAIL FROM:<' . $from . '>', '250');
+    if ($ok) {
+        foreach ($envelopeTo as $rcpt) {
+            if (!$cmd('RCPT TO:<' . $rcpt . '>', '250')) { $ok = false; break; }
+        }
+    }
+    if ($ok && $cmd('DATA', '354')) {
+        /* dot-stuffing: a line that is just "." would end the message early */
+        $body = preg_replace('/^\./m', '..', str_replace("\n", "\r\n",
+                    str_replace("\r\n", "\n", $data)));
+        fwrite($fp, $body . "\r\n.\r\n");
+        $ok = $cmd('', '250');
+    } else {
+        $ok = false;
+    }
+    @fwrite($fp, "QUIT\r\n");
+    @fclose($fp);
+    return $ok;
+}
+
 /* Send a MIME email, optionally with file attachments.
    $attachments: list of ['path' => ..., 'name' => ...]. */
 function send_mail(array $cfg, string $to, string $subject, string $body,
@@ -109,7 +184,10 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
         fn($a) => filter_var(header_safe(trim((string)$a)), FILTER_VALIDATE_EMAIL) ?: null,
         (array)($cfg['mail_bcc'] ?? [])
     ));
-    if ($bcc) {
+    /* With SMTP the blind copies go in the envelope (RCPT TO), never a header
+       — a Bcc header would be delivered verbatim and expose them. */
+    $useSmtp = ((string)($cfg['smtp']['host'] ?? '')) !== '';
+    if ($bcc && !$useSmtp) {
         $headers[] = 'Bcc: ' . implode(', ', $bcc);
     }
     $headers[] = 'MIME-Version: 1.0';
@@ -119,10 +197,20 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
        and strict receivers junk the mail). Only used when it's a clean email. */
     $extra = filter_var($from, FILTER_VALIDATE_EMAIL) ? '-f' . $from : '';
 
+    $encSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    /* SMTP needs the full RFC822 message (headers + blank line + body) and the
+       complete recipient list; mail() takes them separately. */
+    $viaSmtp = function (string $mimeHeaders, string $mimeBody) use ($cfg, $from, $to, $bcc, $encSubject) {
+        $rcpt = array_values(array_unique(array_merge([$to], $bcc)));
+        $data = "To: $to\r\nSubject: $encSubject\r\n" . $mimeHeaders . "\r\n\r\n" . $mimeBody;
+        return smtp_send((array)$cfg['smtp'], $from, $rcpt, $data);
+    };
+
     if (!$attachments) {
         $headers[] = 'Content-Type: text/plain; charset=UTF-8';
         $headers[] = 'Content-Transfer-Encoding: 8bit';
-        return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers), $extra);
+        if ($useSmtp) return $viaSmtp(implode("\r\n", $headers), $body);
+        return mail($to, $encSubject, $body, implode("\r\n", $headers), $extra);
     }
 
     $boundary = 'b' . bin2hex(random_bytes(16));
@@ -143,7 +231,8 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
     }
     $msg .= "--$boundary--\r\n";
 
-    return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $msg, implode("\r\n", $headers), $extra);
+    if ($useSmtp) return $viaSmtp(implode("\r\n", $headers), $msg);
+    return mail($to, $encSubject, $msg, implode("\r\n", $headers), $extra);
 }
 
 /* ---------- Microsoft Graph (delivery_mode = 'graph') ---------- */
