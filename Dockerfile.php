@@ -33,6 +33,13 @@ RUN sed -i 's/^Listen 80$/Listen 8777/' /etc/apache2/ports.conf \
  && sed -i 's/:80>/:8777>/' /etc/apache2/sites-available/000-default.conf
 EXPOSE 8777
 
+# STAGING ONLY: this container serves the preview/staging site
+# (impactfund.wareham.stream), which must never be indexed by search engines.
+# Production on GoDaddy is deployed as plain files (not this image), so it
+# does NOT get this header and indexes normally after launch.
+RUN a2enmod headers \
+ && echo 'Header always set X-Robots-Tag "noindex, nofollow"' > /etc/apache2/conf-enabled/zz-staging-noindex.conf
+
 # Site content (root-relative URLs -> must be the document root)
 COPY . /var/www/html/
 
