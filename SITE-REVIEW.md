@@ -1,5 +1,38 @@
 # Site review — mistakes found (no fixes applied)
 
+## UPDATE 2026-08-26 — new partner list loaded (supersedes school-data findings below)
+
+Alumo's "Partner List Sept 2026" spreadsheet (165 rows) replaced the original
+2026-08-18 data. Loaded to js/schools-data.js after cleaning: **155 partners**.
+
+**Resolved by the new list itself:** "confirm with Darren" note gone; Kwatlen→Kwantlen;
+"(SA)/(Institution)" markers mostly gone; association misspellings (Assoication etc.)
+fixed; contact names dropped (matches our display); "TBD" replaced with
+"Contact Email Coming Soon".
+
+**Fixed in our cleaning pass (35 changes, all in the 2026-08-26 commit):**
+10 exact duplicate rows removed (SK block + UQAM/UQAT pairs); Fanshawe email
+missing "@" re-fixed (regressed in the sheet); remaining name corrections applied
+(Wilfrid Laurier, Queen's, University of Waterloo, U of the Fraser Valley, NAIT,
+AUArts, Université Laval, UQ en Outaouais, Ahuntsic, Bois-de-Boulogne, FR plurals);
+last "(SA)" markers stripped; 4 factual province corrections: Burman University and
+The King's University → Alberta, Crandall University and Maritime College of Forest
+Technology → New Brunswick (all four were listed under Ontario).
+
+**Still open / flag to Alumo:**
+- 10 partners show "Contact Email Coming Soon" (renders as plain text on the site).
+- The 4 province corrections above should be confirmed by Alumo.
+- Duplicate contact emails to confirm intentional: kminer@unb.ca (UNB Fredericton +
+  Saint John), maryliz.warwick@ (Cambrian College + Cambrian International),
+  permanence@asso-cstj.org (Cégep de Sainte-Foy + St-Jérôme — was flagged before,
+  persists in the new list).
+- New list drops the FR-accent province issue (cards unchanged) but the FR page
+  card labels still carry the hyphen/accent gaps (separate finding, still open).
+
+Findings in "Partner-schools data quality" and the school-name items in
+"Spelling & grammar — EN" below are now HISTORICAL — kept for the record.
+
+
 Audited 2026-08-19 against https://impactfund.wareham.stream (deployed content
 verified byte-identical to this repo) and the original alumoimpact.ca mirror.
 `[inherited]` = the mistake exists on the original WordPress site too and was

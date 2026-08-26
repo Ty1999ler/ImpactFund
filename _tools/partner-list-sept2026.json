@@ -1,0 +1,827 @@
+[
+ {
+  "raw": "Alberta College of Acupuncture & Traditional Chinese Medicine",
+  "province": "Alberta",
+  "email": "dr.kyle.picard@acatcm.com"
+ },
+ {
+  "raw": "Bow Valley College - Students' Association of Bow Valley College (SABVC)",
+  "province": "Alberta",
+  "email": "info@sabvc.ca"
+ },
+ {
+  "raw": "Concordia University of Edmonton - Concordia University of Edmonton Students' Association (CUESA)",
+  "province": "Alberta",
+  "email": "cuesavpstudentlife@student.concordia.ab.ca"
+ },
+ {
+  "raw": "Keyano College - Students' Association of Keyano College (SAKC)",
+  "province": "Alberta",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Lakeland College - Students' Association of Lakeland College (SALC)",
+  "province": "Alberta",
+  "email": "carrie.boerrichter@lakelandcollege.ca"
+ },
+ {
+  "raw": "Lethbridge Polytechnic - Lethbridge Polytechnic Students' Association (LPSA)",
+  "province": "Alberta",
+  "email": "savpstudentlife@lethpolytech.ca"
+ },
+ {
+  "raw": "MacEwan University - Students' Association of MacEwan University (SAMU)",
+  "province": "Alberta",
+  "email": "zokpahm@macewan.ca"
+ },
+ {
+  "raw": "Mount Royal University - Students' Association of Mount Royal University (SAMRU)",
+  "province": "Alberta",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Norquest College - Students' Association of NorQuest College (SANQC)",
+  "province": "Alberta",
+  "email": "Cherie.Sawaryn@NorQuest.ca"
+ },
+ {
+  "raw": "Northern Alberta IT - NAIT Students' Association (NAITSA)",
+  "province": "Alberta",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Olds College - Students' Association of Olds College (SAOC)",
+  "province": "Alberta",
+  "email": "saocpres@oldscollege.ca"
+ },
+ {
+  "raw": "Red Deer Polytechnic - Students' Association of Red Deer Polytechnic (SARDP)",
+  "province": "Alberta",
+  "email": "elizabeth.sweiger@rdpolytech.ca"
+ },
+ {
+  "raw": "University of Alberta - University of Alberta Students' Union (UASU)",
+  "province": "Alberta",
+  "email": "marc.doumouchel@su.ualberta.ca"
+ },
+ {
+  "raw": "University of Alberta - University of Alberta Graduate Students' Association (GSA)",
+  "province": "Alberta",
+  "email": "vpss@gsa-ualberta.ca"
+ },
+ {
+  "raw": "University of Alberta Arts - University of Alberta Arts Students' Union (AUArts)",
+  "province": "Alberta",
+  "email": "office.sa@auarts.ca"
+ },
+ {
+  "raw": "University of Calgary - University of Calgary Students' Union (UCSU)",
+  "province": "Alberta",
+  "email": "getsey.boyd@ucalgary.ca"
+ },
+ {
+  "raw": "Adler University",
+  "province": "British Columbia",
+  "email": "smilner@adler.edu"
+ },
+ {
+  "raw": "British Columbia Institute of Technology - British Columbia Institute of Technology Students' Association (BCITSA)",
+  "province": "British Columbia",
+  "email": "LBarreca@bcitsa.ca"
+ },
+ {
+  "raw": "Camosun College - Camosun College Student Society (CCSS)",
+  "province": "British Columbia",
+  "email": "CCSSPlan@camosun.ca"
+ },
+ {
+  "raw": "Capilano University - Capilano Students' Union (CSU)",
+  "province": "British Columbia",
+  "email": "kboroevich@csu.bc.ca"
+ },
+ {
+  "raw": "City University",
+  "province": "British Columbia",
+  "email": "MTshimbalanga@cityu.edu"
+ },
+ {
+  "raw": "College of the Rockies - College of the Rockies Students' Association (COTRSA)",
+  "province": "British Columbia",
+  "email": "CAndrichuk@cotr.bc.ca"
+ },
+ {
+  "raw": "Douglas College - Douglas Students' Union (DSU)",
+  "province": "British Columbia",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Kwantlen Polytechnic - Kwantlen Student Association (KSA)",
+  "province": "British Columbia",
+  "email": "timothii.ragavan@kusa.ca"
+ },
+ {
+  "raw": "Langara College - Langara Students' Union (LSU)",
+  "province": "British Columbia",
+  "email": "Gunkirat@lsu.bc.ca"
+ },
+ {
+  "raw": "Simon Fraser University - Simon Fraser Students' Society (SFSS)",
+  "province": "British Columbia",
+  "email": "operations@sfss.ca"
+ },
+ {
+  "raw": "Simon Fraser University - Graduate Students' Society of Simon Fraser University (GSS-SFU)",
+  "province": "British Columbia",
+  "email": "student-life@sfugradsociety.ca"
+ },
+ {
+  "raw": "University of British Columbia - Graduate Student Society of UBC Vancouver (UBC GSS)",
+  "province": "British Columbia",
+  "email": "president@gss.ubc.ca"
+ },
+ {
+  "raw": "University of British Columbia - Alma Mater Society of UBC Vancouver (UBC AMS)",
+  "province": "British Columbia",
+  "email": "avpfunds@ams.ubc.ca"
+ },
+ {
+  "raw": "University of Fraser Valley - University of the Fraser Valley Student Union Society (UFVSUS)",
+  "province": "British Columbia",
+  "email": "j.buker@ufvsus.ca"
+ },
+ {
+  "raw": "University of Northern British Columbia - Northern British Columbia Graduate Students' Society (NBCGSS)",
+  "province": "British Columbia",
+  "email": "admin@nbcgss.ca"
+ },
+ {
+  "raw": "University of Northern British Columbia - Northern Undergraduate Students' Society (NUGSS)",
+  "province": "British Columbia",
+  "email": "nugss-gm@unbc.ca"
+ },
+ {
+  "raw": "University of British Columbia Okanagan - Students' Union Okanagan of the University of British Columbia (SUOUBC)",
+  "province": "British Columbia",
+  "email": "kishan.reid@suo.ca"
+ },
+ {
+  "raw": "University of Victoria - University of Victoria Students' Society (UVSS)",
+  "province": "British Columbia",
+  "email": "outreach@uvss.ca"
+ },
+ {
+  "raw": "University of Victoria - University of Victoria Graduate Students' Society (UVic GSS)",
+  "province": "British Columbia",
+  "email": "gssmgr@uvic.ca"
+ },
+ {
+  "raw": "Royal Roads University - Royal Roads University Students' Association (RRUSA)",
+  "province": "British Columbia",
+  "email": "ed@rrusa.ca"
+ },
+ {
+  "raw": "Booth University College",
+  "province": "Manitoba",
+  "email": "Barb.Stanley@salvationarmy.ca"
+ },
+ {
+  "raw": "International College of Manitoba",
+  "province": "Manitoba",
+  "email": "scott.bazan@icmanitoba.ca"
+ },
+ {
+  "raw": "Red River College - Red River College Students' Association (RRCSA)",
+  "province": "Manitoba",
+  "email": "snachtigall@rrc.ca"
+ },
+ {
+  "raw": "University of Manitoba - University of Manitoba Students' Union (UMSU)",
+  "province": "Manitoba",
+  "email": "vpfo@umsu.ca"
+ },
+ {
+  "raw": "University of Manitoba - University of Manitoba Graduate Students' Association (UMGSA)",
+  "province": "Manitoba",
+  "email": "governance@umgps.org"
+ },
+ {
+  "raw": "University of Winnipeg - University of Winnipeg Students' Association (UWSA)",
+  "province": "Manitoba",
+  "email": "ed@theuwsa.ca"
+ },
+ {
+  "raw": "New Brunswick Community College - New Brunswick Community College Students' Union (NBCCSU)",
+  "province": "New Brunswick",
+  "email": "taylor.howie@nbcc.ca"
+ },
+ {
+  "raw": "University of New Brunswick Fredericton - UNB Fredericton Undergrad Students (SA)",
+  "province": "New Brunswick",
+  "email": "kminer@unb.ca"
+ },
+ {
+  "raw": "University of New Brunswick Graduate - UNB Graduate Students (SA)",
+  "province": "New Brunswick",
+  "email": "office@unbgsa.ca"
+ },
+ {
+  "raw": "University of New Brunswick Saint John - UNB Saint John Undergrad Students (SA)",
+  "province": "New Brunswick",
+  "email": "kminer@unb.ca"
+ },
+ {
+  "raw": "Nova Scotia Community College (NSCC)",
+  "province": "Nova Scotia",
+  "email": "lori.foran@nscc.ca"
+ },
+ {
+  "raw": "St. Francis Xavier University - St.FX Students' Union",
+  "province": "Nova Scotia",
+  "email": "gm.stfxsu@theu.ca"
+ },
+ {
+  "raw": "Algonquin College - Algonquin Students' Association (SA)",
+  "province": "Ontario",
+  "email": "regnierm@algonquincollege.com"
+ },
+ {
+  "raw": "Burman University",
+  "province": "Ontario",
+  "email": "angeladeibert@burmanu.ca"
+ },
+ {
+  "raw": "Cambrian College",
+  "province": "Ontario",
+  "email": "maryliz.warwick@cambriancollege.ca"
+ },
+ {
+  "raw": "Cambrian International",
+  "province": "Ontario",
+  "email": "maryliz.warwick@cambriancollege.ca"
+ },
+ {
+  "raw": "Carleton University - Carleton University Students' Association (CUSA)",
+  "province": "Ontario",
+  "email": "katie.berger@cusaonline.ca"
+ },
+ {
+  "raw": "Centennial College - Centennial College Student Association (CCSAI)",
+  "province": "Ontario",
+  "email": "BBeamish@centennialcollege.ca"
+ },
+ {
+  "raw": "Collège Boréal",
+  "province": "Ontario",
+  "email": "aristidef.kouame@collegeboreal.ca"
+ },
+ {
+  "raw": "Collège La Cité",
+  "province": "Ontario",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Conestoga College - Conestoga Students' Inc (CSI)",
+  "province": "Ontario",
+  "email": "Switzel@conestogac.on.ca"
+ },
+ {
+  "raw": "Confederation College - Student Union of Confederation College (SUCCI)",
+  "province": "Ontario",
+  "email": "kendall.williams@confederationcollege.ca"
+ },
+ {
+  "raw": "Crandall University",
+  "province": "Ontario",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Fanshawe College",
+  "province": "Ontario",
+  "email": "McLean, Jennifer <jmclean@FanshaweC.ca>"
+ },
+ {
+  "raw": "Fanshawe College - Fanshawe Student Union (FSU)",
+  "province": "Ontario",
+  "email": "j_riddell2fanshawec.ca"
+ },
+ {
+  "raw": "Fleming College",
+  "province": "Ontario",
+  "email": "tracey.mcconnery@flemingcollege.ca"
+ },
+ {
+  "raw": "Fleming College - Fleming College Student Administrative Council (SAC)",
+  "province": "Ontario",
+  "email": "joel.willett@flemingcollege.ca"
+ },
+ {
+  "raw": "George Brown Polytechnic",
+  "province": "Ontario",
+  "email": "memberservices@sagbc.ca"
+ },
+ {
+  "raw": "Humber and Guelph-Humber - IGNITE",
+  "province": "Ontario",
+  "email": "wba@ignitestudentlife.com"
+ },
+ {
+  "raw": "Humber Polytechnic",
+  "province": "Ontario",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "Lambton College - Student Administrative Council of Lambton College",
+  "province": "Ontario",
+  "email": "Tony.Frangis@lambtoncollege.ca"
+ },
+ {
+  "raw": "Loyalist College",
+  "province": "Ontario",
+  "email": "adoupe@loyalistcollege.com"
+ },
+ {
+  "raw": "Maritime College of Forest Technology",
+  "province": "Ontario",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "McMaster University - McMaster Students' Union (MSU)",
+  "province": "Ontario",
+  "email": "adminassistant@msu.mcmaster.ca"
+ },
+ {
+  "raw": "Mohawk College - Mohawk Students' Association (MSA)",
+  "province": "Ontario",
+  "email": "marc.iturriaga@mohawkcollege.ca"
+ },
+ {
+  "raw": "Niagara College - Niagara College Student Administrative Council (NCSAC)",
+  "province": "Ontario",
+  "email": "jatanguay@niagaracollege.ca'"
+ },
+ {
+  "raw": "Niagara University in Ontario",
+  "province": "Ontario",
+  "email": "saunders@niagara.edu"
+ },
+ {
+  "raw": "Northern College",
+  "province": "Ontario",
+  "email": "moorlagj@northern.on.ca"
+ },
+ {
+  "raw": "Northern Ontario School of Medicine University - NOSM University Student Council (NOSMUSC)",
+  "province": "Ontario",
+  "email": "mcain@nosm.ca"
+ },
+ {
+  "raw": "Ontario College of Art & Design - Ontario College of Art & Design Student Union (OCADSU)",
+  "province": "Ontario",
+  "email": "operations@ocadsu.org"
+ },
+ {
+  "raw": "Ontario Tech University - Ontario Tech Students' Union (OTSU)",
+  "province": "Ontario",
+  "email": "Mayooran.Thurairajah@ontariotechu.ca"
+ },
+ {
+  "raw": "Queens University - Queens University Alma Mater Society (Queens AMS)",
+  "province": "Ontario",
+  "email": "president@ams.queensu.ca"
+ },
+ {
+  "raw": "Queens University - Queens University Society of Graduate and Professional Students (SGPS)",
+  "province": "Ontario",
+  "email": "director@sgps.ca"
+ },
+ {
+  "raw": "Sault College - Sault College Students' Union (SCSU)",
+  "province": "Ontario",
+  "email": "sue.misasi@saultcollege.ca"
+ },
+ {
+  "raw": "Seneca Polytechnic (International Students)",
+  "province": "Ontario",
+  "email": "shirley.mangallon@senecapolytechnic.ca"
+ },
+ {
+  "raw": "St. Clair College - St. Clair College Student Representative Council (SRC)",
+  "province": "Ontario",
+  "email": "rpeebles@stclaircollege.ca"
+ },
+ {
+  "raw": "St. Lawrence College - St. Lawrence College Student Association (SASLC)",
+  "province": "Ontario",
+  "email": "AMcCaughen@sl.on.ca"
+ },
+ {
+  "raw": "The King's University",
+  "province": "Ontario",
+  "email": "kathy.kimpton@kingsu.ca"
+ },
+ {
+  "raw": "The Michener Institute of Education at UHN",
+  "province": "Ontario",
+  "email": "rnielson@michener.ca"
+ },
+ {
+  "raw": "Toronto Metropolitan University - Toronto Metropolitan Students' Union (TMSU)",
+  "province": "Ontario",
+  "email": "execdirector.millerberry@yourtmsu.ca"
+ },
+ {
+  "raw": "Toronto Metropolitan University - Toronto Metropolitan Graduate Students' Union (TMGSU)",
+  "province": "Ontario",
+  "email": "manager@tmgsu.ca"
+ },
+ {
+  "raw": "Toronto Metropolitan University - Toronto Metropolitan Association of Part Time Students (TMAPS)",
+  "province": "Ontario",
+  "email": "services@tmaps.ca"
+ },
+ {
+  "raw": "University of Guelph - Central Students' Association and Graduate Students' Association (CSA & GSA)",
+  "province": "Ontario",
+  "email": "csapresident@uoguelph.ca"
+ },
+ {
+  "raw": "University of Guelph - Ridgetown Campus",
+  "province": "Ontario",
+  "email": "neufeldb@uoguelph.ca"
+ },
+ {
+  "raw": "University of Ottawa - University of Ottawa Students' Union (UOSU)",
+  "province": "Ontario",
+  "email": "president@seuo-uosu.com"
+ },
+ {
+  "raw": "University of Toronto - University of Toronto Students' Union (UTSU)",
+  "province": "Ontario",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "University of Toronto - University of Toronto Graduate Students' Union (UTGSU)",
+  "province": "Ontario",
+  "email": "executivedirector@utgsu.ca"
+ },
+ {
+  "raw": "Waterloo University - Waterloo Undergraduate Student Association (WUSA)",
+  "province": "Ontario",
+  "email": "sburdett@wusa.ca"
+ },
+ {
+  "raw": "Waterloo University - University of Waterloo Graduate Student Association (UWGSA)",
+  "province": "Ontario",
+  "email": "gsagm@uwaterloo.ca"
+ },
+ {
+  "raw": "Western University - Western University Students' Council (USC)",
+  "province": "Ontario",
+  "email": "sthompso@uwo.ca"
+ },
+ {
+  "raw": "Wilfred Laurier University - Wilfred Laurier University Graduate Students' Association (WLUGSA)",
+  "province": "Ontario",
+  "email": "emenage@wlu.ca"
+ },
+ {
+  "raw": "Barreau de l'Outaouais - Association des étudiants de l’École du Barreau du Québec en Outaouais (AEEBQO)",
+  "province": "Quebec",
+  "email": "etudiants.barreau.outaouais@gmail.com"
+ },
+ {
+  "raw": "Barreau de Montréal - Association des étudiants de l’École du Barreau de Montréal (AEEBM)",
+  "province": "Quebec",
+  "email": "aeebm.contact@gmail.com"
+ },
+ {
+  "raw": "Barreau de Québec - Association des jeunes juristes de Québec (AJJQ)",
+  "province": "Quebec",
+  "email": "ajjquebec@gmail.com"
+ },
+ {
+  "raw": "Barreau de Sherbrooke - Association des jeunes juristes de Sherbrooke (AJJS)",
+  "province": "Quebec",
+  "email": "presidence@ajjsherbrooke.com"
+ },
+ {
+  "raw": "Cégep de Chicoutimi - Association générale des étudiantes et étudiants du Collège de Chicoutimi (AGEECC)",
+  "province": "Quebec",
+  "email": "ageecc@cchic.ca"
+ },
+ {
+  "raw": "Cégep de Rimouski - Association générale des étudiants du Cégep de Rimouski (AGECR)",
+  "province": "Quebec",
+  "email": "agecri@hotmail.com"
+ },
+ {
+  "raw": "Cégep de Sainte-Foy - Association étudiante du Cégep de Sainte-Foy (AECSF)",
+  "province": "Quebec",
+  "email": "permanence@asso-cstj.org"
+ },
+ {
+  "raw": "Cégep de Sherbrooke - Association étudiante du Cégep de Sherbrooke (AECS)",
+  "province": "Quebec",
+  "email": "aecs@aecs.info"
+ },
+ {
+  "raw": "Cégep de St-Jérôme - Association générale étudiante du Cégep de Saint-Jérôme (AGES)",
+  "province": "Quebec",
+  "email": "permanence@asso-cstj.org"
+ },
+ {
+  "raw": "Cégep de Victoriaville - Association générale des étudiantes et étudiants du Cégep de Victoriaville (AGEECV)",
+  "province": "Quebec",
+  "email": "AGEECV2@cegepvicto.ca"
+ },
+ {
+  "raw": "Cégep du Vieux-Montréal - Association générale étudiante du Cégep du Vieux Montréal (AGECVM)",
+  "province": "Quebec",
+  "email": "agecvm@hotmail.com"
+ },
+ {
+  "raw": "Cégep Sorel-Tracy - Association Générale des Étudiantes et Étudiants du Cégep de Sorel-Tracy (AGECST)",
+  "province": "Quebec",
+  "email": "ageecst@fecq.org"
+ },
+ {
+  "raw": "Collège Ahunstic - Association générale étudiante du Collège Ahuntsic (AGECA)",
+  "province": "Quebec",
+  "email": "direction@ageca.qc.ca"
+ },
+ {
+  "raw": "Collège de Bois-de-boulogne - Association générale étudiante de Bois-de-Boulogne (AGEBdB)",
+  "province": "Quebec",
+  "email": "permanence@age.bdeb.qc.ca"
+ },
+ {
+  "raw": "Collège de Maisonneuve - Société générale des étudiantes et étudiants du Collège de Maisonneuve (SOGEECOM)",
+  "province": "Quebec",
+  "email": "permanence@sogeecom.org"
+ },
+ {
+  "raw": "Conservatoire de musique et d'art dramatique du Québec - Fédération des associations d’élèves du Conservatoire de musique et d’art dramatique du Québec (FAECMADQ)",
+  "province": "Quebec",
+  "email": "aurelie_quimper_bouchard@outlook.com"
+ },
+ {
+  "raw": "École de technologie supérieure - Association étudiante de l’ÉTS (AÉÉTS)",
+  "province": "Quebec",
+  "email": "services@aeets.com"
+ },
+ {
+  "raw": "École nationale d'administration publique - Association étudiante de l’École nationale d’administration publique (AEENAP)",
+  "province": "Quebec",
+  "email": "aeenap@aeenap-qc.ca"
+ },
+ {
+  "raw": "École nationale de théâtre - École nationale de théâtre (ENT)",
+  "province": "Quebec",
+  "email": "madurocher@ent-nts.ca"
+ },
+ {
+  "raw": "HEC Montréal - Association des Étudiants de HEC Montréal (AEHEC)",
+  "province": "Quebec",
+  "email": "paulane.touchette@hec.ca"
+ },
+ {
+  "raw": "HEC Montréal - Association étudiante des programmes de certificat (AEPC)",
+  "province": "Quebec",
+  "email": "aepc@hec.ca"
+ },
+ {
+  "raw": "HEC Montréal - Association des étudiants au cycles supérieurs de HEC Montréal (AECS-HEC)",
+  "province": "Quebec",
+  "email": "presidence@aecshec.org"
+ },
+ {
+  "raw": "HEC Montréal - Association des étudiants MBA-HEC (AEMBA)",
+  "province": "Quebec",
+  "email": "benoit.laplante@hec.ca"
+ },
+ {
+  "raw": "Institut de tourisme et d'hôtellerie du Québec - Association générale des étudiantes et des étudiants de l’ITHQ (AGEE ITHQ)",
+  "province": "Quebec",
+  "email": "agee.ithq@ithq.qc.ca"
+ },
+ {
+  "raw": "Institut national de la recherche scientifique - Fédération des étudiants de l’INRS (FEINRS)",
+  "province": "Quebec",
+  "email": "fe.inrs@inrs.ca"
+ },
+ {
+  "raw": "McGill University - Students’ Society of McGill University (SSMU)",
+  "province": "Quebec",
+  "email": "gm@ssmu.ca"
+ },
+ {
+  "raw": "Polytechnique Montréal - Association étudiante de Polytechnique (AEP)",
+  "province": "Quebec",
+  "email": "engagement@aep.polymtl.ca"
+ },
+ {
+  "raw": "Polytechnique Montréal - Association des étudiants des cycles supérieurs de Polytechnique (AECSP)",
+  "province": "Quebec",
+  "email": "services@aecsp.qc.ca"
+ },
+ {
+  "raw": "Université de Laval - Confédération des association d’étudiants et d’étudiantes de l’Université Laval (CADEUL)",
+  "province": "Quebec",
+  "email": "finances@cadeul.ulaval.ca"
+ },
+ {
+  "raw": "Université de Laval - Association des étudiantes et des étudiants de Laval inscrits aux études supérieures (AÉLIÉS)",
+  "province": "Quebec",
+  "email": "finances@aelies.ulaval.ca"
+ },
+ {
+  "raw": "Université de Montréal - Fédération des associations étudiantes du campus de l’Université de Montréal (FAÉCUM)",
+  "province": "Quebec",
+  "email": "finances@faecum.qc.ca"
+ },
+ {
+  "raw": "Université de Montréal - Association générale étudiante de la formation et de l'apprentissage continus (AGEFAC)",
+  "province": "Quebec",
+  "email": "presidence@agefac.ca"
+ },
+ {
+  "raw": "Université de Sherbrooke - Regroupement des étudiantes et étudiants de maîtrise, de diplôme et de doctorat de l’Université de Sherbrooke (REMDUS)",
+  "province": "Quebec",
+  "email": "services@remdus.qc.ca"
+ },
+ {
+  "raw": "Université du Québec à Chicoutimi - Mouvement des associations générales étudiantes de l’UQAC (MAGE-UQAC)",
+  "province": "Quebec",
+  "email": "aexecutif@mageuqac.com"
+ },
+ {
+  "raw": "Université du Québec à Gatineau - Association générale des étudiants de l’Université du Québec en Outaouais (AGE-UQO)",
+  "province": "Quebec",
+  "email": "age@uqo.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association facultaire étudiante des science humaines de l’UQAM (AFESH)",
+  "province": "Quebec",
+  "email": "afesh.uqam@gmail.com"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association facultaire étudiante des arts de l’UQAM (AFÉA)",
+  "province": "Quebec",
+  "email": "afea@uqam.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association des étudiants du Secteur des sciences de l’UQAM (AESS)",
+  "province": "Quebec",
+  "email": "aess@aessuqam.org"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association des étudiantes et des étudiants de la Faculté des sciences de l’éducation de l’UQAM (ADEESE)",
+  "province": "Quebec",
+  "email": "adeese@uqam.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association facultaire étudiante de science politique et droit de l’UQAM (AFESPED)",
+  "province": "Quebec",
+  "email": "afesped@courrier.uqam.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association facultaire de langues et communications de l’Université du Québec à Montréal (AFELC)",
+  "province": "Quebec",
+  "email": "afelc@courrier.uqam.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association étudiante de l’École des sciences de la gestion (AéESG)",
+  "province": "Quebec",
+  "email": "aff.institut@aeesg.com"
+ },
+ {
+  "raw": "Université du Québec en Abitibi-Témiscamingue - Association générale étudiante de l’Université du Québec en Abitibi-Témiscamingue (AGEUQAT)",
+  "province": "Quebec",
+  "email": "ageuqat@uqat.ca"
+ },
+ {
+  "raw": "Carlton Trail College",
+  "province": "Saskatchewan",
+  "email": "gaetzd@carltontrailcollege.com"
+ },
+ {
+  "raw": "Great Plains College",
+  "province": "Saskatchewan",
+  "email": "tylerb@greatplainscollege.ca"
+ },
+ {
+  "raw": "Saskatchewan Polytechnic - Saskatchewan Polytechnic Students' Association (SPSA)",
+  "province": "Saskatchewan",
+  "email": "carol.tetreault@spsa.ca"
+ },
+ {
+  "raw": "Southeast College",
+  "province": "Saskatchewan",
+  "email": "SOnrait@southeastcollege.org"
+ },
+ {
+  "raw": "Suncrest College",
+  "province": "Saskatchewan",
+  "email": "r.cross@suncrestcollege.ca"
+ },
+ {
+  "raw": "University of Regina",
+  "province": "Saskatchewan",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "University of Saskatchewan - University of Saskatchewan Students' Union (USSU)",
+  "province": "Saskatchewan",
+  "email": "jventnor@ussu.ca"
+ },
+ {
+  "raw": "University of Saskatchewan - University of Saskatchewan Graduate Students' Association (USGSA)",
+  "province": "Saskatchewan",
+  "email": "gsa.adm@usask.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association facultaire de langues et communications de l’Université du Québec à Montréal (AFELC)",
+  "province": "Quebec",
+  "email": "afelc@courrier.uqam.ca"
+ },
+ {
+  "raw": "Université du Québec à Montréal - Association étudiante de l’École des sciences de la gestion (AéESG)",
+  "province": "Quebec",
+  "email": "aff.institut@aeesg.com"
+ },
+ {
+  "raw": "Université du Québec en Abitibi-Témiscamingue - Association générale étudiante de l’Université du Québec en Abitibi-Témiscamingue (AGEUQAT)",
+  "province": "Quebec",
+  "email": "ageuqat@uqat.ca"
+ },
+ {
+  "raw": "Carlton Trail College",
+  "province": "Saskatchewan",
+  "email": "gaetzd@carltontrailcollege.com"
+ },
+ {
+  "raw": "Great Plains College",
+  "province": "Saskatchewan",
+  "email": "tylerb@greatplainscollege.ca"
+ },
+ {
+  "raw": "Southeast College",
+  "province": "Saskatchewan",
+  "email": "SOnrait@southeastcollege.org"
+ },
+ {
+  "raw": "Suncrest College",
+  "province": "Saskatchewan",
+  "email": "r.cross@suncrestcollege.ca"
+ },
+ {
+  "raw": "University of Regina",
+  "province": "Saskatchewan",
+  "email": "Contact Email Coming Soon"
+ },
+ {
+  "raw": "University of Saskatchewan - University of Saskatchewan Students' Union (USSU)",
+  "province": "Saskatchewan",
+  "email": "jventnor@ussu.ca"
+ },
+ {
+  "raw": "University of Saskatchewan - University of Saskatchewan Graduate Students' Association (USGSA)",
+  "province": "Saskatchewan",
+  "email": "gsa.adm@usask.ca"
+ },
+ {
+  "raw": "Bishops University - Bishop’s University Students’ Representative Council (BUSCR)",
+  "province": "Quebec",
+  "email": "srced@ubishops.ca"
+ },
+ {
+  "raw": "Concordia University - Concordia Student Union (CSU)",
+  "province": "Quebec",
+  "email": "office@csu.qc.ca"
+ },
+ {
+  "raw": "Concordia University - Graduate Students’ Association (GSA)",
+  "province": "Quebec",
+  "email": "info@gsaconcordia.ca"
+ },
+ {
+  "raw": "Dawson College - Dawson Student Union (DSU)",
+  "province": "Quebec",
+  "email": "admin.director@dawsonstudentunion.com"
+ },
+ {
+  "raw": "McGill University - Post-Graduate Students’ Society (PGSS)",
+  "province": "Quebec",
+  "email": "membership.pgss@mail.mcgill.ca"
+ },
+ {
+  "raw": "McGill University - Macdonald Campus Students’ Society (MCSS)",
+  "province": "Quebec",
+  "email": "mcss@mail.mcgill.ca"
+ },
+ {
+  "raw": "McGill University - McGill Association of Continuing Education Students (MACES)",
+  "province": "Quebec",
+  "email": "president.maces@mail.mcgill.ca"
+ }
+]

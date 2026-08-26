@@ -1,5 +1,18 @@
 # Alumo Impact static rebuild — forward plans
 
+## Forms delivery — FIRST ITERATION per Alumo IT (Roxanne, 2026-08-26)
+No SharePoint connection for v1. Instead: on submit, api/apply.php generates a
+PDF summary of the application, attaches the uploaded documents, and sends via
+the **Cakemail API** (Alumo's existing email vendor — needs their API key +
+sender + destination address). Server-side archive in _submissions/ remains the
+authoritative copy. Attachment-size guard: always send the PDF summary; attach
+files only when under the email limit; originals stay in the archive.
+Contact form: same Cakemail path. This supersedes the graph/email delivery_mode
+plan below for v1 — SharePoint (Graph) can return as a later iteration.
+IT asks reduced to: GoDaddy delegate access + Cakemail API key.
+Hosting answer given to IT: staging on wareham.stream (noindexed), production on
+Alumo's existing GoDaddy plan (no DNS/domain changes).
+
 ## CMS (client asked 2026-08-19 — quote in preparation)
 Two-tier plan, both compatible with the existing pipeline (git → Actions → GHCR → Watchtower):
 1. **CMS-lite** (~2-3 dev-days): small password-protected admin page on the existing
@@ -69,12 +82,11 @@ above) — multipart POST to /api/apply. Microsoft Forms is NOT viable (file upl
 requires tenant sign-in; student applicants are external).
 
 ## Partner schools data
-Real list (128 rows, provided 2026-08-18) lives in js/schools-data.js
+Sept 2026 list (155 partners after cleaning, loaded 2026-08-26) lives in js/schools-data.js
 (window.ALUMO_SCHOOLS) — single source of truth for the partner-schools list page
-and the form's institution dropdown. Raw table: _tools/partner-schools-raw.tsv.
+and the form's institution dropdown. Raw: _tools/partner-list-sept2026.json (as received) and partner-schools-sept2026-clean.tsv (as loaded); the 2026-08-18 original remains in partner-schools-raw.tsv.
 Display columns on the list page: school, association, contact email (no names).
-Data flags: one email missing its @ ("j_riddell2fanshawec.ca" — Fanshawe Students'
-Union), several TBD contacts.
+Data flags: 10 "Contact Email Coming Soon" entries; 4 province corrections applied (Burman/King's→AB, Crandall/Maritime Forest Tech→NB) pending Alumo confirmation — see SITE-REVIEW.md update block.
 
 ## Hosting / deployment
 GitHub: https://github.com/Ty1999ler/ImpactFund (public). Deploy = clone on the
