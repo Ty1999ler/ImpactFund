@@ -36,6 +36,7 @@ deployment:
       --exclude='_submissions'
       --exclude='submissions'
       --exclude='ci'
+      --exclude='_deploy'
       --exclude='api/config.ci.php'
       --exclude='api/config.example.php'
       --exclude='Dockerfile*'
@@ -49,9 +50,10 @@ deployment:
     # serves static files as a user outside this account's group, so without the
     # world-execute bit every site under public_html returns 403/500.
     - /bin/chmod 755 $DEPLOYPATH
-    # Staging must never be indexed. Production keeps the repo's own robots.txt.
-    - if [ "$IS_PROD" != "yes" ]; then printf 'User-agent: *
-Disallow: /
-' > $DEPLOYPATH/robots.txt; fi
+    # Staging must never be indexed; production keeps the repo's own robots.txt.
+    # The content is copied from a file rather than echoed inline because a
+    # colon-space inside an unquoted YAML task silently breaks this whole file
+    # (the deploy then runs and writes an empty log — that bug cost us an hour).
+    - if [ "$IS_PROD" != "yes" ]; then /bin/cp _deploy/robots-staging.txt $DEPLOYPATH/robots.txt; fi
     # NOTE: public_html/.htaccess is deliberately NOT managed here - it is shared
     # infrastructure affecting the other sites, maintained by hand.
