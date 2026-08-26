@@ -40,6 +40,7 @@
     invalidEmail: "Veuillez entrer une adresse courriel valide.",
     invalidNumber: "Veuillez entrer un nombre valide.",
     checkField: "Veuillez vérifier ce champ.",
+    selectSchool: "Veuillez sélectionner votre école dans la liste.",
     chooseOption: "Veuillez choisir une option.",
     submitting: "Envoi de votre demande en cours…",
     successTitle: "Demande reçue !",
@@ -61,6 +62,7 @@
     invalidEmail: "Please enter a valid email address.",
     invalidNumber: "Please enter a valid number.",
     checkField: "Please check this field.",
+    selectSchool: "Please select your school from the list.",
     chooseOption: "Please choose an option.",
     submitting: "Submitting your application…",
     successTitle: "Application received!",
@@ -105,25 +107,174 @@
       ? SERVER_ERRORS[message] : message;
   }
 
-  /* ---- Institution / Association options from window.ALUMO_SCHOOLS ----
-     Option text: the association, unless it is "N/A"/"NA" — then the
-     school name. De-duplicated, source order preserved. */
-  (function populateInstitutions() {
-    var select = form.querySelector("#af-institution");
+  /* ---- Institution / Association combobox from window.ALUMO_SCHOOLS ----
+     A text input (#af-institution) with a dropdown panel of options grouped
+     by province. Option label: "School - Association" (just the school when
+     the association is "N/A"). Submitted value must exactly match a label.
+     If the field is still the legacy <select> (e.g. the FR page), fall back
+     to populating it with the same labels. */
+  var institutionCombo = (function () {
+    var field = form.querySelector("#af-institution");
     var rows = window.ALUMO_SCHOOLS;
-    if (!select || !Array.isArray(rows)) return;
-    var seen = {};
-    rows.forEach(function (row) {
+    if (!field || !Array.isArray(rows)) return null;
+
+    var PROVINCES = [
+      ["AB", "Alberta"], ["BC", "British Columbia"], ["MB", "Manitoba"],
+      ["NB", "New Brunswick"], ["NS", "Nova Scotia"], ["ON", "Ontario"],
+      ["QC", "Quebec"], ["SK", "Saskatchewan"]
+    ];
+
+    function fold(text) {
+      return String(text || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "");
+    }
+    function rowLabel(row) {
       var association = String(row.association || "").trim();
       var school = String(row.school || "").trim();
-      var text = (!association || /^n\/?a$/i.test(association)) ? school : association;
-      if (!text || seen[text.toLowerCase()]) return;
-      seen[text.toLowerCase()] = true;
-      var option = document.createElement("option");
-      option.value = text;
-      option.textContent = text;
-      select.appendChild(option);
+      if (!association || /^n\/?a$/i.test(association)) return school;
+      return school + " - " + association;
+    }
+
+    /* [{ name, options: [label…] }] in client-specified province order */
+    var groups = [];
+    var labels = {};
+    PROVINCES.forEach(function (province) {
+      var options = [];
+      var seen = {};
+      rows.forEach(function (row) {
+        if (row.province !== province[0]) return;
+        var label = rowLabel(row);
+        if (!label || seen[label.toLowerCase()]) return;
+        seen[label.toLowerCase()] = true;
+        options.push(label);
+        labels[label] = true;
+      });
+      options.sort(function (a, b) { return a.localeCompare(b); });
+      if (options.length) groups.push({ name: province[1], options: options });
     });
+
+    if (field.tagName === "SELECT") {
+      /* Legacy select fallback (FR page) */
+      groups.forEach(function (group) {
+        group.options.forEach(function (label) {
+          var option = document.createElement("option");
+          option.value = label;
+          option.textContent = label;
+          field.appendChild(option);
+        });
+      });
+      return null;
+    }
+
+    var panel = document.getElementById("af-institution-listbox");
+    if (!panel) return null;
+
+    var visibleOptions = []; /* option elements currently in the panel */
+    var activeIndex = -1;
+
+    function setActive(index) {
+      if (activeIndex >= 0 && visibleOptions[activeIndex]) {
+        visibleOptions[activeIndex].classList.remove("is-active");
+        visibleOptions[activeIndex].setAttribute("aria-selected", "false");
+      }
+      activeIndex = index;
+      if (index >= 0 && visibleOptions[index]) {
+        var el = visibleOptions[index];
+        el.classList.add("is-active");
+        el.setAttribute("aria-selected", "true");
+        field.setAttribute("aria-activedescendant", el.id);
+        if (el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
+      } else {
+        field.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function close() {
+      panel.hidden = true;
+      field.setAttribute("aria-expanded", "false");
+      setActive(-1);
+    }
+
+    function choose(label) {
+      field.value = label;
+      clearError(field);
+      close();
+    }
+
+    /* Rebuild the panel for the current query; empty query shows everything */
+    function open() {
+      var query = fold(field.value.trim());
+      /* A query identical to an already-chosen label shows everything again */
+      if (labels[field.value.trim()]) query = "";
+      panel.innerHTML = "";
+      visibleOptions = [];
+      activeIndex = -1;
+      var counter = 0;
+      groups.forEach(function (group) {
+        var matched = group.options.filter(function (label) {
+          return !query || fold(label).indexOf(query) !== -1;
+        });
+        if (!matched.length) return;
+        var heading = document.createElement("div");
+        heading.className = "combo-group-label";
+        heading.setAttribute("role", "presentation");
+        heading.textContent = group.name;
+        panel.appendChild(heading);
+        matched.forEach(function (label) {
+          var option = document.createElement("div");
+          option.className = "combo-option";
+          option.setAttribute("role", "option");
+          option.setAttribute("aria-selected", "false");
+          option.id = "af-institution-option-" + (counter++);
+          option.textContent = label;
+          /* mousedown fires before the input's blur */
+          option.addEventListener("mousedown", function (e) {
+            e.preventDefault();
+            choose(label);
+          });
+          panel.appendChild(option);
+          visibleOptions.push(option);
+        });
+      });
+      var hasOptions = visibleOptions.length > 0;
+      panel.hidden = !hasOptions;
+      field.setAttribute("aria-expanded", hasOptions ? "true" : "false");
+    }
+
+    field.addEventListener("focus", open);
+    field.addEventListener("input", open);
+    field.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        close();
+        return;
+      }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (panel.hidden) open();
+        if (!visibleOptions.length) return;
+        var next = e.key === "ArrowDown"
+          ? (activeIndex + 1) % visibleOptions.length
+          : (activeIndex <= 0 ? visibleOptions.length - 1 : activeIndex - 1);
+        setActive(next);
+        return;
+      }
+      if (e.key === "Enter" && !panel.hidden && activeIndex >= 0) {
+        e.preventDefault(); /* select instead of submitting/advancing */
+        choose(visibleOptions[activeIndex].textContent);
+      }
+    });
+    document.addEventListener("click", function (e) {
+      if (!panel.hidden && !field.contains(e.target) && !panel.contains(e.target)) close();
+    });
+
+    return {
+      field: field,
+      isValid: function () {
+        return Object.prototype.hasOwnProperty.call(labels, field.value.trim());
+      }
+    };
   })();
 
   /* ---- Select placeholder tint ---- */
@@ -256,6 +407,13 @@
 
       if (!field.checkValidity()) {
         setError(field, messageFor(field));
+        invalid.push(field);
+        return;
+      }
+
+      /* Institution combobox: the value must exactly match a list label */
+      if (institutionCombo && field === institutionCombo.field && !institutionCombo.isValid()) {
+        setError(field, T.selectSchool);
         invalid.push(field);
       }
     });

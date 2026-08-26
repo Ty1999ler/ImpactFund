@@ -94,10 +94,9 @@
 }
 
 /* ------------------------------
-   Partners — school list (province filter + A–Z table)
-   Ported from the live hidden section: hello-elementor-child custom.css
-   "Partner School" block + post-29.css container rules. Hidden at every
-   breakpoint on the live site; built visible here (data: /js/schools-data.js).
+   Partners — school list (all partners, grouped by province)
+   Search box + one always-visible table; province header rows separate the
+   groups (data: /js/schools-data.js, rendered by /js/partner-schools.js).
    ------------------------------ */
 .partner-list {
   padding: 0 0 80px;                 /* live: container b04ca82 */
@@ -182,28 +181,7 @@
   opacity: 1;
 }
 
-/* Selects (live .sort-select; the province filter reuses it) */
-.partner-school-list-wrap .sort-select:focus-visible,
-.partner-school-list-wrap .sort-select:focus {
-  outline: none;
-}
-.partner-school-list-wrap .sort-select {
-  padding: 0 4px 0 0;
-  width: fit-content;
-  font-family: var(--font-inter);
-  font-size: var(--fs-16);
-  line-height: var(--lh-26-5);
-  letter-spacing: var(--ls-tight);
-  font-weight: 400;
-  color: var(--black);
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-}
-
-.partner-school-list-wrap .school-card .no-result-found p,
-.partner-school-list-wrap .school-card .instruction-text {
+.partner-school-list-wrap .school-card .no-result-found p {
   margin: 0;
   font-family: var(--font-source-serif);
   font-size: var(--fs-24);
@@ -215,127 +193,6 @@
 .partner-school-list-wrap .school-card .no-result-found p {
   text-align: center;
   padding: 40px 0;
-}
-
-/* Grid view header: "Select your province:" + sort (live .school-results-header) */
-.partner-school-list-wrap .school-results-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-.partner-school-list-wrap .school-card .school-results {
-  margin-bottom: 24px;
-}
-.partner-school-list-wrap .school-card .school-results:empty {
-  display: none;
-}
-
-/* Province cards (live .province-grid / .province-card) */
-.partner-school-list-wrap .school-card .province-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-.partner-school-list-wrap .school-card .province-grid .province-card {
-  padding: 29px 22px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: transparent;
-  border: 1px solid var(--gray-2);
-  border-radius: 10px;
-  transition: ease 0.3s all;
-  cursor: pointer;
-}
-.partner-school-list-wrap .school-card .province-grid .province-card:hover {
-  background: transparent;
-  box-shadow: 4px 4px 2px 0px var(--gray-2);
-}
-.partner-school-list-wrap .school-card .province-grid .province-card .province-name {
-  font-family: var(--font-source-serif);
-  font-size: var(--fs-24);
-  line-height: var(--lh-42);
-  letter-spacing: var(--ls-tight);
-  font-weight: 400;
-  color: var(--text);
-  text-align: left;
-}
-.partner-school-list-wrap .school-card .province-grid .province-card .province-icon {
-  width: auto;
-  height: 30px;
-  flex-shrink: 0;
-}
-.partner-school-list-wrap .school-card .province-grid .province-card .province-icon svg,
-.partner-school-list-wrap .school-card .province-grid .province-card .province-icon img {
-  display: block;
-  width: auto;
-  height: 100%;
-}
-
-/* Table view header: "← All provinces · <Province>" + sort
-   (live .partner-school-header / .back-to-provinces / .current-province) */
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header {
-  margin-bottom: 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .province-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px 20px;
-  flex-wrap: wrap;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .back-to-provinces {
-  padding: 0;
-  border: none;
-  background: transparent;
-  text-decoration: underline;
-  cursor: pointer;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .back-to-provinces:hover {
-  background-color: transparent;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .back-to-provinces,
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .current-province {
-  margin: 0;
-  font-family: var(--font-source-serif);
-  font-size: var(--fs-20);
-  line-height: var(--lh-36);
-  letter-spacing: var(--ls-tight);
-  font-weight: 400;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .current-province {
-  margin-top: 4px;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .current-province:empty {
-  display: none;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .back-to-provinces::before,
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .current-province::before {
-  content: "";
-  display: inline-block;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .back-to-provinces::before {
-  margin-top: 4px;
-  width: 14px;
-  height: 11px;
-  background-image: url("data:image/svg+xml;utf8,<svg width='14' height='11' viewBox='0 0 14 11' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M5.6499 10.1037C5.37661 10.377 4.93344 10.3768 4.66006 10.1037L0.205079 5.64869C-0.0682884 5.37532 -0.0682883 4.93221 0.205079 4.65885L4.66006 0.203866C4.93344 -0.0692929 5.37661 -0.0694311 5.6499 0.203866C5.9232 0.477165 5.92306 0.920326 5.6499 1.19371L2.38984 4.45377L14 4.45377L14 5.85377L2.38984 5.85377L5.6499 9.11383C5.92306 9.38721 5.9232 9.83037 5.6499 10.1037Z' fill='black'/></svg>");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-}
-.partner-school-list-wrap .school-card .partner-school-list .partner-school-header .current-province::before {
-  height: 4px;
-  width: 4px;
-  border-radius: 4px;
-  background-color: var(--text);
 }
 
 /* Schools table (live .schools-table-container .table) */
@@ -377,22 +234,33 @@
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td:last-child {
   padding-right: 0;
 }
-/* Three columns: school (serif) | association | email (both Inter, smaller) */
+/* Two columns: "School - Association" (serif) | contact email (Inter, smaller) */
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col {
-  width: 30%;
+  width: 60%;
 }
-.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col,
-.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col {
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td.email-col {
   font-family: var(--font-inter);
   font-size: var(--fs-14);
   line-height: var(--lh-24);
 }
-.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col {
-  width: 45%;
-}
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col {
-  width: 25%;
+  width: 40%;
   overflow-wrap: anywhere;
+}
+/* Visible column headers */
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table thead th {
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: var(--lh-24);
+  font-weight: 600;
+}
+/* Full-width province header row before each group — serif heading */
+.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .province-row th {
+  padding-top: 40px;
+  font-family: var(--font-source-serif);
+  font-size: var(--fs-24);
+  line-height: var(--lh-36);
+  font-weight: 400;
 }
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table a {
   color: var(--text);
@@ -452,13 +320,6 @@
   .partners-hero { padding: 130px 0 50px; }
   .partners-card-text { width: 50%; }
 
-  .partner-school-list-wrap .school-card .province-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .partner-school-list-wrap .school-card .province-grid .province-card {
-    padding: 16px;
-  }
-
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table th,
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table td {
     padding: 12px 8px;
@@ -489,15 +350,6 @@
     background-position: calc(100% - 10px) center;
     background-size: 20px;
   }
-  .partner-school-list-wrap .school-results-header {
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-  .partner-school-list-wrap .school-card .partner-school-list .partner-school-header {
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
   .questions-card {
     background-position: center center;
     background-size: cover;
@@ -513,11 +365,11 @@
 
   .partner-list-download { width: 100%; }
 
-  .partner-school-list-wrap .school-card .province-grid {
-    grid-template-columns: repeat(1, 1fr);
+  /* Stack the two values inside each row instead of horizontal scrolling;
+     column headers are hidden (each row stacks its values). */
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table thead {
+    display: none;
   }
-
-  /* Stack the three values inside each row instead of horizontal scrolling */
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table,
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tbody {
     display: block;
@@ -539,12 +391,13 @@
     border-bottom: none;
   }
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .name-col,
-  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col,
   .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col {
     width: auto;
   }
-  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr:first-child th,
-  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tr:first-child td {
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .province-row th {
+    padding-top: 16px;
+  }
+  .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table tbody tr:first-child {
     border-top: none;
   }
 
@@ -558,24 +411,10 @@
   .partners-title { margin: 32px 0 16px; }
   .partners-card { padding: 24px; }
 
-  .partner-school-list-wrap .school-card .province-grid .province-card {
-    gap: 8px;
-  }
-  .partner-school-list-wrap .school-card .province-grid .province-card .province-name {
-    font-size: var(--fs-16);
-  }
-  .partner-school-list-wrap .school-card .province-grid .province-card .province-icon {
-    height: 24px;
-  }
-
   .questions-card { padding: 16px; }
   .questions-inner .btn { align-self: flex-end; }
 }
 
-/* Three-column layout for the real list (school | association | email). */
-.partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .association-col {
-  padding-right: 24px;
-}
 .partner-school-list-wrap .school-card .partner-school-list .schools-table-container .table .email-col a {
   word-break: break-all;
 }

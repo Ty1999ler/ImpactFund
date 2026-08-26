@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=3">
-  <link rel="stylesheet" href="/css/pages/apply-now.css?v=3">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=4">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -209,10 +209,17 @@
                   </div>
                   <div class="form-field">
                     <label for="af-institution">Institution / Association<span aria-hidden="true">*</span></label>
-                    <select id="af-institution" name="institution" required aria-required="true">
-                      <option value="">Select your association or school</option>
-                      <!-- Options populated at runtime from /js/schools-data.js -->
-                    </select>
+                    <div class="combo-wrap">
+                      <!-- Autocomplete combobox — options populated at runtime from
+                           /js/schools-data.js (grouped by province, see /js/apply-form.js) -->
+                      <input type="text" id="af-institution" name="institution"
+                             placeholder="Select your association or school" autocomplete="off"
+                             required aria-required="true" role="combobox" aria-expanded="false"
+                             aria-autocomplete="list" aria-haspopup="listbox"
+                             aria-controls="af-institution-listbox">
+                      <div id="af-institution-listbox" class="combo-panel" role="listbox"
+                           aria-label="Associations and schools" hidden></div>
+                    </div>
                   </div>
                   <div class="form-field form-field-radio">
                     <span class="field-label" id="af-recognised-label">Is this a group officially recognised by your campus?</span>
@@ -407,7 +414,7 @@
     </div>
   </footer>
   <script src="/js/main.js?v=3"></script>
-  <script src="/js/schools-data.js?v=3"></script>
-  <script src="/js/apply-form.js?v=3"></script>
+  <script src="/js/schools-data.js?v=4"></script>
+  <script src="/js/apply-form.js?v=4"></script>
 </body>
 </html>
