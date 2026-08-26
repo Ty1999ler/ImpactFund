@@ -19,3 +19,6 @@ Dockerfile.php
 # so they must never ride into the image/webroot
 ci/
 api/config.ci.php
+
+# Client quote/proposal documents - private, never published
+_proposal/

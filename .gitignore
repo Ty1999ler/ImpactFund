@@ -14,3 +14,6 @@ submissions/
 
 # Real SMTP credentials for the interim server
 msmtprc
+
+# Client quote/proposal documents - private, never published
+_proposal/
