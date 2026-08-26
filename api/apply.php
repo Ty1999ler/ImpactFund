@@ -43,6 +43,7 @@ $FIELDS = [
     'off_campus_org'      => [false, 10, false],
     'project_title'       => [true, 300, false],
     'category'            => [true, 100, false],
+    'category_other'      => [false, 200, false],
     'funding_requested'   => [true, 100, false],
     'total_cost'          => [true, 100, false],
     'fund_acknowledgement'=> [true, 50, false],
@@ -65,9 +66,12 @@ if (!filter_var($data['primary_email'], FILTER_VALIDATE_EMAIL)) {
 if ($data['secondary_email'] !== '' && !filter_var($data['secondary_email'], FILTER_VALIDATE_EMAIL)) {
     $errors['secondary_email'] = 'Invalid email';
 }
-$CATEGORIES = ['Mental Health & Wellbeing', 'Sustainability', 'Arts & Culture', 'Academics'];
+$CATEGORIES = ['Mental Health & Wellbeing', 'Sustainability', 'Arts & Culture', 'Academics', 'Other'];
 if ($data['category'] !== '' && !in_array($data['category'], $CATEGORIES, true)) {
     $errors['category'] = 'Invalid category';
+}
+if ($data['category'] === 'Other' && trim($data['category_other']) === '') {
+    $errors['category_other'] = 'Required';
 }
 
 /* ---------- files ---------- */
@@ -178,7 +182,7 @@ if ($mode === 'email') {
             'SubmissionId'     => $submissionId,
             'Organization'     => $data['organization_name'],
             'Institution'      => $data['institution'],
-            'Category'         => $data['category'],
+            'Category'         => ($data['category'] === 'Other' && trim($data['category_other']) !== '') ? ('Other — ' . trim($data['category_other'])) : $data['category'],
             'PrimaryContact'   => $data['primary_first_name'] . ' ' . $data['primary_last_name'],
             'PrimaryEmail'     => $data['primary_email'],
             'FundingRequested' => $data['funding_requested'],

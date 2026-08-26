@@ -11,20 +11,9 @@
 .apply-hero .apply-title {
   margin-bottom: 36px;
 }
-/* Source quirk: the banner image carries every elementor-hidden-* class EXCEPT
-   laptop, so it renders only between 993px and 1200px. */
-.apply-hero .hero-banner { display: none; }
-.apply-hero .hero-banner img {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-}
 
 @media (max-width: 1200px) {
   .apply-hero { padding-top: 130px; }
-}
-@media (min-width: 993px) and (max-width: 1200px) {
-  .apply-hero .hero-banner { display: block; }
 }
 @media (max-width: 992px) {
   .apply-hero { padding-top: 120px; }

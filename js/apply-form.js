@@ -277,6 +277,21 @@
     };
   })();
 
+  /* ---- Category "Other": reveal + require the specify field ---- */
+  var categorySelect = form.querySelector("#af-category");
+  var categoryOtherWrap = form.querySelector("#af-category-other-wrap");
+  var categoryOtherInput = form.querySelector("#af-category-other");
+  if (categorySelect && categoryOtherWrap && categoryOtherInput) {
+    var syncCategoryOther = function () {
+      var isOther = categorySelect.value === "Other";
+      categoryOtherWrap.hidden = !isOther;
+      categoryOtherInput.required = isOther;
+      if (!isOther) { categoryOtherInput.value = ""; clearError(categoryOtherInput); }
+    };
+    categorySelect.addEventListener("change", syncCategoryOther);
+    syncCategoryOther();
+  }
+
   /* ---- Select placeholder tint ---- */
   function refreshSelectTint(select) {
     select.classList.toggle("is-placeholder", select.value === "");
