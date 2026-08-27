@@ -406,6 +406,16 @@ function graph_map_fields(array $g, array $fields, string $folderPath = ''): arr
     return $mapped;
 }
 
+/* "$1,500.00" -> 1500.0, so the destination column can be a real number and
+   the reporting on it can be arithmetic rather than string-scraping. The
+   archive and the email keep the string exactly as the applicant typed it. */
+function parse_amount(string $value): ?float {
+    $value = str_replace(['$', ',', ' ', "\u{00A0}"], '', trim($value));
+    if ($value === '') return null;
+    $number = filter_var($value, FILTER_VALIDATE_FLOAT);
+    return $number === false ? null : (float)$number;
+}
+
 function graph_deliver(array $g, string $submissionId, array $fields, array $files): void {
     $token = graph_token($g);
     $auth  = ["Authorization: Bearer $token"];

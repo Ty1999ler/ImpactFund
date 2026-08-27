@@ -197,10 +197,12 @@ if ($mode === 'email') {
             'PrimaryRole'      => $data['primary_role'],
             'SecondaryContact' => trim($data['secondary_first_name'] . ' ' . $data['secondary_last_name']),
             'SecondaryEmail'   => $data['secondary_email'],
-            'FundingRequested' => $data['funding_requested'],
-            'TotalCost'        => $data['total_cost'],
-            'StudentsInOrg'    => $data['students_in_org'],
-            'StudentsReached'  => $data['students_reached'],
+            /* Numbers, not strings: these are the fields anything downstream
+               will want to add up or filter on. */
+            'FundingRequested' => parse_amount($data['funding_requested']),
+            'TotalCost'        => parse_amount($data['total_cost']),
+            'StudentsInOrg'    => $data['students_in_org'] === '' ? null : (int)$data['students_in_org'],
+            'StudentsReached'  => $data['students_reached'] === '' ? null : (int)$data['students_reached'],
             'Summary'          => $data['project_summary'],
         ], $stored);
     } catch (Throwable $e) {
