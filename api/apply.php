@@ -213,8 +213,6 @@ if ($mode === 'email') {
             'Organization'     => $data['organization_name'],
             'Institution'      => $data['institution'],
             'Province'         => $data['province'],
-            'CampusRecognised' => $data['campus_recognised'],
-            'OffCampusOrg'     => $data['off_campus_org'],
             'Category'         => ($data['category'] === 'Other' && trim($data['category_other']) !== '') ? ('Other — ' . trim($data['category_other'])) : $data['category'],
             'PrimaryContact'   => $data['primary_first_name'] . ' ' . $data['primary_last_name'],
             'PrimaryEmail'     => $data['primary_email'],
