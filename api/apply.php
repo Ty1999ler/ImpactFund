@@ -187,7 +187,13 @@ $record = [
 ];
 file_put_contents($dir . '/submission.json', json_encode($record, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-/* ---------- deliver ---------- */
+/* ---------- answer, then deliver ----------
+   Everything above this line is the part that must not be lost, and it is on
+   disk. Delivery is ~20 round trips to Microsoft; making the applicant watch a
+   spinner through them buys nothing, so the confirmation goes out now and the
+   delivery runs after the response is closed. */
+respond_and_continue(200, ['ok' => true, 'id' => $submissionId]);
+@set_time_limit(180);
 
 $summaryLines = ["New Student Impact Fund application — $submissionId", ''];
 foreach ($data as $k => $v) {
@@ -209,7 +215,12 @@ if ($mode === 'email') {
     );
 } elseif ($mode === 'graph') {
     try {
-        graph_deliver($cfg['graph'], $submissionId, [
+        $graph = $cfg['graph'];
+        /* Cache the hour-long auth token beside the archive — outside the
+           webroot, in a directory already denied to the web. Saves a round
+           trip to Microsoft on every submission. */
+        $graph['token_cache'] = rtrim($cfg['submissions_dir'], '/\\') . '/.graph-token';
+        graph_deliver($graph, $submissionId, [
             'Title'            => $data['project_title'],
             'SubmissionId'     => $submissionId,
             'Organization'     => $data['organization_name'],
@@ -241,11 +252,26 @@ if ($mode === 'email') {
     } catch (Throwable $e) {
         error_log('graph delivery failed for ' . $submissionId . ': ' . $e->getMessage());
         $deliveryOk = false;
+        $deliveryError = $e->getMessage();
     }
 }
 
-/* The archive on disk succeeded either way — never lose a submission. */
+/* The archive on disk succeeded either way — never lose a submission. But the
+   applicant has already been told it worked, and until now the only trace of a
+   failure was a line in the PHP error log that nobody reads. Tell a human. */
 if (!$deliveryOk) {
     error_log("apply.php: delivery ($mode) failed for $submissionId — archived on server only");
+
+    $alertTo = (string)($cfg['relay_to'] ?? '') ?: (string)($cfg['contact_to'] ?? '');
+    if ($alertTo !== '') {
+        send_mail($cfg, $alertTo,
+            "Student Impact Fund — application NOT delivered ($submissionId)",
+            "An application was received but could not be delivered to $mode.\n\n"
+            . "The applicant has been shown a confirmation, so they believe it went through.\n"
+            . "Nothing is lost: the complete submission, including all documents, is on the\n"
+            . "web server at:\n\n    $dir\n\n"
+            . "Reason: " . ($deliveryError ?? 'unknown') . "\n\n"
+            . "----\n" . $summary
+        );
+    }
 }
-respond(200, ['ok' => true, 'id' => $submissionId]);

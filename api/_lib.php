@@ -9,6 +9,34 @@ function respond(int $status, array $payload): void {
     exit;
 }
 
+/* Answer the browser and keep running. Delivering a submission to SharePoint
+   is ~20 round trips to Microsoft; the applicant should not sit through them
+   when the archive on disk — written first, and the real system of record —
+   already guarantees nothing is lost.
+
+   This changes nothing about outcomes: a delivery failure was already
+   non-fatal and already returned success. It does make such a failure even
+   less visible, which is why apply.php now emails on one. */
+function respond_and_continue(int $status, array $payload): void {
+    ignore_user_abort(true);
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    $body = json_encode($payload);
+    header('Content-Length: ' . strlen($body));
+    echo $body;
+
+    /* PHP-FPM/FastCGI closes the response and lets the script continue. */
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+        return;
+    }
+    /* Otherwise flush what we can — best effort. The client may still hold the
+       connection open, in which case this is simply no worse than before. */
+    while (ob_get_level() > 0) @ob_end_flush();
+    @flush();
+}
+
 function load_config(): array {
     $path = __DIR__ . '/config.php';
     /* is_readable also catches a present-but-wrongly-permissioned file
@@ -237,7 +265,19 @@ function send_mail(array $cfg, string $to, string $subject, string $body,
 
 /* ---------- Microsoft Graph (delivery_mode = 'graph') ---------- */
 
+/* Tokens last an hour; fetching a fresh one per submission is a round trip to
+   Microsoft nobody needs. $g['token_cache'] is a path OUTSIDE the webroot —
+   apply.php points it at submissions_dir, which is already denied to the web. */
 function graph_token(array $g): string {
+    $cache = (string)($g['token_cache'] ?? '');
+    if ($cache !== '' && is_readable($cache)) {
+        $c = json_decode((string)@file_get_contents($cache), true);
+        /* Five minutes of margin so a token cannot expire mid-upload. */
+        if (is_array($c) && !empty($c['token']) && ($c['expires'] ?? 0) > time() + 300) {
+            return (string)$c['token'];
+        }
+    }
+
     $resp = http_json(
         "https://login.microsoftonline.com/{$g['tenant_id']}/oauth2/v2.0/token",
         http_build_query([
@@ -250,6 +290,13 @@ function graph_token(array $g): string {
     );
     if (empty($resp['access_token'])) {
         throw new RuntimeException('Graph auth failed');
+    }
+    if ($cache !== '') {
+        @file_put_contents($cache, json_encode([
+            'token'   => $resp['access_token'],
+            'expires' => time() + (int)($resp['expires_in'] ?? 3600),
+        ]), LOCK_EX);
+        @chmod($cache, 0600);
     }
     return $resp['access_token'];
 }
@@ -528,9 +575,7 @@ function graph_write_links(array $g, array $auth, string $itemId, array $folder,
        also suppresses @microsoft.graph.downloadUrl on driveItem responses.
 
        The remaining shapes are fallbacks, tried in order, so an unexpected
-       tenant costs a log line rather than another deploy. Per column, not one
-       bulk PATCH: a bulk write is a single transaction, so one unhappy column
-       would take the other five with it. */
+       tenant costs a log line rather than another deploy. */
     $obj = fn(array $v) => (object)$v;  /* an array that lost its keys encodes as [] and 400s */
     $shapes = [
         'object+prefer' => ['prefer' => true,  'value' => fn($u, $l) => $obj(['Url' => $u, 'Description' => $l])],
@@ -538,17 +583,36 @@ function graph_write_links(array $g, array $auth, string $itemId, array $folder,
         'object'        => ['prefer' => false, 'value' => fn($u, $l) => $obj(['Url' => $u, 'Description' => $l])],
     ];
 
-    $winner = null;
+    /* A SharePoint URL field holds 255 characters, by design and not raisable.
+       Province + institution + project title can reach that on their own, and
+       an over-long URL fails as the same opaque 400 — so drop those here and
+       say why, rather than leaving a mystery in the log. */
     foreach ($patch as $column => $link) {
-        /* A SharePoint URL field holds 255 characters, by design and not
-           raisable. Province + institution + project title can get there on
-           their own, and an over-long URL fails as the same opaque 400 — so
-           say so plainly instead of leaving a mystery in the log. */
         if (strlen($link['url']) > 255) {
             error_log("graph: link column '$column' skipped for item $itemId — URL is "
                 . strlen($link['url']) . " chars, over SharePoint's 255 limit");
-            continue;
+            unset($patch[$column]);
         }
+    }
+    if (!$patch) return;
+
+    /* Six columns in one PATCH is six round trips saved. It is also a single
+       transaction, so one unhappy column loses the lot — hence the per-column
+       pass below, which only runs when the cheap path fails. */
+    $primary = $shapes['object+prefer'];
+    try {
+        $bulk = [];
+        foreach ($patch as $column => $link) {
+            $bulk[$column] = $primary['value']($link['url'], $link['label']);
+        }
+        http_json($url, json_encode($bulk), array_merge($base, ['Prefer: apiversion=2.1']), 'PATCH');
+        return;
+    } catch (Throwable $e) {
+        error_log("graph: bulk link write failed for item $itemId, retrying per column: " . $e->getMessage());
+    }
+
+    $winner = null;
+    foreach ($patch as $column => $link) {
         $written = false;
         /* Once one column succeeds, the rest almost certainly want the same
            encoding — try that first so the usual case is a single request. */
