@@ -342,15 +342,25 @@ function http_json(string $url, $body, array $headers, string $method = 'POST', 
 
 /* Quebec is split by language of instruction. That is a per-SCHOOL fact, not
    a per-province one, so it has to be a list rather than something derived.
-   While this is empty every Quebec school files under Quebec (FR), which is
-   the agreed interim arrangement until the client supplies the English list.
+
+   These are Quebec's three English-language universities plus its largest
+   English CEGEP — between them 8 of the 50 Quebec rows in js/schools-data.js.
+   Everything else in Quebec is French-language.
+
+   Two deliberate exclusions. The École nationale de théâtre is the National
+   Theatre School of Canada and genuinely co-lingual, with parallel English and
+   French sections; the client's call is to file it French. HEC Montréal and
+   the ITHQ deliver real English programming but have no English-only track and
+   require French of every applicant, so they are French too.
 
    Entries are school names as they appear BEFORE the " - " in the institution
-   label the form submits, e.g. 'Dawson College'. Matching ignores case. */
+   label the form submits. Matching ignores case. */
 function sp_quebec_english_schools(): array {
     return [
-        // 'Dawson College',
-        // 'Concordia University',
+        'Bishops University',   /* Bishop's, Lennoxville — no apostrophe in our data */
+        'Concordia University',
+        'Dawson College',
+        'McGill University',
     ];
 }
 
