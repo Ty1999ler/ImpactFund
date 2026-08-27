@@ -513,14 +513,25 @@ function graph_write_links(array $g, array $auth, string $itemId, array $folder,
     }
     if (!$patch) return;
 
+    $url = "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items/{$itemId}/fields";
+    $headers = array_merge($auth, ['Content-Type: application/json']);
+
     try {
-        http_json(
-            "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items/{$itemId}/fields",
-            json_encode($patch),
-            array_merge($auth, ['Content-Type: application/json']),
-            'PATCH'
-        );
+        http_json($url, json_encode($patch), $headers, 'PATCH');
+        return;
     } catch (Throwable $e) {
-        error_log("graph: document links not written to item $itemId: " . $e->getMessage());
+        error_log("graph: bulk link write failed for item $itemId: " . $e->getMessage());
+    }
+
+    /* One PATCH is one transaction, so a single column that does not exist
+       loses every link in it — including the folder. Retry one at a time so
+       the columns that ARE there still get filled, and so the log names the
+       column that is actually wrong. */
+    foreach ($patch as $column => $value) {
+        try {
+            http_json($url, json_encode([$column => $value]), $headers, 'PATCH');
+        } catch (Throwable $e) {
+            error_log("graph: link column '$column' not written to item $itemId: " . $e->getMessage());
+        }
     }
 }

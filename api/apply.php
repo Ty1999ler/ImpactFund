@@ -27,6 +27,10 @@ if ($opensAt && time() < $opensAt) {
 
 /* ---------- fields ---------- */
 
+/* Max lengths are the SharePoint ceiling, not an arbitrary choice: a single
+   line of text column holds 255 characters and rejects more, and field()
+   truncates rather than erroring — so a longer cap here would send a value
+   Graph refuses, failing the whole submission silently. */
 $FIELDS = [
     // name              => [required, max length, multiline]
     'primary_first_name'  => [true, 100, false],
@@ -37,12 +41,12 @@ $FIELDS = [
     'secondary_last_name' => [false, 100, false],
     'secondary_email'     => [false, 254, false],
     'secondary_role'      => [false, 200, false],
-    'organization_name'   => [true, 300, false],
+    'organization_name'   => [true, 255, false],
     'province'            => [true, 2, false],
-    'institution'         => [true, 300, false],
+    'institution'         => [true, 255, false],
     'campus_recognised'   => [false, 10, false],
     'off_campus_org'      => [false, 10, false],
-    'project_title'       => [true, 300, false],
+    'project_title'       => [true, 255, false],
     'category'            => [true, 100, false],
     'category_other'      => [false, 200, false],
     'funding_requested'   => [true, 100, false],
