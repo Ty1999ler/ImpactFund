@@ -82,6 +82,24 @@ if ($data['category'] === 'Other' && trim($data['category_other']) === '') {
     $errors['category_other'] = 'Required';
 }
 
+/* Numeric sanity — the UI enforces this client-side (type="number" /
+   inputmode="decimal"), but a direct POST could otherwise plant text like
+   "abc" into fields SharePoint/email treat as amounts. Counts must be whole
+   numbers; the two dollar amounts may carry currency punctuation as typed
+   (e.g. "$1,500.00"). */
+foreach (['students_in_org', 'students_reached'] as $name) {
+    if ($data[$name] !== '' && !ctype_digit($data[$name])) {
+        $errors[$name] = 'Invalid number';
+    }
+}
+foreach (['funding_requested', 'total_cost'] as $name) {
+    if ($data[$name] === '') continue;
+    $amount = str_replace(['$', ',', ' ', "\u{00A0}"], '', $data[$name]);
+    if (filter_var($amount, FILTER_VALIDATE_FLOAT) === false || (float)$amount < 0) {
+        $errors[$name] = 'Invalid number';
+    }
+}
+
 /* ---------- files ---------- */
 
 $UPLOADS = [

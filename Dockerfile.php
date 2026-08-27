@@ -40,16 +40,32 @@ EXPOSE 8777
 RUN a2enmod headers \
  && echo 'Header always set X-Robots-Tag "noindex, nofollow"' > /etc/apache2/conf-enabled/zz-staging-noindex.conf
 
+# Security headers — kept in a SEPARATE conf from the staging-only noindex
+# header above because these two are NOT staging-only: production (plain files
+# on GoDaddy) is expected to set the identical pair in its hand-managed
+# public_html/.htaccess (deliberately NOT in this repo — see the note at the
+# bottom of .cpanel.yml), so this conf keeps staging at parity with prod.
+RUN { \
+  echo 'Header always set X-Content-Type-Options "nosniff"'; \
+  echo 'Header always set Referrer-Policy "strict-origin-when-cross-origin"'; \
+ } > /etc/apache2/conf-enabled/security-headers.conf
+
 # Site content (root-relative URLs -> must be the document root)
 COPY . /var/www/html/
 
 # Never ship these to the container image (.dockerignore is the first line of
 # defense; this is belt-and-braces for stale build contexts)
+# The repo must never ship a .htaccess (production's is hand-managed shared
+# infrastructure — see .cpanel.yml); removing it here is belt-and-braces in
+# case a stale build context contains one, whose HTTPS redirect would loop
+# behind the Cloudflare tunnel (which talks plain HTTP to this container) —
+# the container gets its headers from the confs above instead.
 RUN rm -rf /var/www/html/_source /var/www/html/_tools \
            /var/www/html/.git /var/www/html/Dockerfile* \
            /var/www/html/docker-compose.yml /var/www/html/.github \
            /var/www/html/_submissions /var/www/html/api/config.php \
-           /var/www/html/ci /var/www/html/api/config.ci.php
+           /var/www/html/ci /var/www/html/api/config.ci.php \
+           /var/www/html/.htaccess
 
 # Submissions land outside the webroot
 RUN mkdir -p /var/www/_submissions && chown www-data:www-data /var/www/_submissions

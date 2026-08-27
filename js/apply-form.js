@@ -5,7 +5,10 @@
    POSTed as multipart FormData (fields + up to 5 files) to
    /api/apply.php, which archives the submission on the server
    and delivers it per api/config.php (email relay or SharePoint
-   via Microsoft Graph — see api/config.example.php).
+   via Microsoft Graph — see api/config.example.php). The server
+   answers JSON {ok, error, fields} with per-field error strings,
+   and 503 "not configured" until api/config.php exists on the
+   server.
    ============================================================ */
 (function () {
   "use strict";

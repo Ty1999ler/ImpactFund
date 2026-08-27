@@ -235,9 +235,9 @@ Plus icon (closed) / minus (open) sits right after the question text, top-aligne
 5. Some source links have **no href** (e.g. "letter of support", "See the list here" inside FAQ text). Link them to the obvious local page (`/partner-schools/`, `/how-to-apply/`) and keep the underline+bold styling.
 6. Normalize link targets: strip `https://alumoimpact.ca` and `/ImpactFund` prefixes → root-relative (`/about-the-fund/`).
 7. Anchors used by the global nav: home page must contain `id="faq-section"` (FAQ) and `id="contact-form"` (contact). Other pages may reuse `#contact-form` on their own contact section; the nav links point at `/#…` (home).
-8. No cookie banner exists in the source — don't invent one. "Consent preferences" in the footer is a dead link (`#`).
+8. No cookie banner exists in the source — don't invent one. The source footer's "Consent preferences" was a dead link (`#`); it was **removed entirely** in the client-approved corrections round (Aug 2026), along with the orphaned `/privacy-policy/` and `/cookies-policy/` placeholder pages (now redirect stubs — the real privacy policy is the Studentcare/ASEQ PDF linked in the footer, and the site sets no cookies).
 9. The kit body background is cream `#FBF6ED` — never set white page backgrounds.
-10. Page files: write UTF-8; typos in the source ("eligibile", "engagment", "inititatives", "Brighstart") are **intentional — reproduce verbatim**.
+10. Page files: write UTF-8. The reproduce-source-typos-verbatim policy is **superseded** for client-approved items: the corrections round (Aug 2026) fixed "engagment" and "inititatives" on the home page with the client's sign-off ("Brighstart" is moot — Past Winners is hidden). Any remaining source typos stay verbatim until the client approves fixing them.
 11. **Known link exceptions** (targets that intentionally do not resolve in this build): `/fr/<path>/` (FR pages, future work), `action="#"` / `href="#"` dead links per source, per source. (`/past-winners/2/` and `/fr/past-winners/2/` are now built.) FR pages are also built under `/fr/`.
 
 ## 13. Pages to build (source → output)

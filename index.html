@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alumo Fund</title>
+  <title>Student Impact Fund by Alumo</title>
   <meta name="description" content="The Student Impact Fund by Alumo is an annual $250,000 fund helping students across Canada turn their ideas into real impact on their campuses.">
-  <link rel="alternate" hreflang="en" href="/">
-  <link rel="alternate" hreflang="fr" href="/fr/">
+  <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/">
+  <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/">
   <link rel="canonical" href="https://alumoimpact.ca/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Student Impact Fund by Alumo">
-  <meta property="og:title" content="Alumo Fund">
+  <meta property="og:title" content="Student Impact Fund by Alumo">
   <meta property="og:description" content="The Student Impact Fund by Alumo is an annual $250,000 fund helping students across Canada turn their ideas into real impact on their campuses.">
   <meta property="og:url" content="https://alumoimpact.ca/">
   <meta property="og:locale" content="en_CA">
@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=4">
-  <link rel="stylesheet" href="/css/pages/home.css?v=3">
+  <link rel="stylesheet" href="/css/pages/home.css?v=4">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -106,10 +106,12 @@
 
       <div class="container">
         <div class="hero-bar">
-          <a class="hero-status-pill" href="#">
+          <!-- Client-approved fix: the source's dead href="#" link was killed —
+               the pill is informational, so it is a non-interactive <span>. -->
+          <span class="hero-status-pill">
             <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
             <span>Submissions open in September</span>
-          </a>
+          </span>
           <a class="hero-scroll-btn" href="#info-section" aria-label="Scroll to next section">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M14.1869 7.02794C14.5706 7.41165 14.5704 8.03385 14.1869 8.41768L7.93211 14.6725C7.5483 15.0563 6.92617 15.0563 6.54237 14.6725L0.287575 8.41768C-0.0959405 8.03385 -0.0961351 7.41165 0.287575 7.02794C0.671285 6.64423 1.29348 6.64442 1.67731 7.02794L6.25444 11.6051L6.25444 9.80246e-08L8.22004 7.4585e-08L8.22004 11.6051L12.7972 7.02794C13.181 6.64442 13.8032 6.64423 14.1869 7.02794Z" fill="#222222"/></svg>
           </a>
@@ -169,7 +171,7 @@
             <div class="card-icon">
               <img src="/assets/img/icon-m.svg" alt="" width="50" height="50">
             </div>
-            <h3 class="text-size-40-42-tight">What type of projects are eligible?</h3>
+            <h3 class="text-size-40-42-tight">What types of projects are eligible?</h3>
             <p class="text-size-16-24-tight">Eligible projects must be student-led, inclusive, and aligned with community well-being. <br><br> Here are some examples to inspire you: <br> &rarr; mental health or wellness initiatives<br> &rarr; community-building events<br> &rarr; skill-building events<br> &rarr; sustainability projects<br> &rarr; anything else you think would benefit your student community.</p>
           </div>
 
@@ -197,7 +199,10 @@
             <h3 class="period-date text-size-72-70-tight">September 1 to October 15</h3>
             <p class="period-status text-size-20-31-9-tightpx">Stay tuned: the submission period will open soon!</p>
             <p class="period-note text-size-16-24-tightpx">Have a cool project in mind but need money to make it happen? The Student Impact Fund is here to help!</p>
-            <div class="btn btn-white btn-icon btn-icon-primary period-btn">
+            <!-- "Learn more" exists in the source but is hidden at every
+                 breakpoint there; hidden here too per the client-approved
+                 corrections round. Kept for re-enabling. -->
+            <div class="btn btn-white btn-icon btn-icon-primary period-btn" hidden>
               <a href="/how-to-apply/"><span>Learn more</span></a>
             </div>
           </div>
@@ -225,8 +230,13 @@
       <div class="container">
         <div class="idea-card">
           <div class="idea-content">
-            <h2 class="text-size-60-68-tight">Every idea is a good idea - Submit it!</h2>
-            <p class="text-size-24-36-tight">We know campus life is built on social engagment. Every student project strengthens the sense of belonging and empowerment, and it inspires more positive initiatives in your student community.</p>
+            <!-- DELIBERATE DEVIATION (client-approved corrections round): the
+                 original misspelled both "engagement" and "initiatives" in this
+                 sentence; both are corrected here, and the heading's spaced
+                 hyphen is an em dash. This supersedes the earlier
+                 reproduce-verbatim typo policy for this sentence. -->
+            <h2 class="text-size-60-68-tight">Every idea is a good idea — Submit it!</h2>
+            <p class="text-size-24-36-tight">We know campus life is built on social engagement. Every student project strengthens the sense of belonging and empowerment, and it inspires more positive initiatives in your student community.</p>
           </div>
           <div class="idea-art">
             <div class="idea-photo">
@@ -273,7 +283,7 @@
               </details>
 
               <details>
-                <summary><h3>What type of documents do I need to submit with my project?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
+                <summary><h3>What types of documents do I need to submit with my project?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
                 <div class="accordion-content">
                   <p class="text-size-16-24-tight">To be considered, your project must include:<br>- Project Overview<br>- Team member information<br>- Action plan/timeline<br>- Budget<br>- <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><strong>Letter of Support</strong></a>.</p>
                 </div>
@@ -296,7 +306,7 @@
               <details>
                 <summary><h3>What is the maximum amount I can receive for my project?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
                 <div class="accordion-content">
-                  <p class="text-size-16-24-tight">Funding amounts vary depending on the nature and scope of each project. While applicants may request a specific amount, the Alumo Student Impact Fund reserves the right to award funding at a different level based on the committee&rsquo;s evaluation.<br>To support a broad range of initiatives and maximize the impact of the fund, the following funding limits apply:<br>- New projects: up to $5,000<br>- Recurrent projects: up to $3,000*<br>*Recurring projects that include a significant new or innovative component compared with previous years may be eligible for funding of up to $5,000.</p>
+                  <p class="text-size-16-24-tight">Funding amounts vary depending on the nature and scope of each project. While applicants may request a specific amount, the Alumo Student Impact Fund reserves the right to award funding at a different level based on the committee&rsquo;s evaluation.<br>To support a broad range of initiatives and maximize the impact of the fund, the following funding limits apply:<br>- New projects: up to $5,000<br>- Recurring projects: up to $3,000*<br>*Recurring projects that include a significant new or innovative component compared with previous years may be eligible for funding of up to $5,000.</p>
                 </div>
               </details>
 
@@ -373,13 +383,12 @@
         <p>Alumo 2026 - All rights reserved</p>
         <div class="footer-legal">
           <a href="/terms-conditions/">Terms and conditions</a>
-          <a href="#" role="button">Consent preferences</a>
           <a href="https://studentcare.ca/RTEContent/Document/Privacy_Policy/Studentcare_Privacy_Policy_2025.pdf" target="_blank" rel="noopener">Privacy Policy</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <script src="/js/main.js?v=4"></script>
+  <script src="/js/main.js?v=5"></script>
 </body>
 </html>

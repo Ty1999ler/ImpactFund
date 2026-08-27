@@ -93,11 +93,8 @@
   transition: 0.3s;
 }
 .hero .hero-status-pill svg { flex-shrink: 0; }
-.hero .hero-status-pill svg path { transition: 0.3s; }
-.hero .hero-status-pill:hover {
-  color: #fbf6ed;
-  background-color: var(--text);
-}
+/* No :hover state: the pill is a non-interactive <span> since the client-approved
+   corrections round (it used to be a dead link that looked clickable). */
 .hero .hero-scroll-btn {
   display: inline-flex;
   align-items: center;
