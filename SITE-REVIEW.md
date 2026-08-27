@@ -98,21 +98,24 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] CONFIRMED: the Cookies page body is the same placeholder filler as the privacy page — headings "Subtitle #01/#02/#03" with the identical dummy sentence repeated 10 times (6/3/1 per section). Identical text exists in the original mirror _source/pages/cookies-policy.html, and the live page serves it (verified via curl). Note: the earlier claim that the footer "Consent preferences" link points to this page is incorrect — "Consent preferences" is href="#" on every page (e.g. index.html:374); nothing on the site links to /cookies-policy/ except its own EN/FR language toggle and hreflang tags, so the placeholder page is live, indexed via canonical/hreflang, and effectively orphaned.
   - **Should be:** Real cookies-policy copy (which cookies are set, purposes, opt-out) once available from Alumo; separately, the footer "Consent preferences" href="#" dead link could point here or open a consent manager. The rebuild's parity with the original is itself correct.
 
-- **[OPEN · MINOR]** past-winners/2/index.html (https://impactfund.wareham.stream/past-winners/2/) — contact form (~line 199, "Reach out to our team")
+- **[SUPERSEDED · MINOR]** past-winners/2/index.html (https://impactfund.wareham.stream/past-winners/2/) — contact form (~line 199, "Reach out to our team")
   - The contact form on past-winners page 2 is missing the honeypot block (<div class="hp-field" aria-hidden="true"> with label "Leave this field empty" and input name="website") that the identical form includes on past-winners/index.html (lines 204-207), index.html, about-the-fund/index.html, and apply-now/index.html. BUILD_NOTES.md section 8 specifies the contact form markup is "identical markup wherever it appears"; when the PHP mail backend lands, page 2's form will lack spam protection (or fail if the backend expects the field).
   - **Should be:** Insert the same hp-field honeypot block (label "Leave this field empty" + hidden text input name="website", tabindex=-1) between .form-fields and .form-footer, matching past-winners/index.html.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** partner-schools/index.html lines 88-94 (https://impactfund.wareham.stream/partner-schools/) — "Partners" list header
   - [inherited] The now-visible partner-list header shows the paragraph "Download the Support letter form that you can send to your contact that you will need to provide during the submission" while its accompanying "Support letter" button (line 92) is kept hidden — so users see a call-to-download with no download control. The sentence itself is also the old garbled copy carried over from the original's hidden section (_source/pages/partner-schools.html line 396); the current wording used on apply-now is "Download the letter of support, which you can send to your contact at your school. You will need to submit it as part of your application."
   - **Should be:** Either hide the download paragraph together with its button until the letter is re-enabled, or unhide the button and replace the paragraph with the current apply-now wording.
 
-- **[OPEN · MINOR]** past-winners/index.html ("Brighstart initiative program" card, ~2025 grid) and past-winners/2/index.html (first card) (https://impactfund.wareham.stream/past-winners/ and /past-winners/2/)
+- **[SUPERSEDED · MINOR]** past-winners/index.html ("Brighstart initiative program" card, ~2025 grid) and past-winners/2/index.html (first card) (https://impactfund.wareham.stream/past-winners/ and /past-winners/2/)
   - [inherited] Winner card title reads "Brighstart initiative program" — misspelling of "Brightstart" (the card's own description says "The Brightstart initiative helps students..."). Present identically in _source/pages/past-winners.html and past-winners-2.html; the rebuild faithfully copied the typo.
   - **Should be:** Card title "Brightstart initiative program" (with the second "t").
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
-- **[OPEN · MINOR (needs Alumo)]** past-winners/index.html and past-winners/2/index.html — all winner cards (https://impactfund.wareham.stream/past-winners/)
+- **[SUPERSEDED · MINOR]** past-winners/index.html and past-winners/2/index.html — all winner cards (https://impactfund.wareham.stream/past-winners/)
   - [inherited] All winner data is placeholder: every card on both pages (featured "MindWell student program" plus all grid cards) shares the exact same two-paragraph description about the "Brightstart initiative" regardless of the card's title, every award amount is "CAD 1.2M", and the schools cycle among three fictional names (Lakewood University, Riverton College Campus, Northbridge Polytechnic). Parity with the original is exact, but the page presents dummy data as past winners.
   - **Should be:** Real winner titles/descriptions/schools/amounts once the fund has actual winners (or an interim "winners coming soon" treatment); rebuild parity itself is correct.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** apply-now/index.html, application form step 2 (https://impactfund.wareham.stream/apply-now/, visible with ?preview-form=1) — funding-amount acknowledgement text
   - [inherited] (form recreated from the live Gravity Forms form per the in-file comment; not present in the _source mirror) Grammar: "The Student Impact Fund won't cover cost of alcohol, prize giveaways, charitable donations." is missing an article and a conjunction.
@@ -136,9 +139,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - VERIFIED. The visible note sentence from the original intro card is missing: "Note : La liste des partenaires admissibles sera mise à jour avant l'ouverture de la période de candidature en septembre prochain. Consultez cette page en août pour obtenir la liste actualisée !" (_source/pages-fr/partner-schools.html line 368, inside a paragraph widget with no elementor-hidden classes). The rebuild keeps only a paraphrase in the meta/og description (lines 7 and 14), not in visible body copy. The same note was also dropped from the EN rebuild (partner-schools/index.html; original at _source/pages/partner-schools.html line 368: "Please note: The list of eligible partner schools will be updated before applications open this September..."). Context: the rebuild deliberately shows the school directory that the original hides at every breakpoint (documented in comments at lines 96-98), and this note was the original's visible stand-in for that hidden list — so the drop may be intentional but is undocumented.
   - **Should be:** Restore the note paragraph inside the intro card on both FR and EN pages (or, if its removal is a conscious choice because the school list is now shown, document it in the file comment; if the list is ever re-hidden to match the original, the note must return).
 
-- **[OPEN · MAJOR]** fr/past-winners/index.html line 84 and fr/past-winners/2/index.html line 85 — https://impactfund.wareham.stream/fr/past-winners/ and /fr/past-winners/2/
+- **[SUPERSEDED · MAJOR]** fr/past-winners/index.html line 84 and fr/past-winners/2/index.html line 85 — https://impactfund.wareham.stream/fr/past-winners/ and /fr/past-winners/2/
   - [inherited] VERIFIED. The intro paragraph on both FR winners pages is untranslated English: "Get inspired by past winning projects that have helped improve campus life, submitted by students across Canada." The original FR site shows the identical English text as visible copy (_source/pages-fr/past-winners.html line 332, no elementor-hidden classes), so the rebuild copied it faithfully — but it is English body copy on a French page.
   - **Should be:** A French translation; the original FR home page already contains a suitable string for the same message (_source/pages-fr/home.html line 627): "Laissez-vous inspirer par les projets gagnants menés par des étudiant·es qui ont été soumis à travers le Québec et le Canada."
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MAJOR (needs Alumo)]** fr/privacy-policy/index.html lines 85-90 — https://impactfund.wareham.stream/fr/privacy-policy/
   - [inherited] VERIFIED. The entire page body under the French H1 "Politique de confidentialité" is English lorem-style placeholder: headings "Subtitle #01/#02/#03" and the repeated paragraph "Our protection is straightforward and easy to understand..." (duplicated multiple times within single paragraphs). Identical placeholder exists in the original (_source/pages-fr/privacy-policy.html contains the same Subtitle #01-#03 headings and placeholder text), and the rebuild's own comment (lines 76-77) acknowledges reproducing it verbatim. This is consequential: every page footer links here, and fr/terms-conditions/index.html line 121 explicitly tells users to "consulter notre Politique de confidentialité" for data-handling details — which do not exist.
@@ -160,17 +164,19 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] Line 79: visible download button "Lettre de parraînage" misspells parrainage with a circumflex (verbatim from source; the same typo also sits in the hidden button stubs at fr/partner-schools/index.html lines 96 and 113). Line 92: "Les étudiant·es inscrit·es dans une école partenaire peut soumettre un projet" — plural subject with singular verb.
   - **Should be:** "Lettre de parrainage" (all occurrences); "peuvent soumettre un projet".
 
-- **[OPEN · MINOR]** fr/past-winners/index.html lines 88, 160 (and fr/past-winners/2/index.html lines 89, 96) — https://impactfund.wareham.stream/fr/past-winners/
+- **[SUPERSEDED · MINOR]** fr/past-winners/index.html lines 88, 160 (and fr/past-winners/2/index.html lines 89, 96) — https://impactfund.wareham.stream/fr/past-winners/
   - [inherited] Year-filter "all" button is labeled "Toute" (original's odd label; EN uses "All"); winner card title "Programme d'initiative Brighstart" misspells Brightstart (its own body text spells it correctly). Additionally, all six winner cards on both FR pages carry identical placeholder demo copy (same two Brightstart paragraphs, fictional schools "Université Lakewood"/"Polytechnique de Northbridge"/"Campus universitaire de Riverton", amount "CAD 1.2M") — faithful to the original, which never had real winner data.
   - **Should be:** "Tous" (or "Toutes les années") for the filter; "Brightstart" in the card title; eventually real winner content to replace the demo cards.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** fr/partner-schools/index.html lines 137-178 (province cards) — https://impactfund.wareham.stream/fr/partner-schools/
   - [inherited] French province names lack their hyphens/accents, copied verbatim from the original's (hidden) FR list: "Colombie Britannique", "Nouveau Brunswick", "Terre Neuve et Labrador", "Nouvelle Écosse", "Île du Prince Edward". Now user-visible because the rebuild shows the directory that the original kept hidden.
   - **Should be:** "Colombie-Britannique", "Nouveau-Brunswick", "Terre-Neuve-et-Labrador", "Nouvelle-Écosse", "Île-du-Prince-Édouard".
 
-- **[OPEN · MINOR]** fr/index.html line 189 (period card button) — https://impactfund.wareham.stream/fr/
+- **[SUPERSEDED · MINOR]** fr/index.html line 189 (period card button) — https://impactfund.wareham.stream/fr/
   - The submission-period card's "En savoir plus" button is visible at every width in the rebuild, but the original hides it: the EN original hides it at all five Elementor breakpoints, and the FR original hides it everywhere except the "laptop" breakpoint (an authoring quirk). Other always-hidden elements (header "Soumettre" button, About/past-winners contact forms) were correctly kept hidden with explanatory comments — this one has no comment, so it looks like an oversight rather than a decision.
   - **Should be:** Either hide the button (matching the original's intent while submissions are closed, like the "Soumettre" button pattern) or add a comment documenting it as a deliberate deviation. Same applies to the EN home (index.html line ~186).
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** fr/index.html lines 309-317 (contact form labels) — https://impactfund.wareham.stream/fr/#contact-form
   - The contact form's required-field indicator is an asterisk ("Nom*", "Courriel*", "Message*") whereas the original Gravity Forms rendering shows the visible text "(Nécessaire)" after each label (class gfield_required_text, not screen-reader-only).
@@ -237,9 +243,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - Comma splice in all five file-upload hints: "Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB." — a comma joins two independent statements (this mirrors Gravity Forms' default rendering on the live original, so likely inherited from the live form).
   - **Should be:** "Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB."
 
-- **[OPEN · MINOR]** past-winners/index.html line 159 and past-winners/2/index.html line 94 (https://impactfund.wareham.stream/past-winners/ and /past-winners/2/)
+- **[SUPERSEDED · MINOR]** past-winners/index.html line 159 and past-winners/2/index.html line 94 (https://impactfund.wareham.stream/past-winners/ and /past-winners/2/)
   - [inherited] Misspelled winner-card title "Brighstart initiative program" — the card's own description spells it "Brightstart".
   - **Should be:** "Brightstart initiative program"
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR (needs Alumo)]** terms-conditions/index.html line 67 (https://impactfund.wareham.stream/terms-conditions/)
   - [inherited] Incomplete date: "Last updated: 2026" gives only a year, though section 8 promises "a revised date" for changes.
@@ -344,9 +351,10 @@ Major findings were adversarially re-verified by a second, independent pass.
 
 ## Spelling & grammar — FR
 
-- **[OPEN · MAJOR]** fr/past-winners/index.html line 84 and fr/past-winners/2/index.html line 85 — https://impactfund.wareham.stream/fr/past-winners/ and https://impactfund.wareham.stream/fr/past-winners/2/
+- **[SUPERSEDED · MAJOR]** fr/past-winners/index.html line 84 and fr/past-winners/2/index.html line 85 — https://impactfund.wareham.stream/fr/past-winners/ and https://impactfund.wareham.stream/fr/past-winners/2/
   - [inherited] CONFIRMED: the intro paragraph on both French Gagnants pages is entirely in English: "Get inspired by past winning projects that have helped improve campus life, submitted by students across Canada." Inherited from the original WordPress FR pages (_source/pages-fr/past-winners.html line 332 and _source/pages-fr/past-winners-2.html line 374 contain the identical English sentence). The rebuild even flags it with an HTML comment noting it was kept verbatim.
   - **Should be:** A French translation, e.g. "Inspirez-vous des projets gagnants qui ont contribué à améliorer la vie sur les campus, soumis par des étudiants de partout au Canada." — the same page's own French meta description (fr/past-winners/index.html line 7) already uses this phrasing: "Inspirez-vous des projets gagnants du Fonds d'impact étudiant par Alumo…"
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MAJOR (needs Alumo)]** fr/privacy-policy/index.html lines 85-90 (legal-text-box) — https://impactfund.wareham.stream/fr/privacy-policy/
   - [inherited] CONFIRMED: the entire body of the French Politique de confidentialité page is untranslated English placeholder copy — headings "Subtitle #01/#02/#03" and the repeated paragraph "Our protection is straightforward and easy to understand, designed with students in mind…". Identical placeholder confirmed in the original _source/pages-fr/privacy-policy.html; the rebuild reproduces it verbatim (noted in an HTML comment at lines 76-77). Note the same text is placeholder copy on the EN page too, so the underlying fix is real legal copy in both languages.
@@ -398,17 +406,19 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** One consistent label everywhere — "Soumission de projets" (singular, the majority form) in both header and footer.
   - Status: RESOLVED 2026-08-26 — header/footer nav renamed to "Comment soumettre" / "How to submit" (client edits round), eliminating the plural/singular mismatch.
 
-- **[OPEN · MINOR]** fr/index.html line 187 (period-note); also fr/about-the-fund/index.html lines 106, 198, 245; fr/how-to-apply/index.html line 125; fr/partner-schools/index.html line 123
+- **[SUPERSEDED · MINOR]** fr/index.html line 187 (period-note); also fr/about-the-fund/index.html lines 106, 198, 245; fr/how-to-apply/index.html line 125; fr/partner-schools/index.html line 123
   - [inherited] Spacing before punctuation is inconsistent across the FR pages: the orange-card note uses &thinsp; before ? and ! ("concrétiser&thinsp;?"), about-the-fund uses &thinsp; before ! and &nbsp; before : in one paragraph (line 106), while every other ?, ! and : sits after a plain breaking space ("Des questions ?", "date limite de soumission :", "Sélectionnez votre province :"), and one semicolon has a plain space before it ("reversés ; toutefois", about line 198). Original mixes literal U+2009/U+00A0/plain spaces the same way.
   - **Should be:** One convention site-wide: either OQLF style (no space before ? ! ;, non-breaking space before :) or French-France style (narrow no-break space before ? ! ; and non-breaking space before :) — applied to every occurrence.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** fr/about-the-fund/index.html line 73 (hero paragraph) — https://impactfund.wareham.stream/fr/about-the-fund/
   - [inherited] "un programme national de subventions créées par Alumo" — the participle agrees with "subventions" but the meaning is that the program was created by Alumo (the page's own meta description says "créé par Alumo").
   - **Should be:** "un programme national de subventions créé par Alumo".
 
-- **[OPEN · MINOR]** fr/about-the-fund/index.html line 73 (hero paragraph) — https://impactfund.wareham.stream/fr/about-the-fund/
+- **[SUPERSEDED · MINOR]** fr/about-the-fund/index.html line 73 (hero paragraph) — https://impactfund.wareham.stream/fr/about-the-fund/
   - [inherited] "à travers tout le Québec et le Canada" — "à travers" for geographic extent is a calque of "across".
   - **Should be:** "partout au Québec et au Canada" (as used in the past-winners meta description).
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** fr/about-the-fund/index.html line 121 ("Les projets doivent" list, item 2) — https://impactfund.wareham.stream/fr/about-the-fund/#eligibility
   - [inherited] "Être neutre sur le plan politique et dépourvu d'objectif commercial" — singular adjectives while the subject is "Les projets" (item 1 correctly uses plural "Être initiés").
@@ -458,17 +468,20 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] "visitez la page <a>Soumission de projets</a> ." — stray space before the final period (renders "Soumission de projets .").
   - **Should be:** Period immediately after the link: "…Soumission de projets."
 
-- **[OPEN · MINOR]** fr/past-winners/index.html line 88 and fr/past-winners/2/index.html line 89 (year filter) — https://impactfund.wareham.stream/fr/past-winners/
+- **[SUPERSEDED · MINOR]** fr/past-winners/index.html line 88 and fr/past-winners/2/index.html line 89 (year filter) — https://impactfund.wareham.stream/fr/past-winners/
   - [inherited] Default filter button reads "Toute" — wrong number/gender for an "all years" filter.
   - **Should be:** "Toutes" (les années) — or "Tous" if it means all projects.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
-- **[OPEN · MINOR]** fr/past-winners/index.html line 160 and fr/past-winners/2/index.html line 96 (winner card title) — https://impactfund.wareham.stream/fr/past-winners/
+- **[SUPERSEDED · MINOR]** fr/past-winners/index.html line 160 and fr/past-winners/2/index.html line 96 (winner card title) — https://impactfund.wareham.stream/fr/past-winners/
   - [inherited] Card title "Programme d'initiative Brighstart" — missing the second t; the card body spells the same project "Brightstart" three times.
   - **Should be:** "Programme d'initiative Brightstart" (note: the matching image file is also named winner-brighstart.jpg).
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
-- **[OPEN · MINOR]** fr/past-winners/index.html lines 102, 115, 128, 141, 154, 167 (and same spots in fr/past-winners/2/index.html) — https://impactfund.wareham.stream/fr/past-winners/
+- **[SUPERSEDED · MINOR]** fr/past-winners/index.html lines 102, 115, 128, 141, 154, 167 (and same spots in fr/past-winners/2/index.html) — https://impactfund.wareham.stream/fr/past-winners/
   - [inherited] Award amounts shown as "CAD 1.2M" on the French pages — English currency format (code before amount, decimal point, M abbreviation); placeholder demo data carried over verbatim.
   - **Should be:** French-Canadian format, e.g. "1,2 M$ CA" (comma decimal, symbol after the amount).
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** fr/partner-schools/index.html lines 137, 145, 149, 157, 166 (province cards) — https://impactfund.wareham.stream/fr/partner-schools/
   - [inherited] Province names lack the hyphens of their official French forms, and one keeps the English first name: "Colombie Britannique", "Nouveau Brunswick", "Terre Neuve et Labrador", "Nouvelle Écosse", "Île du Prince Edward".
@@ -480,17 +493,19 @@ Major findings were adversarially re-verified by a second, independent pass.
 
 ## Links & assets (live crawl)
 
-- **[OPEN · MAJOR]** index.html:374, fr/index.html:372, and the same footer block on all 20 pages (e.g. about-the-fund/index.html:351, fr/past-winners/2/index.html:271) — footer of every page at https://impactfund.wareham.stream/ and /fr/
+- **[SUPERSEDED · MAJOR]** index.html:374, fr/index.html:372, and the same footer block on all 20 pages (e.g. about-the-fund/index.html:351, fr/past-winners/2/index.html:271) — footer of every page at https://impactfund.wareham.stream/ and /fr/
   - [inherited] The footer 'Consent preferences' / 'Gérer mon consentement' button is a non-functional control: <a href="#" role="button"> with no JS handler anywhere (no consent/cookie/Didomi code in js/main.js or any script; the only preventDefault handlers are the form submitters). Verified fully inherited: on the original site the same anchor was also dead — href="" with no didomi-open-preferences class and no JS wiring to its Elementor id 47bae88 — so clicking it there merely reloaded the page. The real rebuild delta is site-level: the original loaded the Didomi consent SDK (sdk.privacy-center.org loader, API key cbf229c1-109a-46b2-80ba-20e070b390f9) which auto-displayed a consent notice, whereas the rebuild loads no consent mechanism at all, even though the cookies-policy and privacy-policy pages still describe managing consent.
   - **Should be:** Either wire the button to a real consent-preferences dialog (whatever tool replaces the Didomi/privacy-center SDK) or remove/hide it until one exists; if a consent tool is added, also ensure the cookies-policy and privacy-policy pages' descriptions of consent management match it. Note the button-opens-dialog behavior never worked on the original either, so 'parity with original' alone would still leave a dead control.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** index.html:95 and fr/index.html:96 — https://impactfund.wareham.stream/ and /fr/ hero
   - [inherited] The hero status pill ('Submissions open in September' / FR equivalent) is an <a class="hero-status-pill" href="#"> styled as a clickable pill with an icon; clicking it just jumps to the top of the page. The original site had the same dead href="#" on this Elementor button.
   - **Should be:** Make it a non-interactive element (span/div) since it's informational, or point it at a meaningful target such as /how-to-apply/ or the #info-section dates block.
 
-- **[OPEN · MINOR]** Lines 8-9 of every page's <head>, e.g. index.html:8-9, fr/past-winners/2/index.html:9-10 — all 20 pages
+- **[SUPERSEDED · MINOR]** Lines 8-9 of every page's <head>, e.g. index.html:8-9, fr/past-winners/2/index.html:9-10 — all 20 pages
   - hreflang alternate links use relative URLs (e.g. <link rel="alternate" hreflang="fr" href="/fr/">). The hreflang spec (and Google) requires fully-qualified absolute URLs; relative values are ignored by crawlers. The original used absolute URLs and additionally declared an hreflang="fr-CA" alternate that the rebuild dropped. (All pairs do point at the correct existing counterparts — the pairing itself is right.)
   - **Should be:** Absolute URLs, e.g. href="https://impactfund.wareham.stream/fr/" (or the production domain once cut over), optionally restoring the fr-CA alternate for parity with the original.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** privacy-policy/index.html, cookies-policy/index.html, fr/privacy-policy/index.html, fr/cookies-policy/index.html — https://impactfund.wareham.stream/privacy-policy/ etc.
   - [inherited] The on-site Privacy Policy and Cookies Policy pages are orphaned: no nav or footer link on any other page reaches them (only their own EN/FR language switcher references them). The footer 'Privacy Policy' link instead goes to the external Studentcare/ASEQ PDF. The original site had the same structure (its policy pages were only reachable via the consent SDK dialog, which the rebuild doesn't have), so these four pages are now unreachable by any navigation path.
@@ -506,13 +521,15 @@ Major findings were adversarially re-verified by a second, independent pass.
   - When api/apply.php returns 422 with per-field errors, the error branch calls showStep(firstErrStep, true) — which sets statusEl.hidden = true — and only afterwards writes statusEl.textContent ('Please check the highlighted fields.') without unhiding it. The top-level error banner is therefore never visible whenever the server reports field errors (this happens for every 422, since all server field keys map to real inputs). Users still get the inline per-field messages and are scrolled to the offending step, so information is not lost, but the aria-live status announcement and visible banner are silently suppressed.
   - **Should be:** Set statusEl.hidden = false (and the text) after the showStep call in the error branch, or make showStep not reset statusEl during error handling.
 
-- **[OPEN · MINOR]** past-winners/2/index.html lines 191-210 and fr/past-winners/2/index.html lines 193-212 — https://impactfund.wareham.stream/past-winners/2/ and https://impactfund.wareham.stream/fr/past-winners/2/
+- **[SUPERSEDED · MINOR]** past-winners/2/index.html lines 191-210 and fr/past-winners/2/index.html lines 193-212 — https://impactfund.wareham.stream/past-winners/2/ and https://impactfund.wareham.stream/fr/past-winners/2/
   - These two contact forms are missing the honeypot block (<div class="hp-field"> with <input name="website">) that every other contact-form instance has (e.g. index.html lines 320-323). js/main.js tolerates the absence (querySelector returns null) and api/contact.php reads $_POST['website'] ?? '' so submissions still work, but the spam trap is absent on these two instances — bots that parse and post these forms (the sections are hidden but still present in the DOM and submittable) bypass honeypot_check() entirely once PHP goes live.
   - **Should be:** Add the identical hp-field div (label + input name="website" tabindex="-1" autocomplete="off") before the form-footer in both files, matching index.html.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
-- **[OPEN · MINOR]** js/main.js lines 87-118 (contact submit handler) with novalidate forms at index.html line 304, fr/index.html line 302, about-the-fund, past-winners, past-winners/2 (EN+FR) — https://impactfund.wareham.stream/
+- **[SUPERSEDED · MINOR]** js/main.js lines 87-118 (contact submit handler) with novalidate forms at index.html line 304, fr/index.html line 302, about-the-fund, past-winners, past-winners/2 (EN+FR) — https://impactfund.wareham.stream/
   - The contact form has no client-side validation at all: the <form> carries novalidate (suppressing native required/email checks) and the js/main.js handler posts immediately without calling checkValidity()/reportValidity(). Validation relies entirely on the server's 422 response — and on 422 the handler only sets aria-invalid="true" on offending fields (red border via css/style.css line 1012) with no per-field messages, and never removes aria-invalid afterwards: fields stay red after the user corrects them and even after a later successful submit (form.reset() does not clear attributes). On the current nginx image an empty-form submit just shows the generic failure message with no field feedback. Contrast: the apply form implements full client-side validation.
   - **Should be:** Validate before fetch (e.g. if (!form.checkValidity()) { form.reportValidity(); return; } or drop novalidate), and clear aria-invalid on input/successful submit.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[RESOLVED · MINOR]** nginx.conf (no /api handling) + Dockerfile ('COPY . /usr/share/nginx/html/') — verified live: GET https://impactfund.wareham.stream/api/apply.php returns 200 application/octet-stream with full PHP source
   - The current nginx image serves the raw PHP source of api/apply.php, api/contact.php, api/_lib.php, api/config.example.php and api/.user.ini as downloadable static files (verified via curl). No secrets are exposed today (api/config.php is git- and docker-ignored), but if a real config.php were ever mounted or copied into the nginx-based deployment its mail addresses and Graph client_secret would be served in plain text. Related known behavior confirmed: POST to /api/*.php returns nginx 405, and both front-ends fail gracefully — generic error message shown, submit button re-enabled (the graceful-failure check passes).
@@ -622,25 +639,28 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** Add a self-referencing canonical to each page, e.g. <link rel="canonical" href="https://impactfund.wareham.stream/about-the-fund/"> (host choice depends on the indexing decision above).
   - Status: RESOLVED — <link rel="canonical"> added to all 20 pages, pointing at the production host https://alumoimpact.ca/... (verified 2026-08-26).
 
-- **[OPEN · MINOR]** 10 pages: all 9 FR pages except /fr/cookies-policy/ (e.g. C:/Users/atp2txw/PycharmProjects/Alumo Website/fr/partner-schools/index.html, 217 chars) + EN /partner-schools/ (182 chars)
+- **[SUPERSEDED · MINOR]** 10 pages: all 9 FR pages except /fr/cookies-policy/ (e.g. C:/Users/atp2txw/PycharmProjects/Alumo Website/fr/partner-schools/index.html, 217 chars) + EN /partner-schools/ (182 chars)
   - Meta descriptions exceed the ~160-character SERP display limit: fr/partner-schools 217, fr/about-the-fund 186, fr/ 185, fr/apply-now 183, partner-schools 182, fr/privacy-policy 177, fr/how-to-apply 173, fr/past-winners and fr/past-winners/2 171, fr/terms-conditions 168. They will be truncated mid-sentence in search results. (Descriptions are a rebuild improvement — the original had none — but the long ones need trimming.)
   - **Should be:** Trim each affected description to roughly 150–160 characters, keeping the key message in the first 150 chars.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/partner-schools/index.html lines 117 and 184, and fr/partner-schools/index.html lines 124 and 190 — https://impactfund.wareham.stream/partner-schools/ and /fr/partner-schools/
   - [inherited] The two sort dropdowns (<select id="school-sort"> and <select id="school-sort-table">, options A–Z / Z–A) have no accessible name — no <label>, aria-label, or aria-labelledby. Screen-reader users hear an unnamed combobox. Identical markup in the original (_source/pages/partner-schools.html).
   - **Should be:** Add aria-label="Sort schools" (EN) / aria-label="Trier les écoles" (FR) to both selects on both language versions.
 
-- **[OPEN · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/past-winners/index.html line 94 (also past-winners/2/, fr/past-winners/, fr/past-winners/2/) — https://impactfund.wareham.stream/past-winners/
+- **[SUPERSEDED · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/past-winners/index.html line 94 (also past-winners/2/, fr/past-winners/, fr/past-winners/2/) — https://impactfund.wareham.stream/past-winners/
   - [inherited] Heading level jump h1 → h3: the six winner-card titles ("MindWell student program" etc.) are <h3> with no intervening <h2>, on all four past-winners pages (EN, EN page 2, FR, FR page 2). Same structure in the original (_source/pages/past-winners.html).
   - **Should be:** Promote the winner-card titles to <h2>, or add an <h2> section heading (e.g. visually-hidden "Winning projects") above the card grid.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/how-to-apply/index.html line 90 (and fr/how-to-apply/index.html line 89) — https://impactfund.wareham.stream/how-to-apply/
   - [inherited] Heading level jump h1 → h3: the three step-card headings ("1. Check eligibility", "2. Complete your application", "3. Review and submit") are <h3> directly after the page <h1>. The original technically had <h2>s before them, but every one carried elementor-hidden-* classes for all breakpoints, so the visible/accessible outline was identical — effectively inherited.
   - **Should be:** Make the three step headings <h2> (they are top-level sections of the page), on both EN and FR versions.
 
-- **[OPEN · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/past-winners/index.html lines 93–158 (same on past-winners/2/, fr/past-winners/, fr/past-winners/2/) — https://impactfund.wareham.stream/past-winners/
+- **[SUPERSEDED · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/past-winners/index.html lines 93–158 (same on past-winners/2/, fr/past-winners/, fr/past-winners/2/) — https://impactfund.wareham.stream/past-winners/
   - [inherited] The six winner project photos (winner-mindwell.jpg, winner-pathway.jpg, winner-studysafe.jpg, winner-campus-care.jpg, winner-tomorrow-fund.jpg, winner-brighstart.jpg) all have alt="" although they are content-bearing images of the winning projects. Inherited from the original, which had alt="" on every image site-wide (the rebuild already fixed the logos and banner alts — these were left empty).
   - **Should be:** Give each photo a short descriptive alt (e.g. "Students at a MindWell workshop"), or make an explicit call that they are decorative alongside the card titles and leave alt="" deliberately.
+  - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
 - **[OPEN · MINOR]** Deployed response headers, all URLs (e.g. https://impactfund.wareham.stream/) — configure in C:/Users/atp2txw/PycharmProjects/Alumo Website/nginx.conf
   - Missing security headers: no X-Content-Type-Options: nosniff and no Strict-Transport-Security on any response. Charset is correctly declared (Content-Type: text/html; charset=utf-8) and the Cache-Control scheme (no-cache HTML/CSS/JS, 7-day images) is deliberate per nginx.conf comments — those are fine.

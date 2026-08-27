@@ -38,18 +38,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/partner-schools/"/>
   </url>
   <url>
-    <loc>https://alumoimpact.ca/past-winners/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/past-winners/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/past-winners/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/past-winners/"/>
-  </url>
-  <url>
-    <loc>https://alumoimpact.ca/past-winners/2/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/past-winners/2/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/past-winners/2/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/past-winners/2/"/>
-  </url>
-  <url>
     <loc>https://alumoimpact.ca/privacy-policy/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/privacy-policy/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/privacy-policy/"/>
@@ -96,18 +84,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/partner-schools/"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/partner-schools/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/partner-schools/"/>
-  </url>
-  <url>
-    <loc>https://alumoimpact.ca/fr/past-winners/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/past-winners/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/past-winners/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/past-winners/"/>
-  </url>
-  <url>
-    <loc>https://alumoimpact.ca/fr/past-winners/2/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/past-winners/2/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/past-winners/2/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/past-winners/2/"/>
   </url>
   <url>
     <loc>https://alumoimpact.ca/fr/privacy-policy/</loc>
