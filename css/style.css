@@ -704,6 +704,10 @@ img[src$="shape-blob-orange.svg"] { display: none; }
   transition: 0.3s;
 }
 .site-footer .footer-menu .menu-item a:hover { color: var(--primary); }
+/* Scheduled footer items (data-opens-at) stay hidden until /js/main.js reveals
+   them — same [hidden] guard as the header nav, in case future CSS sets a
+   display on footer .menu-item. */
+.site-footer .footer-menu .menu-item[hidden] { display: none !important; }
 
 .site-footer .footer-bottom {
   display: flex;
