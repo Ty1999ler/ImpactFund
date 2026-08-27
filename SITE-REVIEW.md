@@ -106,7 +106,7 @@ Audited 2026-08-19 against https://impactfund.wareham.stream (deployed content
 verified byte-identical to this repo) and the original alumoimpact.ca mirror.
 `[inherited]` = the mistake exists on the original WordPress site too and was
 copied faithfully; everything else was introduced in the rebuild or the dataset.
-**Totals (re-verified 2026-08-27, after round 2 + Terms date): 131 findings — 6 open (2 major, 4 minor), 110 resolved, 13 superseded, 2 closed (client).** (Original 2026-08-19 tally: 21 major, 110 minor; 109 inherited.)
+**Totals (re-verified 2026-08-27, after round 2 + Terms date + partner-note decision): 131 findings — 5 open (1 major, 4 minor), 110 resolved, 13 superseded, 3 closed (client).** (Original 2026-08-19 tally: 21 major, 110 minor; 109 inherited.)
 
 **Currently open — MAJOR (2026-08-27, after round 2):**
 - Partner-list update note dropped from FR (and EN) partner-schools intro card
@@ -192,9 +192,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** H1 text "Comment soumettre un projet", matching _source/pages-fr/how-to-apply.html line 321.
   - **Resolution (2026-08-27, round 2):** H1 restored to "Comment soumettre un projet" (client-confirmed), matching the original FR page.
 
-- **[OPEN · MAJOR]** fr/partner-schools/index.html lines 83-92 (intro card, paragraph at line 85) — https://impactfund.wareham.stream/fr/partner-schools/
+- **[CLOSED (client) · MAJOR]** fr/partner-schools/index.html lines 83-92 (intro card, paragraph at line 85) — https://impactfund.wareham.stream/fr/partner-schools/
   - VERIFIED. The visible note sentence from the original intro card is missing: "Note : La liste des partenaires admissibles sera mise à jour avant l'ouverture de la période de candidature en septembre prochain. Consultez cette page en août pour obtenir la liste actualisée !" (_source/pages-fr/partner-schools.html line 368, inside a paragraph widget with no elementor-hidden classes). The rebuild keeps only a paraphrase in the meta/og description (lines 7 and 14), not in visible body copy. The same note was also dropped from the EN rebuild (partner-schools/index.html; original at _source/pages/partner-schools.html line 368: "Please note: The list of eligible partner schools will be updated before applications open this September..."). Context: the rebuild deliberately shows the school directory that the original hides at every breakpoint (documented in comments at lines 96-98), and this note was the original's visible stand-in for that hidden list — so the drop may be intentional but is undocumented.
   - **Should be:** Restore the note paragraph inside the intro card on both FR and EN pages (or, if its removal is a conscious choice because the school list is now shown, document it in the file comment; if the list is ever re-hidden to match the original, the note must return).
+  - **Resolution (2026-08-27):** CLOSED — client answered "no": the note stays out. Rationale matches the rebuild's design: the live directory the note used to stand in for is now shown on the page itself.
 
 - **[SUPERSEDED · MAJOR]** fr/past-winners/index.html line 84 and fr/past-winners/2/index.html line 85 — https://impactfund.wareham.stream/fr/past-winners/ and /fr/past-winners/2/
   - [inherited] VERIFIED. The intro paragraph on both FR winners pages is untranslated English: "Get inspired by past winning projects that have helped improve campus life, submitted by students across Canada." The original FR site shows the identical English text as visible copy (_source/pages-fr/past-winners.html line 332, no elementor-hidden classes), so the rebuild copied it faithfully — but it is English body copy on a French page.
