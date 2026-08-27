@@ -18,9 +18,11 @@ https://alumoimpact.ca URLs on all 12 pages; home hero pill now a
 non-interactive <span>. Of the 5 declined items: 3 are moot (Past Winners
 hidden), 1 was resolved by removing the placeholder policy pages, and the
 "(Nécessaire)" label item is closed as-is per the client (the requested
-required-field warning was added). Production security headers are NOT yet live
-(GoDaddy's shared public_html/.htaccess is hand-managed; being handled
-separately via cPanel). New tally in the Totals line below.
+required-field warning was added). Production security headers went live the
+same day: a host-scoped block (SetEnvIf Host + Header env=) was hand-added to
+GoDaddy's shared public_html/.htaccess via cPanel — verified on alumoimpact.ca
+incl. www, with the co-hosted Continuum sites unaffected; /api/ responses get
+the same headers from api/.htaccess. New tally in the Totals line below.
 
 ## UPDATE 2026-08-26 (later) — client edits rounds shipped
 Nav renamed ("How to submit"/"Comment soumettre" — resolves the FR header/footer
@@ -739,7 +741,7 @@ Major findings were adversarially re-verified by a second, independent pass.
 - **[RESOLVED · MINOR]** Deployed response headers, all URLs (e.g. https://impactfund.wareham.stream/) — configure in C:/Users/atp2txw/PycharmProjects/Alumo Website/nginx.conf
   - Missing security headers: no X-Content-Type-Options: nosniff and no Strict-Transport-Security on any response. Charset is correctly declared (Content-Type: text/html; charset=utf-8) and the Cache-Control scheme (no-cache HTML/CSS/JS, 7-day images) is deliberate per nginx.conf comments — those are fine.
   - **Should be:** Add `add_header X-Content-Type-Options "nosniff" always;` (and optionally HSTS) — note nginx's add_header inheritance: because the location blocks already use add_header, the new header must be repeated in each location (or set via a Cloudflare Transform Rule) or it will be dropped there.
-  - **Resolution (2026-08-27):** X-Content-Type-Options and Referrer-Policy added in Dockerfile.php (staging container). Production is NOT yet covered — GoDaddy's shared public_html/.htaccess is hand-managed and is being handled separately via cPanel.
+  - **Resolution (2026-08-27):** X-Content-Type-Options and Referrer-Policy added in Dockerfile.php (staging container) AND live on production the same day: a host-scoped block (`SetEnvIf Host "(^|\.)alumoimpact\.ca$"` + `Header always set ... env=`) hand-added to GoDaddy's shared public_html/.htaccess via cPanel. Verified on alumoimpact.ca (incl. www and subpages); continuumplan.com/plancontinuum.com unaffected; /api/ responses additionally covered by api/.htaccess.
 
 - **[RESOLVED · MINOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/index.html <title> — https://impactfund.wareham.stream/ (and /fr/)
   - [inherited] The homepage <title> is just "Alumo Fund" — it never mentions "Student Impact Fund", the product the whole site is about, making it the weakest title on the site for search and for browser tabs/bookmarks. Matches the original's title exactly.
