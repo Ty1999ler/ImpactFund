@@ -17,3 +17,4 @@ msmtprc
 
 # Client quote/proposal documents - private, never published
 _proposal/
+__pycache__/
