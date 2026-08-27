@@ -331,11 +331,28 @@ function http_json(string $url, $body, array $headers, string $method = 'POST', 
 }
 
 /* ---------- SharePoint document library layout ----------
-   Files are filed as  Province / Institution / Project title /  so the
-   library browses the way the review reads. The submission id is no longer
+   Files are filed as  Region / Province / Project title /  so the library
+   browses the way the review reads. Ontario and Quebec are regions in their
+   own right, so those two are one level shallower. The submission id is no longer
    the folder name — it meant nothing to a human — but it still identifies
    the submission in the list, the archive and the logs, and it breaks the
    tie when two projects from the same school share a title. */
+
+/* The folder chain ABOVE the project, per the client's grouping: Ontario and
+   Quebec carry enough volume to stand on their own, everything else groups
+   East or West and keeps a province level so the four western provinces stay
+   apart. Depth therefore varies — one level for ON/QC, two for the rest —
+   which is deliberate: a fixed depth would file things under "Ontario /
+   Ontario". graph_make_folder() walks whatever chain it is handed. */
+function sp_region_path(string $code): array {
+    if ($code === 'ON') return ['Ontario'];
+    if ($code === 'QC') return ['Quebec'];
+    if (in_array($code, ['NB', 'NS'], true))             return ['East', sp_province_name($code)];
+    if (in_array($code, ['AB', 'BC', 'MB', 'SK'], true)) return ['West', sp_province_name($code)];
+    /* province is validated against those eight before we get here, so this is
+       only reachable if the form and this list ever drift apart. */
+    return ['Province not given'];
+}
 
 /* Folders read better as "Nova Scotia" than "NS"; the list column keeps the
    two-letter code the form submits. Unknown codes pass through unchanged. */
@@ -383,7 +400,7 @@ function graph_create_folder(array $auth, string $driveId, string $parentPath, s
     ]), array_merge($auth, ['Content-Type: application/json']), 'POST', [409], $status);
 }
 
-/* Walk the Province/Institution chain (re-using folders that already exist),
+/* Walk the region chain (re-using folders that already exist),
    then create a leaf that is this submission's alone: 409 on the leaf means
    another project here is called the same thing, so it gets the submission's
    short suffix appended. Returns ['path' =>, 'webUrl' =>]. */
@@ -470,11 +487,15 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
 
     /* Built from the canonical field names, before field_map renames them for
        whatever the destination list actually calls its columns. */
-    $folder = $files ? graph_make_folder($auth, $g['drive_id'], [
-        sp_safe_name(sp_province_name((string)($fields['Province'] ?? '')), 'Province not given'),
-        sp_safe_name((string)($fields['Institution'] ?? ''), 'Institution not given'),
-        sp_safe_name((string)($fields['Title'] ?? ''), 'Untitled project'),
-    ], $submissionId) : ['path' => '', 'webUrl' => '', 'id' => ''];
+    $segments = array_map(
+        fn($s) => sp_safe_name($s, 'Unfiled'),
+        sp_region_path((string)($fields['Province'] ?? ''))
+    );
+    $segments[] = sp_safe_name((string)($fields['Title'] ?? ''), 'Untitled project');
+
+    $folder = $files
+        ? graph_make_folder($auth, $g['drive_id'], $segments, $submissionId)
+        : ['path' => '', 'webUrl' => '', 'id' => ''];
 
     /* The drive-item id, not the path: it survives someone tidying the
        library, so scripts that read the documents keep working. */
