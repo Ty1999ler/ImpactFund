@@ -93,7 +93,7 @@ return [
         'overflow_field' => '',
 
         /* Hyperlink ("Link") columns, filled after the uploads finish. Files
-           land in  Region / Province / Project title /  inside drive_id;
+           land in  Region / Project title - School /  inside drive_id;
            link_field points at that folder, file_links at one document each.
            Leave a column name out and that link is simply not written. */
         'link_field' => '',      // e.g. 'Documents'

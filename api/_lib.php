@@ -331,38 +331,55 @@ function http_json(string $url, $body, array $headers, string $method = 'POST', 
 }
 
 /* ---------- SharePoint document library layout ----------
-   Files are filed as  Region / Province / Project title /  so the library
-   browses the way the review reads. Ontario and Quebec are regions in their
-   own right, so those two are one level shallower. The submission id is no longer
-   the folder name — it meant nothing to a human — but it still identifies
-   the submission in the list, the archive and the logs, and it breaks the
-   tie when two projects from the same school share a title. */
+   Files are filed as  Region / Project title - School /  — two levels, which
+   is how the review is organised. There is no province level: the school in
+   the folder name already says where it is, and every level costs characters
+   against SharePoint's 255-character limit on link columns.
 
-/* The folder chain ABOVE the project, per the client's grouping: Ontario and
-   Quebec carry enough volume to stand on their own, everything else groups
-   East or West and keeps a province level so the four western provinces stay
-   apart. Depth therefore varies — one level for ON/QC, two for the rest —
-   which is deliberate: a fixed depth would file things under "Ontario /
-   Ontario". graph_make_folder() walks whatever chain it is handed. */
-function sp_region_path(string $code): array {
-    if ($code === 'ON') return ['Ontario'];
-    if ($code === 'QC') return ['Quebec'];
-    if (in_array($code, ['NB', 'NS'], true))             return ['East', sp_province_name($code)];
-    if (in_array($code, ['AB', 'BC', 'MB', 'SK'], true)) return ['West', sp_province_name($code)];
-    /* province is validated against those eight before we get here, so this is
-       only reachable if the form and this list ever drift apart. */
-    return ['Province not given'];
+   The submission id is not the folder name — it meant nothing to a human —
+   but it still identifies the submission in the list, the archive and the
+   logs, and it breaks the tie when two projects share a name. */
+
+/* Quebec is split by language of instruction. That is a per-SCHOOL fact, not
+   a per-province one, so it has to be a list rather than something derived.
+   While this is empty every Quebec school files under Quebec (FR), which is
+   the agreed interim arrangement until the client supplies the English list.
+
+   Entries are school names as they appear BEFORE the " - " in the institution
+   label the form submits, e.g. 'Dawson College'. Matching ignores case. */
+function sp_quebec_english_schools(): array {
+    return [
+        // 'Dawson College',
+        // 'Concordia University',
+    ];
 }
 
-/* Folders read better as "Nova Scotia" than "NS"; the list column keeps the
-   two-letter code the form submits. Unknown codes pass through unchanged. */
-function sp_province_name(string $code): string {
-    $names = [
-        'AB' => 'Alberta', 'BC' => 'British Columbia', 'MB' => 'Manitoba',
-        'NB' => 'New Brunswick', 'NS' => 'Nova Scotia', 'ON' => 'Ontario',
-        'QC' => 'Quebec', 'SK' => 'Saskatchewan',
-    ];
-    return $names[$code] ?? $code;
+/* "McGill University - SSMU" -> "McGill University". Verified against all 155
+   entries in js/schools-data.js: splitting on the first " - " recovers the
+   school exactly every time, because the label is built as school + ' - ' +
+   association and no school name contains that separator. */
+function sp_school_name(string $institution): string {
+    return trim(explode(' - ', $institution, 2)[0]);
+}
+
+/* The single folder a submission files under. Ontario stands alone; Quebec
+   splits by language; the Atlantic provinces join Quebec (EN); the four
+   western provinces share one bucket. Note the name cannot contain "/" —
+   SharePoint rejects it outright — hence "&". */
+function sp_region_folder(string $province, string $institution): string {
+    if ($province === 'ON') return 'Ontario';
+    if (in_array($province, ['NB', 'NS'], true)) return 'Quebec (EN) & East';
+    if (in_array($province, ['AB', 'BC', 'MB', 'SK'], true)) return 'West';
+    if ($province === 'QC') {
+        $school = sp_school_name($institution);
+        foreach (sp_quebec_english_schools() as $english) {
+            if (strcasecmp($school, $english) === 0) return 'Quebec (EN) & East';
+        }
+        return 'Quebec (FR)';
+    }
+    /* province is validated against those eight before we get here, so this is
+       only reachable if the form and this list ever drift apart. */
+    return 'Unfiled';
 }
 
 /* SharePoint rejects a set of characters and names outright, and a rejected
@@ -486,16 +503,21 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
     $auth  = ["Authorization: Bearer $token"];
 
     /* Built from the canonical field names, before field_map renames them for
-       whatever the destination list actually calls its columns. */
-    $segments = array_map(
-        fn($s) => sp_safe_name($s, 'Unfiled'),
-        sp_region_path((string)($fields['Province'] ?? ''))
-    );
-    $segments[] = sp_safe_name((string)($fields['Title'] ?? ''), 'Untitled project');
+       whatever the destination list actually calls its columns.
 
-    $folder = $files
-        ? graph_make_folder($auth, $g['drive_id'], $segments, $submissionId)
-        : ['path' => '', 'webUrl' => '', 'id' => ''];
+       The school goes in the leaf rather than in a level of its own: it is
+       what tells two identical project titles apart, and a separate level
+       would cost characters the link columns cannot spare. */
+    $province    = (string)($fields['Province'] ?? '');
+    $institution = (string)($fields['Institution'] ?? '');
+    $school      = sp_school_name($institution);
+    $title       = trim((string)($fields['Title'] ?? ''));
+    $leaf        = $school !== '' ? "$title - $school" : $title;
+
+    $folder = $files ? graph_make_folder($auth, $g['drive_id'], [
+        sp_safe_name(sp_region_folder($province, $institution), 'Unfiled'),
+        sp_safe_name($leaf, 'Untitled project'),
+    ], $submissionId) : ['path' => '', 'webUrl' => '', 'id' => ''];
 
     /* The drive-item id, not the path: it survives someone tidying the
        library, so scripts that read the documents keep working. */
