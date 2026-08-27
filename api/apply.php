@@ -1,7 +1,9 @@
 <?php
 /* Application form endpoint — multipart POST (fields + 5 documents).
    1. archives the submission under submissions_dir (JSON + files)
-   2. delivers it per config delivery_mode: 'email' | 'graph' | 'off'
+   2. answers the applicant, then delivers per delivery_mode: 'email' | 'graph' | 'off'
+   3. a failed delivery leaves a DELIVERY-PENDING marker, emails the team once,
+      and is retried by api/redeliver.php (cron, every 30 minutes)
    See api/config.example.php. */
 
 require __DIR__ . '/_lib.php';
@@ -106,16 +108,9 @@ foreach (['funding_requested', 'total_cost'] as $name) {
 
 /* ---------- files ---------- */
 
-$UPLOADS = [
-    // input name            => [required, label]
-    'file_project_overview'  => [true, 'Project overview'],
-    'file_budget'            => [true, 'Detailed budget'],
-    'file_team_members'      => [true, 'Team members'],
-    'file_action_plan'       => [true, 'Action plan and schedule'],
-    /* Client renamed the document "Partner Sign-off Form" — the input name
-       stays file_support_letter so nothing downstream has to move. */
-    'file_support_letter'    => [true, 'Partner Sign-off Form'],
-];
+/* input name => [required, label] — defined in _lib.php because redeliver.php
+   needs the same slot => label mapping to rebuild an archived delivery. */
+$UPLOADS = apply_upload_slots();
 $ALLOWED_EXT = ['doc', 'docx', 'xls', 'xlsx', 'csv', 'pdf'];
 $maxBytes = (int)($cfg['max_file_mb'] ?? 10) * 1024 * 1024;
 
@@ -195,83 +190,37 @@ file_put_contents($dir . '/submission.json', json_encode($record, JSON_PRETTY_PR
 respond_and_continue(200, ['ok' => true, 'id' => $submissionId]);
 @set_time_limit(180);
 
-$summaryLines = ["New Student Impact Fund application — $submissionId", ''];
-foreach ($data as $k => $v) {
-    if ($v !== '') $summaryLines[] = str_pad($k, 22) . ': ' . str_replace(["\r", "\n"], [' ', ' '], $v);
-}
-$summaryLines[] = '';
-$summaryLines[] = 'Files: ' . implode(', ', array_map(fn($s) => $s['name'], $stored));
-$summary = implode("\n", $summaryLines);
-
+/* Payload builders live in _lib.php, shared with redeliver.php, so a retried
+   delivery is byte-for-byte the one that would have gone out first time. */
 $mode = $cfg['delivery_mode'] ?? 'off';
-$deliveryOk = true;
+$deliveryError = '';
 
 if ($mode === 'email') {
     $atts = array_map(fn($s) => ['path' => $s['path'], 'name' => $s['name']], $stored);
-    $deliveryOk = send_mail(
+    $sent = send_mail(
         $cfg, $cfg['relay_to'],
         "Application — {$data['project_title']} ($submissionId)",
-        $summary, $data['primary_email'], $atts
+        apply_summary_text($data, array_map(fn($s) => $s['name'], $stored), $submissionId),
+        $data['primary_email'], $atts
     );
+    if (!$sent) $deliveryError = 'send_mail returned false (transport details are in the server error log)';
 } elseif ($mode === 'graph') {
     try {
-        $graph = $cfg['graph'];
-        /* Cache the hour-long auth token beside the archive — outside the
-           webroot, in a directory already denied to the web. Saves a round
-           trip to Microsoft on every submission. */
-        $graph['token_cache'] = rtrim($cfg['submissions_dir'], '/\\') . '/.graph-token';
-        graph_deliver($graph, $submissionId, [
-            'Title'            => $data['project_title'],
-            'SubmissionId'     => $submissionId,
-            'Organization'     => $data['organization_name'],
-            'Institution'      => $data['institution'],
-            'Province'         => $data['province'],
-            'CampusRecognised' => $data['campus_recognised'],
-            'OffCampusOrg'     => $data['off_campus_org'],
-            'Category'         => ($data['category'] === 'Other' && trim($data['category_other']) !== '') ? ('Other — ' . trim($data['category_other'])) : $data['category'],
-            'PrimaryContact'   => $data['primary_first_name'] . ' ' . $data['primary_last_name'],
-            'PrimaryEmail'     => $data['primary_email'],
-            'PrimaryRole'      => $data['primary_role'],
-            'SecondaryContact' => trim($data['secondary_first_name'] . ' ' . $data['secondary_last_name']),
-            'SecondaryEmail'   => $data['secondary_email'],
-            'SecondaryRole'    => $data['secondary_role'],
-            /* Numbers, not strings: these are the fields anything downstream
-               will want to add up or filter on. */
-            'FundingRequested' => parse_amount($data['funding_requested']),
-            'TotalCost'        => parse_amount($data['total_cost']),
-            'StudentsInOrg'    => $data['students_in_org'] === '' ? null : (int)$data['students_in_org'],
-            'StudentsReached'  => $data['students_reached'] === '' ? null : (int)$data['students_reached'],
-            'Summary'          => $data['project_summary'],
-            /* Both are required tick-boxes on the form, i.e. they exist as
-               evidence that the applicant agreed. Evidence the review team
-               cannot see is not evidence, so it goes in the list rather than
-               only into the server-side archive. */
-            'Consent'          => $data['consent'],
-            'FundAcknowledgement' => $data['fund_acknowledgement'],
-        ], $stored);
+        graph_deliver(apply_graph_config($cfg), $submissionId, apply_graph_fields($data, $submissionId), $stored);
     } catch (Throwable $e) {
-        error_log('graph delivery failed for ' . $submissionId . ': ' . $e->getMessage());
-        $deliveryOk = false;
         $deliveryError = $e->getMessage();
     }
 }
 
 /* The archive on disk succeeded either way — never lose a submission. But the
-   applicant has already been told it worked, and until now the only trace of a
-   failure was a line in the PHP error log that nobody reads. Tell a human. */
-if (!$deliveryOk) {
-    error_log("apply.php: delivery ($mode) failed for $submissionId — archived on server only");
-
-    $alertTo = (string)($cfg['relay_to'] ?? '') ?: (string)($cfg['contact_to'] ?? '');
-    if ($alertTo !== '') {
-        send_mail($cfg, $alertTo,
-            "Student Impact Fund — application NOT delivered ($submissionId)",
-            "An application was received but could not be delivered to $mode.\n\n"
-            . "The applicant has been shown a confirmation, so they believe it went through.\n"
-            . "Nothing is lost: the complete submission, including all documents, is on the\n"
-            . "web server at:\n\n    $dir\n\n"
-            . "Reason: " . ($deliveryError ?? 'unknown') . "\n\n"
-            . "----\n" . $summary
-        );
+   applicant has already been told it worked, so a failure must reach a human
+   AND fix itself: delivery_record_failure marks the archive DELIVERY-PENDING
+   for the retry cron (api/redeliver.php) and emails the team once. */
+if ($mode === 'email' || $mode === 'graph') {
+    if ($deliveryError === '') {
+        delivery_update_record($dir, ['status' => 'delivered', 'at' => gmdate('c')]);
+    } else {
+        error_log("apply.php: delivery ($mode) failed for $submissionId — archived, queued for retry: $deliveryError");
+        delivery_record_failure($cfg, $dir, $submissionId, $mode, $deliveryError, $data);
     }
 }

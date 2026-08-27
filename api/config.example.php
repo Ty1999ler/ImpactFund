@@ -65,6 +65,16 @@ return [
 
     'relay_to' => 'applications@example.com',
 
+    /* Where delivery-failure notices (and their delivered-after-retry
+       confirmations) are sent. Optional — leave '' to use relay_to.
+       A failed delivery never bounces the applicant: the submission is
+       archived first, ONE notice is emailed here, and a DELIVERY-PENDING
+       marker queues it for api/redeliver.php (CLI-only), which retries
+       until it goes through. Install the retry cron on the host
+       (cPanel -> Cron Jobs); the exact line: */
+    // */30 * * * * /usr/local/bin/php /home/aseqhosting/public_html/api/redeliver.php >/dev/null 2>&1
+    'failure_notify_to' => '',
+
     /* Only needed for delivery_mode = 'graph' (Entra app registration with
        Sites.Selected on the target site, client-credentials flow). */
     'graph' => [

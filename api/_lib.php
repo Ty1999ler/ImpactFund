@@ -637,3 +637,142 @@ function graph_write_links(array $g, array $auth, string $itemId, array $folder,
         }
     }
 }
+
+/* ---------- Application delivery (shared by apply.php and redeliver.php) ----------
+   apply.php builds these at submission time; redeliver.php rebuilds them from
+   the archive when a failed delivery is retried. One definition each, so the
+   live submission and the retry can never drift apart. */
+
+/* The application's document slots — input name => [required, label]. */
+function apply_upload_slots(): array {
+    return [
+        'file_project_overview'  => [true, 'Project overview'],
+        'file_budget'            => [true, 'Detailed budget'],
+        'file_team_members'      => [true, 'Team members'],
+        'file_action_plan'       => [true, 'Action plan and schedule'],
+        /* Client renamed the document "Partner Sign-off Form" — the input name
+           stays file_support_letter so nothing downstream has to move. */
+        'file_support_letter'    => [true, 'Partner Sign-off Form'],
+    ];
+}
+
+/* The canonical SharePoint list-item fields for one application (before
+   graph_map_fields renames them for the destination's real columns).
+   $data is the validated field set (apply.php) or submission.json's 'fields'
+   (redeliver.php) — an older archive may lack a key, hence the '' fallbacks. */
+function apply_graph_fields(array $data, string $submissionId): array {
+    $d = fn(string $k): string => (string)($data[$k] ?? '');
+    return [
+        'Title'            => $d('project_title'),
+        'SubmissionId'     => $submissionId,
+        'Organization'     => $d('organization_name'),
+        'Institution'      => $d('institution'),
+        'Province'         => $d('province'),
+        'CampusRecognised' => $d('campus_recognised'),
+        'OffCampusOrg'     => $d('off_campus_org'),
+        'Category'         => ($d('category') === 'Other' && trim($d('category_other')) !== '')
+                              ? ('Other — ' . trim($d('category_other'))) : $d('category'),
+        'PrimaryContact'   => $d('primary_first_name') . ' ' . $d('primary_last_name'),
+        'PrimaryEmail'     => $d('primary_email'),
+        'PrimaryRole'      => $d('primary_role'),
+        'SecondaryContact' => trim($d('secondary_first_name') . ' ' . $d('secondary_last_name')),
+        'SecondaryEmail'   => $d('secondary_email'),
+        'SecondaryRole'    => $d('secondary_role'),
+        /* Numbers, not strings: these are the fields anything downstream
+           will want to add up or filter on. */
+        'FundingRequested' => parse_amount($d('funding_requested')),
+        'TotalCost'        => parse_amount($d('total_cost')),
+        'StudentsInOrg'    => $d('students_in_org') === '' ? null : (int)$d('students_in_org'),
+        'StudentsReached'  => $d('students_reached') === '' ? null : (int)$d('students_reached'),
+        'Summary'          => $d('project_summary'),
+        /* Both are required tick-boxes on the form, i.e. they exist as
+           evidence that the applicant agreed. Evidence the review team
+           cannot see is not evidence, so it goes in the list rather than
+           only into the server-side archive. */
+        'Consent'          => $d('consent'),
+        'FundAcknowledgement' => $d('fund_acknowledgement'),
+    ];
+}
+
+/* The graph config ready to hand to graph_deliver: the hour-long auth token
+   is cached beside the archive — outside the webroot, in a directory already
+   denied to the web. Saves a round trip to Microsoft on every delivery. */
+function apply_graph_config(array $cfg): array {
+    $g = (array)($cfg['graph'] ?? []);
+    $g['token_cache'] = rtrim((string)$cfg['submissions_dir'], '/\\') . '/.graph-token';
+    return $g;
+}
+
+/* Plain-text body of the relay email (delivery_mode 'email').
+   $fileNames: the archived names, "<slot>--<original>". */
+function apply_summary_text(array $data, array $fileNames, string $submissionId): string {
+    $lines = ["New Student Impact Fund application — $submissionId", ''];
+    foreach ($data as $k => $v) {
+        $v = (string)$v;
+        if ($v !== '') $lines[] = str_pad($k, 22) . ': ' . str_replace(["\r", "\n"], [' ', ' '], $v);
+    }
+    $lines[] = '';
+    $lines[] = 'Files: ' . implode(', ', $fileNames);
+    return implode("\n", $lines);
+}
+
+/* ---------- Delivery failure bookkeeping ----------
+   The archive directory is the system of record; delivery is the step that
+   may fail. A failure leaves <dir>/DELIVERY-PENDING (JSON: mode, error,
+   failed_at, attempts, notified) which api/redeliver.php — cron, every 30
+   minutes — scans for and re-attempts. */
+
+/* Rewrite the 'delivery' key inside an archived submission.json. Best effort
+   and a single file_put_contents like the original write: bookkeeping must
+   never break the delivery it describes, and the only competing writer is a
+   cron run 30 minutes away. */
+function delivery_update_record(string $dir, array $delivery): void {
+    $path = $dir . '/submission.json';
+    $record = json_decode((string)@file_get_contents($path), true);
+    if (!is_array($record)) return;
+    $record['delivery'] = $delivery;
+    @file_put_contents($path, json_encode($record, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/* First failure for a submission: write the retry marker, note the failure in
+   submission.json, and email the team ONE notice (redeliver.php deliberately
+   never repeats it). Everything here is shielded — the applicant already has
+   ok:true, and nothing in this function may throw past it. */
+function delivery_record_failure(array $cfg, string $dir, string $submissionId, string $mode, string $error, array $data): void {
+    $error = mb_substr($error, 0, 500);
+    $failedAt = gmdate('c');
+    $marker = [
+        'mode'      => $mode,
+        'error'     => $error,
+        'failed_at' => $failedAt,
+        'attempts'  => 1,
+        'notified'  => false,
+    ];
+    @file_put_contents($dir . '/DELIVERY-PENDING', json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    delivery_update_record($dir, ['status' => 'pending-retry', 'mode' => $mode, 'error' => $error, 'failed_at' => $failedAt]);
+
+    try {
+        $to = (string)($cfg['failure_notify_to'] ?? '');
+        if ($to === '') $to = (string)($cfg['relay_to'] ?? '');
+        if ($to === '') return;
+        $contact = trim((string)($data['primary_first_name'] ?? '') . ' ' . (string)($data['primary_last_name'] ?? ''));
+        $body = "A Student Impact Fund application could not be delivered (mode: $mode).\n"
+              . "The submission itself is safe — it is archived on the server and\n"
+              . "nothing is lost.\n\n"
+              . "Submission id:   $submissionId\n"
+              . 'Project title:   ' . (string)($data['project_title'] ?? '') . "\n"
+              . "Primary contact: $contact <" . (string)($data['primary_email'] ?? '') . ">\n"
+              . "Archive:         $dir\n\n"
+              . "Error:\n$error\n\n"
+              . "The server retries delivery automatically every 30 minutes\n"
+              . "(api/redeliver.php) and will email this address again to confirm\n"
+              . "once the submission is delivered.\n";
+        $sent = @send_mail($cfg, $to, "Submission delivery FAILED — will retry ($submissionId)", $body);
+        if ($sent) {
+            $marker['notified'] = true;
+            @file_put_contents($dir . '/DELIVERY-PENDING', json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
+    } catch (Throwable $e) {
+        error_log("delivery failure notice could not be sent for $submissionId: " . $e->getMessage());
+    }
+}
