@@ -1,5 +1,37 @@
 # Site review — mistakes found (no fixes applied)
 
+## UPDATE 2026-08-27 — round 2 (later the same day): report-back answers + Partner Sign-off rename round
+The client answered the report-back workbook and sent a fresh edit round; all
+changes are applied, verified, and live on staging. Workbook answers fixed
+(findings flipped below): Cégep de Sainte-Foy's contact is now the
+client-supplied assocsf@csfoy.ca, ending the Sainte-Foy/St-Jérôme
+duplicate-email major; "NorQuest College"; "St. FX Students' Union" (the
+client chose this styling); "Cégep du Vieux Montréal" (hyphen dropped); École
+nationale de théâtre now shown as "École nationale de théâtre (ENT)" with
+association N/A (the Guelph "Ridgetown Campus" half of that finding is still
+unanswered, so it stays open); FR how-to-apply H1 restored to "Comment
+soumettre un projet". The UNB Fredericton/Saint John shared kminer@unb.ca is
+closed as-is per the client ("leave as is"). Still open with client comments
+recorded: Terms & Conditions date ("not sure"), the ten "Contact Email Coming
+Soon" placeholders ("info coming — leave as is for now"), and the UMGSA rename
+("checking"). New edit round (site changes, not findings): "Letter of support"
+renamed "Partner Sign-off Form" in all EN rendered text (FR keeps "Lettre de
+parrainage" pending a French name from the client); the Partner Schools
+download paragraph was renamed in the sweep but its button stays hidden
+pending the actual Partner Sign-off Form file (that finding stays OPEN);
+how-to-apply's document list re-lined (Project overview first, Partner
+Sign-off Form last) with sentence-case bullets, the download button moved into
+step 2, "Need help" de-duplicated, and an "Optional templates" blurb added per
+client wording — the home FAQ list mirrors it; the home hero pill is now
+dual-state (a <span> until Sept 1, then a link to /apply-now/ reading
+"Submissions are open — apply now!"; home.css v5); the apply page lost its
+duplicate download button and its help blurbs now stack under the Questions
+card (apply-now.css v6); the webform gained a required "Project overview"
+upload (listed first), dropped the optional "Additional information" upload,
+and lost the colon in the team-members hint — api/apply.php and the CI smoke
+test are updated and green. Tally: 15 open → 8 open (majors 4 → 2); see the
+Totals line below.
+
 ## UPDATE 2026-08-27 — client review round applied & verified
 Alumo returned the marked-up review workbook (69 simplified items): 54 approved,
 5 declined, the rest pending. All 54 approved fixes are applied in the working
@@ -74,13 +106,11 @@ Audited 2026-08-19 against https://impactfund.wareham.stream (deployed content
 verified byte-identical to this repo) and the original alumoimpact.ca mirror.
 `[inherited]` = the mistake exists on the original WordPress site too and was
 copied faithfully; everything else was introduced in the rebuild or the dataset.
-**Totals (re-verified 2026-08-27): 131 findings — 15 open (4 major, 11 minor), 102 resolved, 13 superseded, 1 closed (client).** (Original 2026-08-19 tally: 21 major, 110 minor; 109 inherited.)
+**Totals (re-verified 2026-08-27, after round 2): 131 findings — 8 open (2 major, 6 minor), 108 resolved, 13 superseded, 2 closed (client).** (Original 2026-08-19 tally: 21 major, 110 minor; 109 inherited.)
 
-**Currently open — MAJOR (2026-08-27):**
-- fr/how-to-apply H1 truncated to "Soumettre un projet"
+**Currently open — MAJOR (2026-08-27, after round 2):**
 - Partner-list update note dropped from FR (and EN) partner-schools intro card
-- Cégep de Sainte-Foy still shares permanence@asso-cstj.org with St-Jérôme (needs Alumo)
-- 10 partner rows show "Contact Email Coming Soon" as the public contact email (needs Alumo)
+- 10 partner rows show "Contact Email Coming Soon" as the public contact email (client: info coming — leave as is for now)
 
 Major findings were adversarially re-verified by a second, independent pass.
 
@@ -127,6 +157,7 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] The now-visible partner-list header shows the paragraph "Download the Support letter form that you can send to your contact that you will need to provide during the submission" while its accompanying "Support letter" button (line 92) is kept hidden — so users see a call-to-download with no download control. The sentence itself is also the old garbled copy carried over from the original's hidden section (_source/pages/partner-schools.html line 396); the current wording used on apply-now is "Download the letter of support, which you can send to your contact at your school. You will need to submit it as part of your application."
   - **Should be:** Either hide the download paragraph together with its button until the letter is re-enabled, or unhide the button and replace the paragraph with the current apply-now wording.
   - **Note (2026-08-27):** Client approved the fix; it stays open pending the final letter of support from Alumo and lands together with the letter (pairing decision).
+  - **Note (2026-08-27, round 2):** The paragraph was renamed in the site-wide "Partner Sign-off Form" sweep (now "Download the Partner Sign-off Form that you can send to your contact…" — still the garbled structure) and the button stays hidden; remains OPEN pending the actual Partner Sign-off Form file from Alumo.
 
 - **[SUPERSEDED · MINOR]** past-winners/index.html ("Brighstart initiative program" card, ~2025 grid) and past-winners/2/index.html (first card) (https://impactfund.wareham.stream/past-winners/ and /past-winners/2/)
   - [inherited] Winner card title reads "Brighstart initiative program" — misspelling of "Brightstart" (the card's own description says "The Brightstart initiative helps students..."). Present identically in _source/pages/past-winners.html and past-winners-2.html; the rebuild faithfully copied the typo.
@@ -151,12 +182,14 @@ Major findings were adversarially re-verified by a second, independent pass.
 - **[OPEN · MINOR (needs Alumo)]** terms-conditions/index.html (https://impactfund.wareham.stream/terms-conditions/) — line under the H1
   - [inherited] "Last updated: 2026" gives only a year, not an actual revision date, even though section 8 promises "Any changes will be posted on this page with a revised date." Identical in _source/pages/terms-conditions.html.
   - **Should be:** A full revision date, e.g. "Last updated: January 15, 2026".
+  - **Note (2026-08-27, round 2):** Client answer: "not sure" — stays open until Alumo confirms the actual revision date.
 
 ## Content parity & language — FR
 
-- **[OPEN · MAJOR]** fr/how-to-apply/index.html line 78 — https://impactfund.wareham.stream/fr/how-to-apply/
+- **[RESOLVED · MAJOR]** fr/how-to-apply/index.html line 78 — https://impactfund.wareham.stream/fr/how-to-apply/
   - VERIFIED. The page H1 reads "Soumettre un projet" but the original FR page's visible H1 (_source/pages-fr/how-to-apply.html line 321, no elementor-hidden classes) is "Comment soumettre un projet"; the string "Soumettre un projet" never appears as a heading in the source. The EN rebuild (how-to-apply/index.html line 78) correctly kept the full original H1 "How to Submit a Project" (_source/pages/how-to-apply.html line 321), so this truncation is FR-only. No comment in the rebuild documents it as a deliberate deviation (the adjacent comment only covers hiding the banner).
   - **Should be:** H1 text "Comment soumettre un projet", matching _source/pages-fr/how-to-apply.html line 321.
+  - **Resolution (2026-08-27, round 2):** H1 restored to "Comment soumettre un projet" (client-confirmed), matching the original FR page.
 
 - **[OPEN · MAJOR]** fr/partner-schools/index.html lines 83-92 (intro card, paragraph at line 85) — https://impactfund.wareham.stream/fr/partner-schools/
   - VERIFIED. The visible note sentence from the original intro card is missing: "Note : La liste des partenaires admissibles sera mise à jour avant l'ouverture de la période de candidature en septembre prochain. Consultez cette page en août pour obtenir la liste actualisée !" (_source/pages-fr/partner-schools.html line 368, inside a paragraph widget with no elementor-hidden classes). The rebuild keeps only a paraphrase in the meta/og description (lines 7 and 14), not in visible body copy. The same note was also dropped from the EN rebuild (partner-schools/index.html; original at _source/pages/partner-schools.html line 368: "Please note: The list of eligible partner schools will be updated before applications open this September..."). Context: the rebuild deliberately shows the school directory that the original hides at every breakpoint (documented in comments at lines 96-98), and this note was the original's visible stand-in for that hidden list — so the drop may be intentional but is undocumented.
@@ -263,6 +296,7 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] Garbled sentence with stacked "that" clauses and no terminal period: "Download the Support letter form that you can send to your contact that you will need to provide during the submission". The apply-now page already carries a cleaned-up rewrite of this same sentence.
   - **Should be:** Match the apply-now wording, e.g. "Download the letter of support, which you can send to your contact at your school. You will need to submit it as part of your application."
   - **Note (2026-08-27):** Client approved the fix; it stays open pending the final letter of support from Alumo and lands together with the letter (pairing decision).
+  - **Note (2026-08-27, round 2):** "Support letter form" became "Partner Sign-off Form" in the rename sweep, but the sentence structure is still garbled and the download button still hidden; remains OPEN until Alumo delivers the actual Partner Sign-off Form file.
 
 - **[RESOLVED · MINOR]** apply-now/index.html line 206 (https://impactfund.wareham.stream/apply-now/ — Organization information) vs terms-conditions/index.html line 79
   - Inconsistent -ise/-ize spelling across the site: the apply form asks "Is this a group officially recognised by your campus?" while the Terms page uses "recognized post-secondary institution". (Not verifiable against the _source mirror — the original form markup isn't in it — so possibly transcribed from the live form.)
@@ -292,6 +326,7 @@ Major findings were adversarially re-verified by a second, independent pass.
 - **[OPEN · MINOR (needs Alumo)]** terms-conditions/index.html line 67 (https://impactfund.wareham.stream/terms-conditions/)
   - [inherited] Incomplete date: "Last updated: 2026" gives only a year, though section 8 promises "a revised date" for changes.
   - **Should be:** A full date, e.g. "Last updated: January 15, 2026" (confirm actual date with Alumo).
+  - **Note (2026-08-27, round 2):** Client answer: "not sure" — stays open until Alumo confirms the actual revision date.
 
 - **[RESOLVED · MINOR]** js/schools-data.js lines 24, 60, 66, 78, 84, 270, 324, 330 (displayed on /partner-schools/ and /apply-now/)
   - [inherited — client-provided dataset] "Association" is misspelled in eight association names: "Assoication" (lines 24, 78), "Assocation" (lines 60, 66, 84, 270, 330), and "Asscoiation" (line 324, WUSA).
@@ -328,9 +363,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** "University of Waterloo"
   - Status: RESOLVED — now 'University of Waterloo' — cleaning pass (2026-08-26).
 
-- **[OPEN · MINOR]** js/schools-data.js line 5 (displayed on /partner-schools/ and /apply-now/)
+- **[RESOLVED · MINOR]** js/schools-data.js line 5 (displayed on /partner-schools/ and /apply-now/)
   - [inherited — client-provided dataset] Wrong capitalization: school "Norquest College" while its own association string (line 6) spells it "NorQuest College".
   - **Should be:** "NorQuest College"
+  - **Resolution (2026-08-27, round 2):** Now "NorQuest College" (js/schools-data.js line 55), client-confirmed.
 
 - **[RESOLVED · MINOR]** js/schools-data.js line 41 (displayed on /partner-schools/ and /apply-now/)
   - [inherited — client-provided dataset] School name abbreviated/garbled: "Northern Alberta IT" (paired with association "NAITSA").
@@ -342,9 +378,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** School: "Alberta University of the Arts"; association: "Alberta University of the Arts Students' Association" (confirm exact association name with Alumo).
   - Status: RESOLVED — now 'Alberta University of the Arts' / 'Alberta University of the Arts Students' Union (AUArts)' — cleaning pass (2026-08-26).
 
-- **[OPEN · MINOR]** js/schools-data.js line 252 (displayed on /partner-schools/)
+- **[RESOLVED · MINOR]** js/schools-data.js line 252 (displayed on /partner-schools/)
   - [inherited — client-provided dataset] Missing space / non-standard styling: "St.FX Students' Union".
   - **Should be:** "StFX Students' Union" (the union's own styling) or "St. FX Students' Union".
+  - **Resolution (2026-08-27, round 2):** Now "St. FX Students' Union" (js/schools-data.js line 290) — the client chose this styling.
 
 - **[RESOLVED · MINOR]** js/schools-data.js lines 395-396 (displayed on /partner-schools/ and /apply-now/)
   - [inherited — client-provided dataset] Wrong possessive: "Fanshawe Student's Union - FSU (SA)" — the organization's name is Fanshawe Student Union (no apostrophe-s).
@@ -386,9 +423,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** "Collège de Bois-de-Boulogne"
   - Status: RESOLVED — now 'Collège de Bois-de-Boulogne' — cleaning pass (2026-08-26).
 
-- **[OPEN · MINOR]** js/schools-data.js line 665 (displayed on /partner-schools/ and /apply-now/)
+- **[RESOLVED · MINOR]** js/schools-data.js line 665 (displayed on /partner-schools/ and /apply-now/)
   - [inherited — client-provided dataset] Hyphenation inconsistency: school "Cégep du Vieux-Montréal" vs its association string "Cégep du Vieux Montréal" (line 666); the cégep's official name has no hyphen.
   - **Should be:** "Cégep du Vieux Montréal"
+  - **Resolution (2026-08-27, round 2):** School now reads "Cégep du Vieux Montréal" (no hyphen, js/schools-data.js line 649), matching the association string — client-confirmed.
 
 ## Spelling & grammar — FR
 
@@ -567,7 +605,7 @@ Major findings were adversarially re-verified by a second, independent pass.
 - **[RESOLVED · MINOR]** index.html:95 and fr/index.html:96 — https://impactfund.wareham.stream/ and /fr/ hero
   - [inherited] The hero status pill ('Submissions open in September' / FR equivalent) is an <a class="hero-status-pill" href="#"> styled as a clickable pill with an icon; clicking it just jumps to the top of the page. The original site had the same dead href="#" on this Elementor button.
   - **Should be:** Make it a non-interactive element (span/div) since it's informational, or point it at a meaningful target such as /how-to-apply/ or the #info-section dates block.
-  - **Resolution (2026-08-27):** Pill is now a non-interactive <span> in both languages (hover CSS removed, home.css?v=4), per the client's "Remove Button, or just kill the link" comment.
+  - **Resolution (2026-08-27):** Pill is now a non-interactive <span> in both languages (hover CSS removed, home.css?v=4), per the client's "Remove Button, or just kill the link" comment. **Round 2 (same day):** now dual-state — stays a <span> until Sept 1, then becomes a link to /apply-now/ ("Submissions are open — apply now!"), home.css?v=5.
 
 - **[RESOLVED · MINOR]** Lines 8-9 of every page's <head>, e.g. index.html:8-9, fr/past-winners/2/index.html:9-10 — all 20 pages
   - hreflang alternate links use relative URLs (e.g. <link rel="alternate" hreflang="fr" href="/fr/">). The hreflang spec (and Google) requires fully-qualified absolute URLs; relative values are ignored by crawlers. The original used absolute URLs and additionally declared an hreflang="fr-CA" alternate that the rebuild dropped. (All pairs do point at the correct existing counterparts — the pairing itself is right.)
@@ -633,10 +671,11 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** school: "Lambton College", association: "N/A" (or the confirmed student association name) — the "(Institution - confirm with Darren)" note removed
   - Status: RESOLVED — Lambton row now clean (school only, association N/A, no editorial note) — Sept-2026 list (2026-08-26).
 
-- **[OPEN · MAJOR (needs Alumo)]** C:/Users/atp2txw/PycharmProjects/Alumo Website/js/schools-data.js line 620 (row 103, Cégep de Sainte-Foy; same in _tools/partner-schools-raw.tsv row 103) — displays at https://impactfund.wareham.stream/partner-schools/ under Quebec
+- **[RESOLVED · MAJOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/js/schools-data.js line 620 (row 103, Cégep de Sainte-Foy; same in _tools/partner-schools-raw.tsv row 103) — displays at https://impactfund.wareham.stream/partner-schools/ under Quebec
   - [inherited from Alumo's 2026-08-18 source data] Cégep de Sainte-Foy (association AECSF) lists email permanence@asso-cstj.org — the identical address already used by the Cégep de St-Jérôme row (line 710, association AGES), and the asso-cstj.org domain corresponds to Cégep de Saint-Jérôme (CSTJ). Two different cégeps share one association's inbox; the Sainte-Foy value is almost certainly a copy-paste error (only 2 occurrences of this email in the file, on these two rows).
   - **Should be:** AECSF's own contact address for the Sainte-Foy row (obtain from Alumo); permanence@asso-cstj.org remains only on the Cégep de St-Jérôme row
-  - Status: OPEN — permanence@asso-cstj.org is still on both the Sainte-Foy and St-Jérôme rows in the Sept-2026 list (needs Alumo, 2026-08-26).
+  - Status (2026-08-26): permanence@asso-cstj.org persisted on both the Sainte-Foy and St-Jérôme rows in the Sept-2026 list.
+  - **Resolution (2026-08-27, round 2):** Client supplied the AECSF address — the Sainte-Foy row now uses assocsf@csfoy.ca (js/schools-data.js line 628); permanence@asso-cstj.org remains only on the Cégep de St-Jérôme row.
 
 - **[RESOLVED · MAJOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/js/schools-data.js lines 382-477 (rows 64-79, 16 consecutive entries; same in _tools/partner-schools-raw.tsv rows 64-79) — displays at https://impactfund.wareham.stream/partner-schools/ (both columns) and in the /apply-now/ institution dropdown
   - [inherited from Alumo's 2026-08-18 source data] Sixteen consecutive rows are unnormalized: school and association are identical strings carrying spreadsheet workflow markers "(SA)" / "(Institution)" that render publicly (e.g. "Confederation College - SUCCI (SA)", "McMaster University MSU (SA)", "Loyalist College (Institution)", "UNB Graduate Students (SA)"). Association names sit in the school column — "Fanshawe Student's Union - FSU (SA)" appears as a school (line 395) while "Fanshawe College (Institution)" is a separate row (line 461). The Burman row additionally misspells the marker as "(Instituion)". Because the association field duplicates the school string, the markers also appear as option text in the apply-form dropdown.
@@ -647,6 +686,7 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited from Alumo's 2026-08-18 source data] Seven rows have email "TBD", and the literal string "TBD" renders publicly as plain text in the contact-email column (js/partner-schools.js lines 86-88 deliberately show non-@ values verbatim without linkifying, so the data gap is exposed to visitors).
   - **Should be:** Real contact emails from Alumo, or render these cells empty/"—" until addresses exist
   - Status: OPEN — 'TBD' replaced by 'Contact Email Coming Soon' on 10 rows in the Sept-2026 list; still a plain-text placeholder rendered in the email column (needs Alumo, 2026-08-26).
+  - **Note (2026-08-27, round 2):** Client answer: "info coming — leave as is for now" — the 10 placeholders stay until Alumo sends the addresses.
 
 - **[RESOLVED · MAJOR]** C:/Users/atp2txw/PycharmProjects/Alumo Website/js/schools-data.js lines 47-50 (row 8; same in _tools/partner-schools-raw.tsv row 8) — displays at https://impactfund.wareham.stream/partner-schools/ under Alberta and in the /apply-now/ dropdown
   - [inherited from Alumo's 2026-08-18 source data] Institution misidentified: "University of Alberta Arts" / "University of Alberta Arts Students Union" reads as a University of Alberta faculty, but the contact email office.sa@auarts.ca belongs to Alberta University of the Arts (AUArts), a separate institution in Calgary.
@@ -673,10 +713,11 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** "Collège Ahuntsic"
   - Status: RESOLVED — now 'Collège Ahuntsic' — cleaning pass (2026-08-26).
 
-- **[OPEN · MINOR]** js/schools-data.js lines 5, 41, 185, 293, 299, 323, 329, 527, 533, 581 — displays at https://impactfund.wareham.stream/partner-schools/
+- **[RESOLVED · MINOR]** js/schools-data.js lines 5, 41, 185, 293, 299, 323, 329, 527, 533, 581 — displays at https://impactfund.wareham.stream/partner-schools/
   - [inherited] Non-official institution names throughout: "Norquest College" (official: NorQuest College), "Northern Alberta IT" (Northern Alberta Institute of Technology / NAIT), "University of Fraser Valley" (University of the Fraser Valley), "Queens University" x2 (Queen's University), "Waterloo University" x2 (University of Waterloo), "Université de Laval" x2 (Université Laval), "Université du Québec à Gatineau" (no such institution — it is Université du Québec en Outaouais, as the row's own association name says).
   - **Should be:** Official names: NorQuest College; Northern Alberta Institute of Technology (NAIT); University of the Fraser Valley; Queen's University; University of Waterloo; Université Laval; Université du Québec en Outaouais
-  - Status: OPEN (narrowed) — all fixed except 'Norquest College' (should be NorQuest), js/schools-data.js line 55 (2026-08-26).
+  - Status (2026-08-26): narrowed — all fixed except 'Norquest College' (should be NorQuest), js/schools-data.js line 55.
+  - **Resolution (2026-08-27, round 2):** Last item fixed — now "NorQuest College" (js/schools-data.js line 55), client-confirmed. All names in this finding now use the official form.
 
 - **[RESOLVED · MINOR]** js/schools-data.js lines 24, 60, 66, 78, 84, 198, 270, 324, 330, 528, 540 — displays at https://impactfund.wareham.stream/partner-schools/ and /apply-now/ dropdown
   - [inherited] Misspellings inside association names shown publicly: "Assoication" (lines 24, 78), "Assocation" (lines 60, 66, 84, 270, 330), "Asscoiation" (line 324, WUSA), "Gradaute" (line 198, UVicGSS); French: "des association d'étudiants" should be "des associations" (line 528, CADEUL) and "des science humaines" should be "des sciences humaines" (line 540, AFESH).
@@ -687,14 +728,17 @@ Major findings were adversarially re-verified by a second, independent pass.
   - [inherited] Association column contains non-association values: Nova Scotia Community College's association is just the school name repeated (line 258); University of Guelph row has "Ridgetown Campus" — a campus, not an association (line 372); École nationale de théâtre's association is the school name repeated with "(ENT)" (line 732).
   - **Should be:** "N/A" (matching the convention used by other institution-level rows) or the actual student-association name
   - Status: OPEN (narrowed) — NSCC association now 'N/A'; 'Ridgetown Campus' (line 542) and 'École nationale de théâtre (ENT)' (line 698) persist (2026-08-26).
+  - **Resolution (2026-08-27, round 2, partial):** ENT half resolved per the client — school now shown as "École nationale de théâtre (ENT)" with association "N/A" (js/schools-data.js lines 697-698). University of Guelph "Ridgetown Campus" (line 542) remains OPEN — no client answer yet.
 
 - **[OPEN · MINOR]** js/schools-data.js line 234 (row 39) — displays at https://impactfund.wareham.stream/partner-schools/ under Manitoba
   - [inherited] Association listed as "University of Manitoba Graduate Students' Association (UMGSA)" but the organization has renamed: its email domain umgps.org resolves to the "University of Manitoba Graduate & Postdoctoral Society" — the displayed name is stale relative to the row's own email.
   - **Should be:** "University of Manitoba Graduate & Postdoctoral Society (UMGPS)" (verify current branding with the org)
+  - **Note (2026-08-27, round 2):** Client answer: "checking" — stays open until Alumo confirms the current name.
 
-- **[OPEN · MINOR (needs Alumo)]** js/schools-data.js lines 446 and 452 (rows 74-75) — displays at https://impactfund.wareham.stream/partner-schools/ under New Brunswick
+- **[CLOSED (client) · MINOR]** js/schools-data.js lines 446 and 452 (rows 74-75) — displays at https://impactfund.wareham.stream/partner-schools/ under New Brunswick
   - [inherited] Duplicate email kminer@unb.ca on two different student unions (UNB Fredericton Undergrad Students and UNB Saint John Undergrad Students). The raw TSV shows the same contact (Karen Miner) for both, so it is plausibly intentional, but worth confirming — the Saint John row in particular may deserve its own contact.
   - **Should be:** Confirm with Alumo that one contact covers both campuses; otherwise obtain the Saint John union's own address
+  - **Resolution (2026-08-27, round 2):** Closed as-is per the client: "leave as is" — one contact (kminer@unb.ca) intentionally covers both campuses.
 
 ## Meta, SEO & accessibility
 
