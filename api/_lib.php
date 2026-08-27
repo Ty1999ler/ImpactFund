@@ -502,36 +502,74 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
 function graph_write_links(array $g, array $auth, string $itemId, array $folder, array $links): void {
     $patch = [];
 
+    /* Collected as plain url/label pairs; the Graph encoding is decided below. */
     $linkField = (string)($g['link_field'] ?? '');
     if ($linkField !== '' && $folder['webUrl'] !== '') {
-        $patch[$linkField] = ['Url' => $folder['webUrl'], 'Description' => 'All documents'];
+        $patch[$linkField] = ['url' => $folder['webUrl'], 'label' => 'All documents'];
     }
     foreach ((array)($g['file_links'] ?? []) as $slot => $column) {
         if (is_string($column) && $column !== '' && isset($links[$slot])) {
-            $patch[$column] = ['Url' => $links[$slot]['url'], 'Description' => $links[$slot]['label']];
+            $patch[$column] = $links[$slot];
         }
     }
     if (!$patch) return;
 
     $url = "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items/{$itemId}/fields";
-    $headers = array_merge($auth, ['Content-Type: application/json']);
+    $base = array_merge($auth, ['Content-Type: application/json']);
 
-    try {
-        http_json($url, json_encode($patch), $headers, 'PATCH');
-        return;
-    } catch (Throwable $e) {
-        error_log("graph: bulk link write failed for item $itemId: " . $e->getMessage());
-    }
+    /* Graph does not write list-item fields itself — it proxies to an internal
+       SharePoint API whose default version (2.0) has no writer for URL fields,
+       and refuses the whole request with a bare "invalidRequest" naming nothing.
+       'Prefer: apiversion=2.1' selects the version that can. Text and number
+       columns write fine without it, which is exactly why the first pass has
+       always worked and only this one failed.
 
-    /* One PATCH is one transaction, so a single column that does not exist
-       loses every link in it — including the folder. Retry one at a time so
-       the columns that ARE there still get filled, and so the log names the
-       column that is actually wrong. */
-    foreach ($patch as $column => $value) {
-        try {
-            http_json($url, json_encode([$column => $value]), $headers, 'PATCH');
-        } catch (Throwable $e) {
-            error_log("graph: link column '$column' not written to item $itemId: " . $e->getMessage());
+       The header is scoped to this request deliberately: on a shared client it
+       also suppresses @microsoft.graph.downloadUrl on driveItem responses.
+
+       The remaining shapes are fallbacks, tried in order, so an unexpected
+       tenant costs a log line rather than another deploy. Per column, not one
+       bulk PATCH: a bulk write is a single transaction, so one unhappy column
+       would take the other five with it. */
+    $obj = fn(array $v) => (object)$v;  /* an array that lost its keys encodes as [] and 400s */
+    $shapes = [
+        'object+prefer' => ['prefer' => true,  'value' => fn($u, $l) => $obj(['Url' => $u, 'Description' => $l])],
+        'url-only'      => ['prefer' => true,  'value' => fn($u, $l) => $obj(['Url' => $u])],
+        'object'        => ['prefer' => false, 'value' => fn($u, $l) => $obj(['Url' => $u, 'Description' => $l])],
+    ];
+
+    $winner = null;
+    foreach ($patch as $column => $link) {
+        /* A SharePoint URL field holds 255 characters, by design and not
+           raisable. Province + institution + project title can get there on
+           their own, and an over-long URL fails as the same opaque 400 — so
+           say so plainly instead of leaving a mystery in the log. */
+        if (strlen($link['url']) > 255) {
+            error_log("graph: link column '$column' skipped for item $itemId — URL is "
+                . strlen($link['url']) . " chars, over SharePoint's 255 limit");
+            continue;
+        }
+        $written = false;
+        /* Once one column succeeds, the rest almost certainly want the same
+           encoding — try that first so the usual case is a single request. */
+        $order = $winner ? [$winner => $shapes[$winner]] + $shapes : $shapes;
+
+        foreach ($order as $name => $shape) {
+            $headers = $shape['prefer'] ? array_merge($base, ['Prefer: apiversion=2.1']) : $base;
+            try {
+                http_json($url, json_encode([$column => $shape['value']($link['url'], $link['label'])]), $headers, 'PATCH');
+                if ($winner !== $name) {
+                    error_log("graph: link column encoding '$name' accepted for item $itemId");
+                    $winner = $name;
+                }
+                $written = true;
+                break;
+            } catch (Throwable $e) {
+                $last = $e->getMessage();
+            }
+        }
+        if (!$written) {
+            error_log("graph: link column '$column' not written to item $itemId (all encodings refused): " . ($last ?? '?'));
         }
     }
 }
