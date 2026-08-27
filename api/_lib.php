@@ -26,10 +26,16 @@ function respond_and_continue(int $status, array $payload): void {
     header('Content-Length: ' . strlen($body));
     echo $body;
 
-    /* PHP-FPM/FastCGI closes the response and lets the script continue. */
-    if (function_exists('fastcgi_finish_request')) {
-        fastcgi_finish_request();
-        return;
+    /* Close the response and keep running. Each SAPI spells this differently
+       and only one of them exists at a time: fastcgi_finish_request on PHP-FPM,
+       litespeed_finish_request under LiteSpeed/LSAPI — which is what GoDaddy
+       shared hosting runs, and why the FPM call alone left submissions taking
+       the full ~12 seconds. */
+    foreach (['fastcgi_finish_request', 'litespeed_finish_request'] as $finish) {
+        if (function_exists($finish)) {
+            $finish();
+            return;
+        }
     }
     /* Otherwise flush what we can — best effort. The client may still hold the
        connection open, in which case this is simply no worse than before. */
