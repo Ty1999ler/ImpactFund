@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/home.css?v=4">
+  <link rel="stylesheet" href="/css/pages/home.css?v=5">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -106,11 +106,19 @@
 
       <div class="container">
         <div class="hero-bar">
-          <!-- Client-approved fix: the source's dead href="#" link was killed —
-               the pill is informational, so it is a non-interactive <span>. -->
-          <span class="hero-status-pill">
-            <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
-            <span>Submissions open in September</span>
+          <!-- Scheduled swap — same data-opens-at closed/open mechanism as the
+               orange period card on /how-to-apply/ (handled in /js/main.js):
+               before Sept 1 the informational non-interactive <span> shows; from
+               that date (or with ?preview-form=1) it swaps to the apply-now link. -->
+          <span class="hero-pill-slot" data-opens-at="2026-09-01T00:00:00-04:00">
+            <span class="hero-status-pill apply-form-closed">
+              <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
+              <span>Submissions open in September</span>
+            </span>
+            <a class="hero-status-pill apply-form-open" href="/apply-now/" hidden>
+              <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
+              <span>Submissions are open — apply now!</span>
+            </a>
           </span>
           <a class="hero-scroll-btn" href="#info-section" aria-label="Scroll to next section">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M14.1869 7.02794C14.5706 7.41165 14.5704 8.03385 14.1869 8.41768L7.93211 14.6725C7.5483 15.0563 6.92617 15.0563 6.54237 14.6725L0.287575 8.41768C-0.0959405 8.03385 -0.0961351 7.41165 0.287575 7.02794C0.671285 6.64423 1.29348 6.64442 1.67731 7.02794L6.25444 11.6051L6.25444 9.80246e-08L8.22004 7.4585e-08L8.22004 11.6051L12.7972 7.02794C13.181 6.64442 13.8032 6.64423 14.1869 7.02794Z" fill="#222222"/></svg>
@@ -285,7 +293,7 @@
               <details>
                 <summary><h3>What types of documents do I need to submit with my project?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
                 <div class="accordion-content">
-                  <p class="text-size-16-24-tight">To be considered, your project must include:<br>- Project Overview<br>- Team member information<br>- Action plan/timeline<br>- Budget<br>- <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><strong>Letter of Support</strong></a>.</p>
+                  <p class="text-size-16-24-tight">To be considered, your project must include:<br>- Project overview<br>- Budget<br>- Team members<br>- Action plan<br>- <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><strong>Partner Sign-off Form</strong></a>.</p>
                 </div>
               </details>
 

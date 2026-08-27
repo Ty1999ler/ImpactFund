@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/home.css?v=4">
+  <link rel="stylesheet" href="/css/pages/home.css?v=5">
   <link rel="stylesheet" href="/css/pages/fr-home.css?v=3">
 </head>
 <body>
@@ -107,11 +107,19 @@
 
       <div class="container">
         <div class="hero-bar">
-          <!-- Non-interactive per the client-approved corrections round: the source
-               pill was a dead link to "#" that only jumped to the top of the page. -->
-          <span class="hero-status-pill">
-            <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
-            <span>Les soumissions ouvrent en septembre</span>
+          <!-- Scheduled swap — same data-opens-at closed/open mechanism as the
+               orange period card on /fr/how-to-apply/ (handled in /js/main.js):
+               before Sept 1 the informational non-interactive <span> shows; from
+               that date (or with ?preview-form=1) it swaps to the apply-now link. -->
+          <span class="hero-pill-slot" data-opens-at="2026-09-01T00:00:00-04:00">
+            <span class="hero-status-pill apply-form-closed">
+              <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
+              <span>Les soumissions ouvrent en septembre</span>
+            </span>
+            <a class="hero-status-pill apply-form-open" href="/fr/apply-now/" hidden>
+              <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
+              <span>Les soumissions sont ouvertes — soumettez votre projet&#8239;!</span>
+            </a>
           </span>
           <a class="hero-scroll-btn" href="#info-section" aria-label="Défiler vers la section suivante">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M14.1869 7.02794C14.5706 7.41165 14.5704 8.03385 14.1869 8.41768L7.93211 14.6725C7.5483 15.0563 6.92617 15.0563 6.54237 14.6725L0.287575 8.41768C-0.0959405 8.03385 -0.0961351 7.41165 0.287575 7.02794C0.671285 6.64423 1.29348 6.64442 1.67731 7.02794L6.25444 11.6051L6.25444 9.80246e-08L8.22004 7.4585e-08L8.22004 11.6051L12.7972 7.02794C13.181 6.64442 13.8032 6.64423 14.1869 7.02794Z" fill="#222222"/></svg>
@@ -278,7 +286,7 @@
               <details>
                 <summary><h3>Quels types de documents dois-je soumettre avec mon projet&#8239;?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
                 <div class="accordion-content">
-                  <p class="text-size-16-24-tight">Afin d'être considérés, les projets doivent inclure&nbsp;:<br>- Aperçu du projet<br>- Informations sur les membres de l'équipe<br>- Plan d'action et échéancier<br>- Budget<br>- Une <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><strong>lettre de parrainage</strong></a>.</p>
+                  <p class="text-size-16-24-tight">Afin d'être considérés, les projets doivent inclure&nbsp;:<br>- Aperçu du projet<br>- Budget<br>- Membres de l'équipe<br>- Plan d'action<br>- <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><strong>Lettre de parrainage</strong></a>.</p>
                 </div>
               </details>
 

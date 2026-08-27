@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Apply now – Alumo Fund</title>
-  <meta name="description" content="Submit your project to the Student Impact Fund by Alumo. Download the letter of support and find out who can submit and which student-led projects are eligible.">
+  <meta name="description" content="Submit your project to the Student Impact Fund by Alumo. Download the Partner Sign-off Form and find out who can submit and which student-led projects are eligible.">
   <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/">
   <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/apply-now/">
   <link rel="canonical" href="https://alumoimpact.ca/apply-now/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Student Impact Fund by Alumo">
   <meta property="og:title" content="Apply now – Alumo Fund">
-  <meta property="og:description" content="Submit your project to the Student Impact Fund by Alumo. Download the letter of support and find out who can submit and which student-led projects are eligible.">
+  <meta property="og:description" content="Submit your project to the Student Impact Fund by Alumo. Download the Partner Sign-off Form and find out who can submit and which student-led projects are eligible.">
   <meta property="og:url" content="https://alumoimpact.ca/apply-now/">
   <meta property="og:locale" content="en_CA">
   <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/apply-now.css?v=5">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -82,11 +82,13 @@
       <div class="container">
         <h1 class="hero-title text-size-72-72-tight">Submit Now</h1>
         <div class="hero-sub">
-          <p class="text-size-24-36-tight">Download the letter of support, which you can send to your contact at your school. You will need to submit it as part of your application.</p>
+          <p class="text-size-24-36-tight">Download the Partner Sign-off Form, which you can send to your contact at your school. You will need to submit it as part of your application.</p>
           <!-- Real document downloaded from the live site (sample-pdf-en-1.pdf);
-               FR version at /assets/docs/support-letter-fr.pdf for the future FR build. -->
+               FR version at /assets/docs/support-letter-fr.pdf for the future FR build.
+               "Partner Sign-off Form" is the client's new name — the file path and the
+               file_support_letter input name deliberately stay unchanged. -->
           <div class="btn btn-primary">
-            <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><span>Support letter</span></a>
+            <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><span>Partner Sign-off Form</span></a>
           </div>
         </div>
       </div>
@@ -107,49 +109,44 @@
             <p class="text-size-16-24-tight">Projects designed by students for students. Make a difference on your campus by proposing an inclusive, sustainable, and caring initiative that is politically neutral and has no commercial objectives.<br><br>For more details on eligible projects, see the <a href="/about-the-fund/"><strong>About</strong></a> page.</p>
           </div>
 
-          <div class="info-card">
-            <h2 class="text-size-40-42-tight">Questions?</h2>
-            <p class="text-size-16-24-tight">Need help submitting your project? We can help!</p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ HELP / DOWNLOADS ============ -->
-    <!-- Plain download offers — not tied to any form question. -->
-    <section class="apply-help">
-      <div class="container">
-        <div class="help-blocks">
-          <div class="help-block">
-            <p class="text-size-16-24-tight">Need help getting your application started? Here is a resource to help you plan your project and build your application.</p>
-            <div class="help-buttons">
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/application-guide-en.pdf" target="_blank" rel="noopener"><span>Application guide</span></a>
+          <!-- Third column: the Questions card with the help/download blurbs
+               stacked directly beneath it (client request — they must sit
+               under "Questions?", not in a separate full-width band).
+               The duplicate "Support letter" download button that used to sit
+               here was removed; the hero button above is the only one. -->
+          <div class="info-card-stack">
+            <div class="info-card">
+              <h2 class="text-size-40-42-tight">Questions?</h2>
+              <p class="text-size-16-24-tight">Need help submitting your project? We can help!</p>
+            </div>
+            <div class="help-block">
+              <p class="text-size-16-24-tight">Here is a resource to help you plan your project and build your application.</p>
+              <div class="help-buttons">
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/application-guide-en.pdf" target="_blank" rel="noopener"><span>Application guide</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="help-block">
+              <p class="text-size-16-24-tight">Optional templates: Download these templates if you'd like some extra guidance. You can fill them out and upload them with your application.</p>
+              <div class="help-buttons">
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-project-overview-en.pdf" target="_blank" rel="noopener"><span>Project overview</span></a>
+                </div>
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-team-members-en.pdf" target="_blank" rel="noopener"><span>Team members</span></a>
+                </div>
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-action-plan-en.pdf" target="_blank" rel="noopener"><span>Action plan</span></a>
+                </div>
               </div>
             </div>
           </div>
-          <div class="help-block">
-            <p class="text-size-16-24-tight">Need help with templates to get your application started? You can download these templates and re-upload them on the application form.</p>
-            <div class="help-buttons">
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/template-project-overview-en.pdf" target="_blank" rel="noopener"><span>Project overview</span></a>
-              </div>
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/template-team-members-en.pdf" target="_blank" rel="noopener"><span>Team members</span></a>
-              </div>
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/template-action-plan-en.pdf" target="_blank" rel="noopener"><span>Action plan</span></a>
-              </div>
-              <div class="btn btn-primary">
-                <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><span>Support letter</span></a>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
     </section>
@@ -382,6 +379,12 @@
                 <h3 class="block-title">Required documents</h3>
                 <div class="form-grid-2 file-grid">
                   <div class="form-field form-field-file">
+                    <label for="af-file-overview">Project overview<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Must include what you're doing, why it matters, who it's for, and the impact you expect.</p>
+                    <input type="file" id="af-file-overview" name="file_project_overview" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
+                  </div>
+                  <div class="form-field form-field-file">
                     <label for="af-file-budget">Detailed budget<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include all sources of income and expenditure.</p>
                     <input type="file" id="af-file-budget" name="file_budget" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
@@ -389,7 +392,7 @@
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-team">Team members<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Must include: name, role, years of study, school attended</p>
+                    <p class="field-desc">Must include name, role, years of study, school attended</p>
                     <input type="file" id="af-file-team" name="file_team_members" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
@@ -400,14 +403,8 @@
                     <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
-                    <label for="af-file-extra">Additional information (optional)</label>
-                    <p class="field-desc">Marketing material, photographs, or any other documents that may assist us in understanding your project</p>
-                    <input type="file" id="af-file-extra" name="file_additional" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
-                  </div>
-                  <div class="form-field form-field-file">
-                    <label for="af-file-letter">Letter of support<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Upload the letter of support from your student association or school.</p>
+                    <label for="af-file-letter">Partner Sign-off Form<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Upload the Partner Sign-off Form from your student association or school.</p>
                     <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>

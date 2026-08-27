@@ -93,8 +93,17 @@
   transition: 0.3s;
 }
 .hero .hero-status-pill svg { flex-shrink: 0; }
-/* No :hover state: the pill is a non-interactive <span> since the client-approved
-   corrections round (it used to be a dead link that looked clickable). */
+/* Scheduled swap (data-opens-at, /js/main.js): the pill is a non-interactive
+   <span> until submissions open, then an /apply-now/ link. The wrapper only
+   exists to host the swap, so keep its children direct flex items; guard
+   [hidden] since .hero-status-pill sets display:inline-flex; and scope the
+   hover to the anchor variant only. */
+.hero .hero-pill-slot { display: contents; }
+.hero .hero-status-pill[hidden] { display: none; }
+.hero a.hero-status-pill:hover {
+  color: #fbf6ed;
+  background-color: var(--text);
+}
 .hero .hero-scroll-btn {
   display: inline-flex;
   align-items: center;

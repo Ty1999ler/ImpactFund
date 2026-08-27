@@ -67,14 +67,41 @@
   font-weight: 700;
 }
 
+/* Third column: the Questions card with the help/download blurbs stacked
+   directly beneath it (one grid cell, client request). Blurb text mirrors
+   the info-card look; 40px between the card and each blurb. */
+.info-cards .info-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.info-cards .info-card-stack .help-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.info-cards .info-card-stack .help-block p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.info-cards .info-card-stack .help-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
 @media (max-width: 992px) {
   .info-cards { margin-bottom: 42px; }
   .info-cards .cards-grid { gap: 48px; }
+  .info-cards .info-card-stack { gap: 32px; }
 }
 @media (max-width: 768px) {
   .info-cards { margin-bottom: 32px; }
   .info-cards .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
   .info-cards .info-card { gap: 16px; }
+  /* 2-col grid leaves the stack alone on row 2 — let it use the full row. */
+  .info-cards .info-card-stack { grid-column: 1 / -1; gap: 24px; }
+  .info-cards .info-card-stack .help-block { gap: 16px; }
 }
 @media (max-width: 576px) {
   .info-cards .cards-grid { grid-template-columns: 1fr; gap: 24px; }
@@ -83,7 +110,9 @@
 
 /* ------------------------------
    HELP / DOWNLOADS — plain download offers between the info cards and the
-   form card (same rhythm as the info-cards grid)
+   form card (same rhythm as the info-cards grid).
+   Only /fr/apply-now/ still uses this full-width section; the EN page moved
+   the help content into .info-card-stack above.
    ------------------------------ */
 .apply-help {
   margin-bottom: 60px;   /* parent gap to the form card */

@@ -88,11 +88,11 @@ return [
            Leave a column name out and that link is simply not written. */
         'link_field' => '',      // e.g. 'Documents'
         'file_links' => [
-            // 'file_budget'         => 'Budget',
-            // 'file_team_members'   => 'TeamMembers',
-            // 'file_action_plan'    => 'ActionPlan',
-            // 'file_support_letter' => 'SupportLetter',
-            // 'file_additional'     => 'Additional',
+            // 'file_project_overview' => 'ProjectOverview',
+            // 'file_budget'           => 'Budget',
+            // 'file_team_members'     => 'TeamMembers',
+            // 'file_action_plan'      => 'ActionPlan',
+            // 'file_support_letter'   => 'SupportLetter',  // "Partner Sign-off Form" on the site
         ],
     ],
 ];

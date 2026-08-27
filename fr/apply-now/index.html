@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/apply-now.css?v=5">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -113,49 +113,44 @@
             <p class="text-size-16-24-tight">Des projets pensés par des étudiant·es pour des étudiant·es. Faites la différence sur votre campus en proposant une initiative inclusive, durable et bienveillante, neutre sur le plan politique et sans objectif commercial. <br><br>Pour les détails sur les projets admissibles, consultez la page <a href="/fr/about-the-fund/"><strong>À propos</strong></a>.</p>
           </div>
 
-          <div class="info-card">
-            <h2 class="text-size-40-42-tight">Des questions&#8239;? </h2>
-            <p class="text-size-16-24-tight">Vous avez besoin d'aide avec la soumission de votre projet&#8239;? Nous pouvons vous aider&#8239;!</p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ AIDE / TÉLÉCHARGEMENTS ============ -->
-    <!-- Plain download offers — not tied to any form question. -->
-    <section class="apply-help">
-      <div class="container">
-        <div class="help-blocks">
-          <div class="help-block">
-            <p class="text-size-16-24-tight">Besoin d'aide pour commencer votre candidature&#8239;? Voici une ressource pour vous aider à planifier votre projet et à préparer votre candidature.</p>
-            <div class="help-buttons">
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/application-guide-fr.pdf" target="_blank" rel="noopener"><span>Guide de candidature</span></a>
+          <!-- Third column: the Questions card with the help/download blurbs
+               stacked directly beneath it (client request — they must sit
+               under "Des questions ?", not in a separate full-width band).
+               The duplicate "Lettre de parrainage" download button that used to
+               sit here was removed; the hero button above is the only one. -->
+          <div class="info-card-stack">
+            <div class="info-card">
+              <h2 class="text-size-40-42-tight">Des questions&#8239;? </h2>
+              <p class="text-size-16-24-tight">Vous avez besoin d'aide avec la soumission de votre projet&#8239;? Nous pouvons vous aider&#8239;!</p>
+            </div>
+            <div class="help-block">
+              <p class="text-size-16-24-tight">Voici une ressource pour vous aider à planifier votre projet et à préparer votre candidature.</p>
+              <div class="help-buttons">
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/application-guide-fr.pdf" target="_blank" rel="noopener"><span>Guide de candidature</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="help-block">
+              <p class="text-size-16-24-tight">Modèles facultatifs&nbsp;: téléchargez ces modèles si vous souhaitez un peu plus d'encadrement. Vous pouvez les remplir et les téléverser avec votre candidature.</p>
+              <div class="help-buttons">
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-project-overview-fr.pdf" target="_blank" rel="noopener"><span>Aperçu du projet</span></a>
+                </div>
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-team-members-fr.pdf" target="_blank" rel="noopener"><span>Membres de l'équipe</span></a>
+                </div>
+                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <div class="btn btn-primary" hidden>
+                  <a href="/assets/docs/template-action-plan-fr.pdf" target="_blank" rel="noopener"><span>Plan d'action</span></a>
+                </div>
               </div>
             </div>
           </div>
-          <div class="help-block">
-            <p class="text-size-16-24-tight">Besoin de modèles pour préparer votre candidature&#8239;? Téléchargez ces modèles et téléversez-les dans le formulaire de candidature.</p>
-            <div class="help-buttons">
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/template-project-overview-fr.pdf" target="_blank" rel="noopener"><span>Aperçu du projet</span></a>
-              </div>
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/template-team-members-fr.pdf" target="_blank" rel="noopener"><span>Membres de l'équipe</span></a>
-              </div>
-              <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-              <div class="btn btn-primary" hidden>
-                <a href="/assets/docs/template-action-plan-fr.pdf" target="_blank" rel="noopener"><span>Plan d'action</span></a>
-              </div>
-              <div class="btn btn-primary">
-                <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Lettre de parrainage</span></a>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
     </section>
@@ -388,6 +383,12 @@
                 <h3 class="block-title">Documents requis</h3>
                 <div class="form-grid-2 file-grid">
                   <div class="form-field form-field-file">
+                    <label for="af-file-overview">Aperçu du projet<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Doit inclure ce que vous faites, pourquoi c'est important, à qui cela s'adresse et l'impact attendu.</p>
+                    <input type="file" id="af-file-overview" name="file_project_overview" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
+                    <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
+                  </div>
+                  <div class="form-field form-field-file">
                     <label for="af-file-budget">Budget détaillé<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Doit inclure toutes les sources de revenus et de dépenses.</p>
                     <input type="file" id="af-file-budget" name="file_budget" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
@@ -395,7 +396,7 @@
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-team">Membres de l'équipe<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Doit inclure&nbsp;: nom, rôle, années d'études, école fréquentée</p>
+                    <p class="field-desc">Doit inclure nom, rôle, années d'études, école fréquentée</p>
                     <input type="file" id="af-file-team" name="file_team_members" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
@@ -404,12 +405,6 @@
                     <label for="af-file-plan">Plan d'action et échancier<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Doit inclure les étapes clés menant à la date du projet ou de l'événement.</p>
                     <input type="file" id="af-file-plan" name="file_action_plan" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
-                  </div>
-                  <div class="form-field form-field-file">
-                    <label for="af-file-extra">Information supplémentaire (facultatif)</label>
-                    <p class="field-desc">Matériel promotionnel, photographies ou tout autre document pouvant nous aider à comprendre votre projet</p>
-                    <input type="file" id="af-file-extra" name="file_additional" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
@@ -486,7 +481,7 @@
   </footer>
 
   <script src="/js/main.js?v=5"></script>
-  <script src="/js/schools-data.js?v=3"></script>
+  <script src="/js/schools-data.js?v=4"></script>
   <script src="/js/apply-form.js?v=7"></script>
 </body>
 </html>

@@ -94,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/fixtures
-          for f in budget team-members action-plan support-letter additional; do
+          for f in project-overview budget team-members action-plan support-letter; do
             printf '%s\n%s\n' '%PDF-1.4' '%%EOF' > "/tmp/fixtures/$f.pdf"
           done
           # 11 MB file for the oversize test (per-file cap is 10 MB)
@@ -120,11 +120,11 @@ jobs:
             -F students_in_org='12' \
             -F students_reached='300' \
             -F consent='yes' \
+            -F file_project_overview=@/tmp/fixtures/project-overview.pdf \
             -F file_budget=@/tmp/fixtures/budget.pdf \
             -F file_team_members=@/tmp/fixtures/team-members.pdf \
             -F file_action_plan=@/tmp/fixtures/action-plan.pdf \
             -F file_support_letter=@/tmp/fixtures/support-letter.pdf \
-            -F file_additional=@/tmp/fixtures/additional.pdf \
             http://localhost:8777/api/apply.php)
           cat /tmp/body.json; echo
           test "$status" = "200"
@@ -133,9 +133,9 @@ jobs:
           echo "$id" | grep -Eq '^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$'
           # Archived on disk: submission.json + 5 uploads named <slot>--<original>
           docker exec site test -f "/var/www/_submissions/$id/submission.json"
-          for f in 'file_budget--budget.pdf' 'file_team_members--team-members.pdf' \
-                   'file_action_plan--action-plan.pdf' 'file_support_letter--support-letter.pdf' \
-                   'file_additional--additional.pdf'; do
+          for f in 'file_project_overview--project-overview.pdf' 'file_budget--budget.pdf' \
+                   'file_team_members--team-members.pdf' 'file_action_plan--action-plan.pdf' \
+                   'file_support_letter--support-letter.pdf'; do
             docker exec site test -f "/var/www/_submissions/$id/$f"
           done
           docker exec site cat "/var/www/_submissions/$id/submission.json" > /tmp/submission.json

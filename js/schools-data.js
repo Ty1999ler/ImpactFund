@@ -52,7 +52,7 @@ window.ALUMO_SCHOOLS = [
   "email": "Contact Email Coming Soon"
  },
  {
-  "school": "Norquest College",
+  "school": "NorQuest College",
   "association": "Students' Association of NorQuest College (SANQC)",
   "province": "AB",
   "email": "Cherie.Sawaryn@NorQuest.ca"
@@ -287,7 +287,7 @@ window.ALUMO_SCHOOLS = [
  },
  {
   "school": "St. Francis Xavier University",
-  "association": "St.FX Students' Union",
+  "association": "St. FX Students' Union",
   "province": "NS",
   "email": "gm.stfxsu@theu.ca"
  },
@@ -625,7 +625,7 @@ window.ALUMO_SCHOOLS = [
   "school": "Cégep de Sainte-Foy",
   "association": "Association étudiante du Cégep de Sainte-Foy (AECSF)",
   "province": "QC",
-  "email": "permanence@asso-cstj.org"
+  "email": "assocsf@csfoy.ca"
  },
  {
   "school": "Cégep de Sherbrooke",
@@ -646,7 +646,7 @@ window.ALUMO_SCHOOLS = [
   "email": "AGEECV2@cegepvicto.ca"
  },
  {
-  "school": "Cégep du Vieux-Montréal",
+  "school": "Cégep du Vieux Montréal",
   "association": "Association générale étudiante du Cégep du Vieux Montréal (AGECVM)",
   "province": "QC",
   "email": "agecvm@hotmail.com"
@@ -694,8 +694,8 @@ window.ALUMO_SCHOOLS = [
   "email": "aeenap@aeenap-qc.ca"
  },
  {
-  "school": "École nationale de théâtre",
-  "association": "École nationale de théâtre (ENT)",
+  "school": "École nationale de théâtre (ENT)",
+  "association": "N/A",
   "province": "QC",
   "email": "madurocher@ent-nts.ca"
  },

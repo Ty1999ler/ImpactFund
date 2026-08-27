@@ -1,5 +1,5 @@
 <?php
-/* Application form endpoint — multipart POST (fields + up to 5 documents).
+/* Application form endpoint — multipart POST (fields + 5 documents).
    1. archives the submission under submissions_dir (JSON + files)
    2. delivers it per config delivery_mode: 'email' | 'graph' | 'off'
    See api/config.example.php. */
@@ -107,12 +107,14 @@ foreach (['funding_requested', 'total_cost'] as $name) {
 /* ---------- files ---------- */
 
 $UPLOADS = [
-    // input name         => [required, label]
-    'file_budget'          => [true,  'Detailed budget'],
-    'file_team_members'    => [true,  'Team members'],
-    'file_action_plan'     => [true,  'Action plan and schedule'],
-    'file_additional'      => [false, 'Additional information'],
-    'file_support_letter'  => [true,  'Letter of support'],
+    // input name            => [required, label]
+    'file_project_overview'  => [true, 'Project overview'],
+    'file_budget'            => [true, 'Detailed budget'],
+    'file_team_members'      => [true, 'Team members'],
+    'file_action_plan'       => [true, 'Action plan and schedule'],
+    /* Client renamed the document "Partner Sign-off Form" — the input name
+       stays file_support_letter so nothing downstream has to move. */
+    'file_support_letter'    => [true, 'Partner Sign-off Form'],
 ];
 $ALLOWED_EXT = ['doc', 'docx', 'xls', 'xlsx', 'csv', 'pdf'];
 $maxBytes = (int)($cfg['max_file_mb'] ?? 10) * 1024 * 1024;
