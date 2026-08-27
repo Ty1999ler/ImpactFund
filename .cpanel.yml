@@ -30,9 +30,15 @@ deployment:
     # Hard guard: never rsync into an empty or missing path.
     - test -n "$DEPLOYPATH" || exit 1
     - /bin/mkdir -p $DEPLOYPATH
+    # api/config.php and api/.htaccess exist ONLY on the server (credentials /
+    # hardening, never in this public repo). Excluding them here stops the
+    # --delete used on staging/september from wiping them on every deploy —
+    # which happened on 2026-08-27 and silently broke the september form (503).
     - >
       /usr/bin/rsync -a $RSYNC_DELETE
       --exclude='.git'
+      --exclude='api/config.php'
+      --exclude='api/.htaccess'
       --exclude='.github'
       --exclude='.cpanel.yml'
       --exclude='.gitignore'
