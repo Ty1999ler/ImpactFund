@@ -255,8 +255,12 @@ function graph_token(array $g): string {
 }
 
 /* Throws on transport errors and HTTP >= 400 so callers can't silently
-   "succeed" — apply.php catches and falls back to archive-only. */
-function http_json(string $url, $body, array $headers, string $method = 'POST'): array {
+   "succeed" — apply.php catches and falls back to archive-only.
+
+   $tolerate lists status codes that should be returned instead of thrown
+   (folder creation treats 409 "already exists" as an answer, not a failure);
+   $status receives the response code either way. */
+function http_json(string $url, $body, array $headers, string $method = 'POST', array $tolerate = [], &$status = null): array {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -272,15 +276,98 @@ function http_json(string $url, $body, array $headers, string $method = 'POST'):
     if ($out === false || $errno !== 0) {
         throw new RuntimeException("HTTP request failed (curl errno $errno): $url");
     }
-    if ($status >= 400) {
+    if ($status >= 400 && !in_array($status, $tolerate, true)) {
         throw new RuntimeException("HTTP $status from $url: " . substr((string)$out, 0, 500));
     }
     $decoded = json_decode((string)$out, true);
     return is_array($decoded) ? $decoded : [];
 }
 
-/* Create the SharePoint list item, then upload each file into a submission
-   folder in the document library (upload session handles files > 4 MB). */
+/* ---------- SharePoint document library layout ----------
+   Files are filed as  Province / Institution / Project title /  so the
+   library browses the way the review reads. The submission id is no longer
+   the folder name — it meant nothing to a human — but it still identifies
+   the submission in the list, the archive and the logs, and it breaks the
+   tie when two projects from the same school share a title. */
+
+/* Folders read better as "Nova Scotia" than "NS"; the list column keeps the
+   two-letter code the form submits. Unknown codes pass through unchanged. */
+function sp_province_name(string $code): string {
+    $names = [
+        'AB' => 'Alberta', 'BC' => 'British Columbia', 'MB' => 'Manitoba',
+        'NB' => 'New Brunswick', 'NS' => 'Nova Scotia', 'ON' => 'Ontario',
+        'QC' => 'Quebec', 'SK' => 'Saskatchewan',
+    ];
+    return $names[$code] ?? $code;
+}
+
+/* SharePoint rejects a set of characters and names outright, and a rejected
+   name fails the upload — so names are cleaned here, not hoped over. */
+function sp_safe_name(string $name, string $fallback): string {
+    $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+    $name = str_replace(['"', '*', ':', '<', '>', '?', '/', '\\', '|', '#', '%'], '-', $name);
+    $name = preg_replace('/\s+/u', ' ', $name);
+    $name = trim($name, " .\t");
+    /* Keep segments short: the full server-relative path has a hard limit and
+       three user-supplied segments can otherwise blow past it. */
+    if (mb_strlen($name) > 100) $name = rtrim(mb_substr($name, 0, 100), ' .');
+    $reserved = '/^(\.lock|CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9]|desktop\.ini)$/i';
+    if ($name === '' || preg_match($reserved, $name)
+        || strpos($name, '_vti_') !== false || strpos($name, '~$') === 0) {
+        return $fallback;
+    }
+    return $name;
+}
+
+/* "a/b c" -> "a/b%20c" — Graph's root:/<path>: addressing needs each segment
+   encoded but the separators left alone. */
+function sp_encode_path(string $path): string {
+    return implode('/', array_map('rawurlencode', explode('/', $path)));
+}
+
+function graph_create_folder(array $auth, string $driveId, string $parentPath, string $name, string $behavior, &$status = null): array {
+    $url = $parentPath === ''
+        ? "https://graph.microsoft.com/v1.0/drives/$driveId/root/children"
+        : "https://graph.microsoft.com/v1.0/drives/$driveId/root:/" . sp_encode_path($parentPath) . ":/children";
+    return http_json($url, json_encode([
+        'name' => $name,
+        'folder' => new stdClass(),
+        '@microsoft.graph.conflictBehavior' => $behavior,
+    ]), array_merge($auth, ['Content-Type: application/json']), 'POST', [409], $status);
+}
+
+/* Walk the Province/Institution chain (re-using folders that already exist),
+   then create a leaf that is this submission's alone: 409 on the leaf means
+   another project here is called the same thing, so it gets the submission's
+   short suffix appended. Returns ['path' =>, 'webUrl' =>]. */
+function graph_make_folder(array $auth, string $driveId, array $segments, string $submissionId): array {
+    $leaf = array_pop($segments);
+
+    $parentPath = '';
+    foreach ($segments as $segment) {
+        graph_create_folder($auth, $driveId, $parentPath, $segment, 'fail');
+        $parentPath = $parentPath === '' ? $segment : "$parentPath/$segment";
+    }
+
+    $folder = graph_create_folder($auth, $driveId, $parentPath, $leaf, 'fail', $status);
+    if ($status === 409) {
+        $suffix = substr($submissionId, strrpos($submissionId, '-') + 1);
+        /* Trim first: sp_safe_name caps the length, and appending to a title
+           that is already at the cap would truncate the suffix back off. */
+        $leaf = sp_safe_name(rtrim(mb_substr($leaf, 0, 80), ' .') . " ($suffix)", $submissionId);
+        /* 'rename' rather than 'fail': the suffix is already unique, so a
+           second collision means something we did not predict — take the
+           name SharePoint offers instead of losing the documents. */
+        $folder = graph_create_folder($auth, $driveId, $parentPath, $leaf, 'rename');
+    }
+    if (!empty($folder['name'])) $leaf = $folder['name'];
+
+    return [
+        'path'   => $parentPath === '' ? $leaf : "$parentPath/$leaf",
+        'webUrl' => (string)($folder['webUrl'] ?? ''),
+    ];
+}
+
 /* Fit our canonical field names onto whatever columns the target list really
    has. Creating lists/columns needs permissions beyond Sites.Selected, so the
    destination schema is often not ours to change — this keeps that a config
@@ -291,7 +378,7 @@ function http_json(string $url, $body, array $headers, string $method = 'POST'):
                         Omit field_map entirely to send names through as-is.
    $g['overflow_field'] one text column that receives every unmapped field as
                         "Label: value" lines (plus the attachments folder). */
-function graph_map_fields(array $g, array $fields, string $submissionId = ''): array {
+function graph_map_fields(array $g, array $fields, string $folderPath = ''): array {
     $map = $g['field_map'] ?? null;
     if (!is_array($map) || !$map) return $fields;
 
@@ -310,8 +397,8 @@ function graph_map_fields(array $g, array $fields, string $submissionId = ''): a
             $label = trim(preg_replace('/(?<!^)[A-Z]/', ' $0', $key));
             $lines[] = $label . ': ' . $value;
         }
-        if ($submissionId !== '') {
-            $lines[] = 'Attachments folder: /' . $submissionId . '/';
+        if ($folderPath !== '') {
+            $lines[] = 'Documents: /' . $folderPath . '/';
         }
         $prefix = isset($mapped[$of]) && $mapped[$of] !== '' ? $mapped[$of] . "\n\n" : '';
         $mapped[$of] = $prefix . implode("\n", $lines);
@@ -323,46 +410,102 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
     $token = graph_token($g);
     $auth  = ["Authorization: Bearer $token"];
 
-    $fields = graph_map_fields($g, $fields, $submissionId);
+    /* Built from the canonical field names, before field_map renames them for
+       whatever the destination list actually calls its columns. */
+    $folder = $files ? graph_make_folder($auth, $g['drive_id'], [
+        sp_safe_name(sp_province_name((string)($fields['Province'] ?? '')), 'Province not given'),
+        sp_safe_name((string)($fields['Institution'] ?? ''), 'Institution not given'),
+        sp_safe_name((string)($fields['Title'] ?? ''), 'Untitled project'),
+    ], $submissionId) : ['path' => '', 'webUrl' => ''];
 
     $item = http_json(
         "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items",
-        json_encode(['fields' => $fields]),
+        json_encode(['fields' => graph_map_fields($g, $fields, $folder['path'])]),
         array_merge($auth, ['Content-Type: application/json'])
     );
     if (empty($item['id'])) {
         throw new RuntimeException('SharePoint list item was not created');
     }
 
+    $links = [];
     foreach ($files as $f) {
-        $path = "/{$submissionId}/" . rawurlencode($f['name']);
-        $session = http_json(
-            "https://graph.microsoft.com/v1.0/drives/{$g['drive_id']}/root:{$path}:/createUploadSession",
-            json_encode(['item' => ['@microsoft.graph.conflictBehavior' => 'rename']]),
-            array_merge($auth, ['Content-Type: application/json'])
-        );
-        if (empty($session['uploadUrl'])) {
-            throw new RuntimeException("No upload session for {$f['name']}");
+        $path = sp_encode_path($folder['path'] . '/' . $f['name']);
+        $base = "https://graph.microsoft.com/v1.0/drives/{$g['drive_id']}/root:/{$path}:";
+        $size = (int)filesize($f['path']);
+
+        /* An upload session is never completed by zero chunks, so an empty
+           file would hang one open and deliver nothing. */
+        if ($size === 0) {
+            $uploaded = http_json("$base/content", '', array_merge($auth, ['Content-Type: application/octet-stream']), 'PUT');
+        } else {
+            $session = http_json(
+                "$base/createUploadSession",
+                json_encode(['item' => ['@microsoft.graph.conflictBehavior' => 'rename']]),
+                array_merge($auth, ['Content-Type: application/json'])
+            );
+            if (empty($session['uploadUrl'])) {
+                throw new RuntimeException("No upload session for {$f['name']}");
+            }
+
+            $fh = fopen($f['path'], 'rb');
+            $chunkSize = 5 * 1024 * 1024; // multiple of 320 KiB
+            $offset = 0;
+            $uploaded = [];
+            while ($offset < $size) {
+                $chunk = fread($fh, $chunkSize);
+                if ($chunk === false || $chunk === '') {
+                    fclose($fh);
+                    throw new RuntimeException("Read failed while uploading {$f['name']}");
+                }
+                $len = strlen($chunk);
+                $end = $offset + $len - 1;
+                /* The response to the final chunk is the finished driveItem. */
+                $uploaded = http_json($session['uploadUrl'], $chunk, [
+                    'Content-Length: ' . $len,
+                    "Content-Range: bytes $offset-$end/$size",
+                ], 'PUT');
+                $offset += $len;
+            }
+            fclose($fh);
         }
 
-        $size = filesize($f['path']);
-        $fh = fopen($f['path'], 'rb');
-        $chunkSize = 5 * 1024 * 1024; // multiple of 320 KiB
-        $offset = 0;
-        while ($offset < $size) {
-            $chunk = fread($fh, $chunkSize);
-            if ($chunk === false || $chunk === '') {
-                fclose($fh);
-                throw new RuntimeException("Read failed while uploading {$f['name']}");
-            }
-            $len = strlen($chunk);
-            $end = $offset + $len - 1;
-            http_json($session['uploadUrl'], $chunk, [
-                'Content-Length: ' . $len,
-                "Content-Range: bytes $offset-$end/$size",
-            ], 'PUT');
-            $offset += $len;
+        if (!empty($uploaded['webUrl'])) {
+            $links[$f['slot']] = ['url' => $uploaded['webUrl'], 'label' => $f['label']];
         }
-        fclose($fh);
+    }
+
+    graph_write_links($g, $auth, (string)$item['id'], $folder, $links);
+}
+
+/* Hyperlink columns are filled in a second pass because the file URLs do not
+   exist until the uploads finish. Failure here is logged, not thrown: the
+   application itself and its documents are already delivered, and the target
+   list may simply not have these columns yet.
+
+   $g['link_field']  hyperlink column for the documents folder
+   $g['file_links']  upload slot => hyperlink column, one per document */
+function graph_write_links(array $g, array $auth, string $itemId, array $folder, array $links): void {
+    $patch = [];
+
+    $linkField = (string)($g['link_field'] ?? '');
+    if ($linkField !== '' && $folder['webUrl'] !== '') {
+        $patch[$linkField] = ['Url' => $folder['webUrl'], 'Description' => 'All documents'];
+    }
+    foreach ((array)($g['file_links'] ?? []) as $slot => $column) {
+        if (is_string($column) && $column !== '' && isset($links[$slot])) {
+            $patch[$column] = ['Url' => $links[$slot]['url'], 'Description' => $links[$slot]['label']];
+        }
+    }
+    if (!$patch) return;
+
+    try {
+        http_json(
+            "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items/{$itemId}/fields",
+            json_encode($patch),
+            array_merge($auth, ['Content-Type: application/json']),
+            'PATCH'
+        );
+    } catch (Throwable $e) {
+        error_log("graph: document links not written to item $itemId: " . $e->getMessage());
     }
 }

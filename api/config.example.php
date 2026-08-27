@@ -81,5 +81,18 @@ return [
            overflow_field instead. Leave field_map empty to send names as-is. */
         'field_map' => [],
         'overflow_field' => '',
+
+        /* Hyperlink ("Link") columns, filled after the uploads finish. Files
+           land in  Province / Institution / Project title /  inside drive_id;
+           link_field points at that folder, file_links at one document each.
+           Leave a column name out and that link is simply not written. */
+        'link_field' => '',      // e.g. 'Documents'
+        'file_links' => [
+            // 'file_budget'         => 'Budget',
+            // 'file_team_members'   => 'TeamMembers',
+            // 'file_action_plan'    => 'ActionPlan',
+            // 'file_support_letter' => 'SupportLetter',
+            // 'file_additional'     => 'Additional',
+        ],
     ],
 ];

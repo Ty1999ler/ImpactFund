@@ -153,7 +153,7 @@ foreach ($files as $f) {
     if (!move_uploaded_file($f['tmp'], $dest)) {
         respond(500, ['ok' => false, 'error' => 'Could not store the submission. Please try again later.']);
     }
-    $stored[] = ['label' => $f['label'], 'name' => $f['name'], 'path' => $dest];
+    $stored[] = ['slot' => $f['slot'], 'label' => $f['label'], 'name' => $f['name'], 'path' => $dest];
 }
 $record = [
     'id' => $submissionId,
@@ -194,8 +194,13 @@ if ($mode === 'email') {
             'Category'         => ($data['category'] === 'Other' && trim($data['category_other']) !== '') ? ('Other — ' . trim($data['category_other'])) : $data['category'],
             'PrimaryContact'   => $data['primary_first_name'] . ' ' . $data['primary_last_name'],
             'PrimaryEmail'     => $data['primary_email'],
+            'PrimaryRole'      => $data['primary_role'],
+            'SecondaryContact' => trim($data['secondary_first_name'] . ' ' . $data['secondary_last_name']),
+            'SecondaryEmail'   => $data['secondary_email'],
             'FundingRequested' => $data['funding_requested'],
             'TotalCost'        => $data['total_cost'],
+            'StudentsInOrg'    => $data['students_in_org'],
+            'StudentsReached'  => $data['students_reached'],
             'Summary'          => $data['project_summary'],
         ], $stored);
     } catch (Throwable $e) {
