@@ -223,6 +223,7 @@ if ($mode === 'email') {
             'PrimaryRole'      => $data['primary_role'],
             'SecondaryContact' => trim($data['secondary_first_name'] . ' ' . $data['secondary_last_name']),
             'SecondaryEmail'   => $data['secondary_email'],
+            'SecondaryRole'    => $data['secondary_role'],
             /* Numbers, not strings: these are the fields anything downstream
                will want to add up or filter on. */
             'FundingRequested' => parse_amount($data['funding_requested']),
