@@ -213,6 +213,8 @@ if ($mode === 'email') {
             'Organization'     => $data['organization_name'],
             'Institution'      => $data['institution'],
             'Province'         => $data['province'],
+            'CampusRecognised' => $data['campus_recognised'],
+            'OffCampusOrg'     => $data['off_campus_org'],
             'Category'         => ($data['category'] === 'Other' && trim($data['category_other']) !== '') ? ('Other — ' . trim($data['category_other'])) : $data['category'],
             'PrimaryContact'   => $data['primary_first_name'] . ' ' . $data['primary_last_name'],
             'PrimaryEmail'     => $data['primary_email'],
@@ -226,6 +228,12 @@ if ($mode === 'email') {
             'StudentsInOrg'    => $data['students_in_org'] === '' ? null : (int)$data['students_in_org'],
             'StudentsReached'  => $data['students_reached'] === '' ? null : (int)$data['students_reached'],
             'Summary'          => $data['project_summary'],
+            /* Both are required tick-boxes on the form, i.e. they exist as
+               evidence that the applicant agreed. Evidence the review team
+               cannot see is not evidence, so it goes in the list rather than
+               only into the server-side archive. */
+            'Consent'          => $data['consent'],
+            'FundAcknowledgement' => $data['fund_acknowledgement'],
         ], $stored);
     } catch (Throwable $e) {
         error_log('graph delivery failed for ' . $submissionId . ': ' . $e->getMessage());
