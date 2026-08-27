@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Apply now – Alumo Fund</title>
-  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez la lettre de parrainage et découvrez quels projets étudiants sont admissibles.">
+  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez l'attestation de partenariat scolaire et découvrez quels projets sont admissibles.">
   <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/">
   <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/apply-now/">
   <link rel="canonical" href="https://alumoimpact.ca/fr/apply-now/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Fonds d&#x27;impact étudiant par Alumo">
   <meta property="og:title" content="Apply now – Alumo Fund">
-  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez la lettre de parrainage et découvrez quels projets étudiants sont admissibles.">
+  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez l&#x27;attestation de partenariat scolaire et découvrez quels projets sont admissibles.">
   <meta property="og:url" content="https://alumoimpact.ca/fr/apply-now/">
   <meta property="og:locale" content="fr_CA">
   <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
@@ -81,18 +81,19 @@
     <!-- ============ HERO — Soumettre ============ -->
     <!-- The source contains a second, older hero block hidden at every breakpoint —
          skipped, as in the EN build. On the FR page the visible download button is
-         the btn-fr "Lettre de parrainage" (the source misspelled it with an extra
-         circumflex — fixed in the client-approved corrections round); the btn-en
-         "Lettre de soutien"
-         is the hidden EN-page variant — skipped. -->
+         the btn-fr document button, now "Attestation de partenariat scolaire" —
+         EN "Partner Sign-off Form" = FR "Attestation de partenariat scolaire"
+         (client-confirmed 2026-08-27; spelling normalized from the client's
+         wording; replaces the former "Lettre de parrainage"). The btn-en
+         "Lettre de soutien" is the hidden EN-page variant — skipped. -->
     <section class="hero">
       <div class="container">
         <h1 class="hero-title text-size-72-72-tight">Soumettre </h1>
         <div class="hero-sub">
-          <p class="text-size-24-36-tight">Téléchargez la lettre de parrainage que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
+          <p class="text-size-24-36-tight">Téléchargez l'attestation de partenariat scolaire que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
           <!-- Real document downloaded from the live site (sample-pdf-fr-1.pdf). -->
           <div class="btn btn-primary">
-            <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Lettre de parrainage</span></a>
+            <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Attestation de partenariat scolaire</span></a>
           </div>
         </div>
       </div>
@@ -116,8 +117,9 @@
           <!-- Third column: the Questions card with the help/download blurbs
                stacked directly beneath it (client request — they must sit
                under "Des questions ?", not in a separate full-width band).
-               The duplicate "Lettre de parrainage" download button that used to
-               sit here was removed; the hero button above is the only one. -->
+               The duplicate "Attestation de partenariat scolaire" download button
+               that used to sit here was removed; the hero button above is the
+               only one. -->
           <div class="info-card-stack">
             <div class="info-card">
               <h2 class="text-size-40-42-tight">Des questions&#8239;? </h2>
@@ -269,10 +271,17 @@
                   </div>
                   <div class="form-field">
                     <label for="af-institution">École ou association étudiante<span aria-hidden="true">*</span></label>
-                    <select id="af-institution" name="institution" required aria-required="true">
-                      <option value="">Sélectionnez votre association ou votre école</option>
-                      <!-- Options populated at runtime from /js/schools-data.js -->
-                    </select>
+                    <div class="combo-wrap">
+                      <!-- Boîte combinée avec autocomplétion — options générées à l'exécution
+                           depuis /js/schools-data.js (regroupées par province, voir /js/apply-form.js) -->
+                      <input type="text" id="af-institution" name="institution"
+                             placeholder="Commencez à taper le nom de votre école" autocomplete="off"
+                             required aria-required="true" role="combobox" aria-expanded="false"
+                             aria-autocomplete="list" aria-haspopup="listbox"
+                             aria-controls="af-institution-listbox">
+                      <div id="af-institution-listbox" class="combo-panel" role="listbox"
+                           aria-label="Associations et écoles" hidden></div>
+                    </div>
                   </div>
                   <div class="form-field form-field-radio">
                     <span class="field-label" id="af-recognized-label">Est-ce un groupe reconnu officiellement par votre campus&#8239;?</span>
@@ -408,8 +417,8 @@
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
-                    <label for="af-file-letter">Lettre de parrainage<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Téléversez la lettre de parrainage de votre association étudiante ou de votre école.</p>
+                    <label for="af-file-letter">Attestation de partenariat scolaire<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Téléversez l'attestation de partenariat scolaire de votre association étudiante ou de votre école.</p>
                     <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
@@ -482,6 +491,6 @@
 
   <script src="/js/main.js?v=5"></script>
   <script src="/js/schools-data.js?v=4"></script>
-  <script src="/js/apply-form.js?v=7"></script>
+  <script src="/js/apply-form.js?v=8"></script>
 </body>
 </html>

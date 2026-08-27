@@ -114,14 +114,22 @@
      A text input (#af-institution) with a dropdown panel of options grouped
      by province. Option label: "School - Association" (just the school when
      the association is "N/A"). Submitted value must exactly match a label.
-     If the field is still the legacy <select> (e.g. the FR page), fall back
-     to populating it with the same labels. */
+     Both /apply-now/ and /fr/apply-now/ ship the combobox markup; if the
+     field is ever the legacy <select> again, fall back to populating it
+     with the same labels. */
   var institutionCombo = (function () {
     var field = form.querySelector("#af-institution");
     var rows = window.ALUMO_SCHOOLS;
     if (!field || !Array.isArray(rows)) return null;
 
-    var PROVINCES = [
+    /* Group headings shown in the dropdown, localized like T above. The codes
+       must match the #af-province option values (identical on /apply-now/ and
+       /fr/apply-now/); the order mirrors both province selects. */
+    var PROVINCES = IS_FR ? [
+      ["AB", "Alberta"], ["BC", "Colombie-Britannique"], ["MB", "Manitoba"],
+      ["NB", "Nouveau-Brunswick"], ["NS", "Nouvelle-Écosse"], ["ON", "Ontario"],
+      ["QC", "Québec"], ["SK", "Saskatchewan"]
+    ] : [
       ["AB", "Alberta"], ["BC", "British Columbia"], ["MB", "Manitoba"],
       ["NB", "New Brunswick"], ["NS", "Nova Scotia"], ["ON", "Ontario"],
       ["QC", "Quebec"], ["SK", "Saskatchewan"]
@@ -181,7 +189,9 @@
     }
 
     if (field.tagName === "SELECT") {
-      /* Legacy select (FR page): repopulate on every province change. */
+      /* Legacy select (no longer shipped, kept for safety): repopulate on
+         every province change. Never runs when #af-institution is the
+         combobox <input>. */
       var placeholder = field.querySelector("option[value='']");
       var fillSelect = function () {
         field.innerHTML = "";
