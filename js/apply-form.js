@@ -30,8 +30,8 @@
   var FILE_MAX_BYTES = 10 * 1024 * 1024; /* 10 MB — must match api/config max_file_mb */
 
   /* ---- UI strings (EN / FR, keyed off <html lang>, same pattern as the
-     contact handler in main.js). The 1000-char counter is NOT translated:
-     the live FR form shows it in English. ---- */
+     contact handler in main.js). The 1000-char counter is localized too
+     (client request, September sheet). ---- */
   var IS_FR = (document.documentElement.lang || "").toLowerCase().indexOf("fr") === 0;
   var T = IS_FR ? {
     fileType: "Ce type de fichier n'est pas autorisé. Types de fichier acceptés : doc, docx, xls, xlsx, csv, pdf.",
@@ -54,7 +54,8 @@
     errNotOpen: "Les soumissions ne sont pas encore ouvertes.",
     errTooLarge: "La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins.",
     errServer: "Votre demande n'a pas pu être envoyée. Veuillez réessayer plus tard.",
-    errNetwork: "Votre demande n'a pas pu être envoyée. Veuillez vérifier votre connexion et réessayer."
+    errNetwork: "Votre demande n'a pas pu être envoyée. Veuillez vérifier votre connexion et réessayer.",
+    charCounter: " de 1000 caractères maximum"
   } : {
     fileType: "This type of file is not allowed. Accepted file types: doc, docx, xls, xlsx, csv, pdf.",
     fileSize: "This file exceeds the maximum size of 10 MB.",
@@ -76,7 +77,8 @@
     errNotOpen: "Submissions are not open yet.",
     errTooLarge: "The submission is too large. Each file must be 10 MB or less.",
     errServer: "Your application could not be submitted. Please try again later.",
-    errNetwork: "Your application could not be submitted. Please check your connection and try again."
+    errNetwork: "Your application could not be submitted. Please check your connection and try again.",
+    charCounter: " of 1000 max characters"
   };
 
   /* ---- api/apply.php answers in English only: map its known error strings
@@ -364,7 +366,7 @@
     select.addEventListener("change", function () { refreshSelectTint(select); });
   });
 
-  /* ---- Project summary character counter (1000 max) ---- */
+  /* ---- Project summary character counter (1000 max), localized via T ---- */
   var summaryField = form.querySelector("#af-summary");
   var summaryCount = form.querySelector("#af-summary-count");
   if (summaryField && summaryCount) {
@@ -372,7 +374,7 @@
       if (summaryField.value.length > 1000) {
         summaryField.value = summaryField.value.slice(0, 1000);
       }
-      summaryCount.textContent = summaryField.value.length + " of 1000 max characters";
+      summaryCount.textContent = summaryField.value.length + T.charCounter;
     };
     summaryField.addEventListener("input", updateCount);
     updateCount();
@@ -545,7 +547,8 @@
   /* ---- Submit ---- */
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    /* Enter in a field on an earlier step acts like "Move forward" */
+    /* Enter in a field on an earlier step acts like the next-step button
+       ("Move forward" / "Suivant") */
     if (current !== panels.length - 1) {
       if (validateStep(current)) showStep(current + 1, true);
       return;

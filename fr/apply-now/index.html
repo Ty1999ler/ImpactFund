@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Apply now – Alumo Fund</title>
-  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez l'attestation de partenariat scolaire et découvrez quels projets sont admissibles.">
+  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez le formulaire attestation et découvrez quels projets sont admissibles.">
   <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/">
   <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/apply-now/">
   <link rel="canonical" href="https://alumoimpact.ca/fr/apply-now/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Fonds d&#x27;impact étudiant par Alumo">
   <meta property="og:title" content="Apply now – Alumo Fund">
-  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez l&#x27;attestation de partenariat scolaire et découvrez quels projets sont admissibles.">
+  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez le formulaire attestation et découvrez quels projets sont admissibles.">
   <meta property="og:url" content="https://alumoimpact.ca/fr/apply-now/">
   <meta property="og:locale" content="fr_CA">
   <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
@@ -81,19 +81,20 @@
     <!-- ============ HERO — Soumettre ============ -->
     <!-- The source contains a second, older hero block hidden at every breakpoint —
          skipped, as in the EN build. On the FR page the visible download button is
-         the btn-fr document button, now "Attestation de partenariat scolaire" —
-         EN "Partner Sign-off Form" = FR "Attestation de partenariat scolaire"
-         (client-confirmed 2026-08-27; spelling normalized from the client's
-         wording; replaces the former "Lettre de parrainage"). The btn-en
+         the btn-fr document button, now "Formulaire attestation" —
+         EN "Partner Sign-off Form" = FR "Formulaire attestation"
+         (client-confirmed verbatim, September sheet; masculine — "le formulaire
+         attestation"; replaces the former "Attestation de partenariat scolaire",
+         which itself replaced "Lettre de parrainage"). The btn-en
          "Lettre de soutien" is the hidden EN-page variant — skipped. -->
     <section class="hero">
       <div class="container">
         <h1 class="hero-title text-size-72-72-tight">Soumettre </h1>
         <div class="hero-sub">
-          <p class="text-size-24-36-tight">Téléchargez l'attestation de partenariat scolaire que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
+          <p class="text-size-24-36-tight">Téléchargez le formulaire attestation que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
           <!-- Real document downloaded from the live site (sample-pdf-fr-1.pdf). -->
           <div class="btn btn-primary">
-            <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Attestation de partenariat scolaire</span></a>
+            <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Formulaire attestation</span></a>
           </div>
         </div>
       </div>
@@ -117,7 +118,7 @@
           <!-- Third column: the Questions card with the help/download blurbs
                stacked directly beneath it (client request — they must sit
                under "Des questions ?", not in a separate full-width band).
-               The duplicate "Attestation de partenariat scolaire" download button
+               The duplicate "Formulaire attestation" download button
                that used to sit here was removed; the hero button above is the
                only one. -->
           <div class="info-card-stack">
@@ -169,12 +170,13 @@
         <div class="apply-form-card apply-form-open" hidden>
           <!-- ==================================================================
                FORMULAIRE DE CANDIDATURE (recreation of the live Gravity Forms
-               "Multi Step" form, id=2 — FR labels verbatim from the live form,
-               including its untranslated quirks: "Move forward",
-               "I acknowledge", the English char counter, category options and
-               the "échancier" typo). /js/apply-form.js handles the steps,
-               validation, and POSTs to /api/apply.php. Input names are shared
-               with the EN form — the PHP handler expects them.
+               "Multi Step" form, id=2 — FR labels verbatim from the live form
+               except the client's September-sheet fixes: "Suivant",
+               "Je confirme", the French char counter and French category
+               labels; the "échancier" typo stays verbatim). /js/apply-form.js
+               handles the steps, validation, and POSTs to /api/apply.php.
+               Input names and submitted values are shared with the EN form —
+               the PHP handler expects them.
                ================================================================== -->
           <form class="apply-form" action="#" method="post" enctype="multipart/form-data" data-handler="sharepoint" novalidate>
             <div class="apply-form-logo" aria-hidden="true"></div>
@@ -316,15 +318,17 @@
                     </div>
                     <div class="form-field">
                       <label for="af-category">Catégorie<span aria-hidden="true">*</span></label>
-                      <!-- Category options are untranslated on the live FR form; the
-                           values must match the PHP whitelist. -->
+                      <!-- French display labels (client, September sheet); the value
+                           attributes stay English by design — they must match the PHP
+                           whitelist in api/apply.php ($CATEGORIES) and the
+                           category === 'Other' toggle in /js/apply-form.js. -->
                       <select id="af-category" name="category" required aria-required="true">
                         <option value="">Sélectionnez la catégorie du projet</option>
-                        <option value="Mental Health &amp; Wellbeing">Mental Health &amp; Wellbeing</option>
-                        <option value="Sustainability">Sustainability</option>
-                        <option value="Arts &amp; Culture">Arts &amp; Culture</option>
-                        <option value="Academics">Academics</option>
-                        <option value="Other">Other</option>
+                        <option value="Mental Health &amp; Wellbeing">Santé mentale et bien-être</option>
+                        <option value="Sustainability">Environnement/Développement durable</option>
+                        <option value="Arts &amp; Culture">Culture</option>
+                        <option value="Academics">Académique</option>
+                        <option value="Other">Autre</option>
                       </select>
                     </div>
                     <div class="form-field" id="af-category-other-wrap" hidden>
@@ -334,7 +338,7 @@
                   </div>
                   <div class="form-col">
                     <div class="form-field">
-                      <label for="af-funding">Montant demandé de la subvention demandée au Fonds d'impact étudiant<span aria-hidden="true">*</span></label>
+                      <label for="af-funding">Montant de la subvention demandée au Fonds d'impact étudiant<span aria-hidden="true">*</span></label>
                       <div class="money-box">
                         <input type="text" id="af-funding" name="funding_requested" placeholder="Écrivez le montant" inputmode="decimal" required aria-required="true">
                       </div>
@@ -350,9 +354,9 @@
                     <div class="form-field form-field-check">
                       <p class="check-label" id="af-ack-label">Le Fonds d'impact étudiant ne couvrira pas les frais liés à l'alcool, aux cadeaux promotionnels, aux dons caritatifs. Pour tous les détails, visitez la page <a href="/fr/about-the-fund/">À propos</a>.</p>
                       <label class="check-option">
-                        <!-- "I acknowledge" is untranslated on the live FR form -->
+                        <!-- Label shown in French; the recorded value intentionally stays "I acknowledge" (English). -->
                         <input type="checkbox" id="af-ack" name="fund_acknowledgement" value="I acknowledge" required aria-required="true">
-                        <span>I acknowledge</span>
+                        <span>Je confirme</span>
                       </label>
                     </div>
                   </div>
@@ -366,8 +370,8 @@
                     <label for="af-summary">Résumé du projet<span aria-hidden="true">*</span></label>
                     <div class="textarea-box">
                       <textarea id="af-summary" name="project_summary" maxlength="1000" placeholder="Veuillez nous faire parvenir un résumé du projet et des impacts attendus sur le campus." required aria-required="true" aria-describedby="af-summary-count"></textarea>
-                      <!-- Counter text stays English on the live FR form -->
-                      <span class="char-counter" id="af-summary-count">0 of 1000 max characters</span>
+                      <!-- Counter localized per client (September sheet); /js/apply-form.js keeps it in sync -->
+                      <span class="char-counter" id="af-summary-count">0 de 1000 caractères maximum</span>
                     </div>
                   </div>
                   <div class="summary-numbers">
@@ -393,32 +397,32 @@
                 <div class="form-grid-2 file-grid">
                   <div class="form-field form-field-file">
                     <label for="af-file-overview">Aperçu du projet<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Doit inclure ce que vous faites, pourquoi c'est important, à qui cela s'adresse et l'impact attendu.</p>
+                    <p class="field-desc">Inclure ce que vous faites, pourquoi c'est important, à qui cela s'adresse et l'impact attendu.</p>
                     <input type="file" id="af-file-overview" name="file_project_overview" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-budget">Budget détaillé<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Doit inclure toutes les sources de revenus et de dépenses.</p>
+                    <p class="field-desc">Inclure toutes les sources de revenus et de dépenses.</p>
                     <input type="file" id="af-file-budget" name="file_budget" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-team">Membres de l'équipe<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Doit inclure nom, rôle, années d'études, école fréquentée</p>
+                    <p class="field-desc">Inclure nom, rôle, années d'études, école fréquentée</p>
                     <input type="file" id="af-file-team" name="file_team_members" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <!-- "échancier" typo verbatim from the live FR form -->
                     <label for="af-file-plan">Plan d'action et échancier<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Doit inclure les étapes clés menant à la date du projet ou de l'événement.</p>
+                    <p class="field-desc">Inclure les étapes clés menant à la date du projet ou de l'événement.</p>
                     <input type="file" id="af-file-plan" name="file_action_plan" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
-                    <label for="af-file-letter">Attestation de partenariat scolaire<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Téléversez l'attestation de partenariat scolaire de votre association étudiante ou de votre école.</p>
+                    <label for="af-file-letter">Formulaire attestation<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Téléversez le formulaire attestation de votre association étudiante ou de votre école.</p>
                     <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
@@ -445,8 +449,9 @@
 
             <div class="form-nav">
               <button type="button" class="apply-btn apply-btn-prev" data-nav="prev" hidden><span>Précédent</span></button>
-              <!-- "Move forward" is untranslated on the live FR form -->
-              <button type="button" class="apply-btn apply-btn-next" data-nav="next"><span>Move forward</span></button>
+              <!-- "Suivant" per client (September sheet); the live FR form
+                   showed the untranslated "Move forward". EN page unchanged. -->
+              <button type="button" class="apply-btn apply-btn-next" data-nav="next"><span>Suivant</span></button>
               <button type="submit" class="apply-btn apply-btn-submit" hidden><span>Terminé</span></button>
             </div>
           </form>
@@ -491,6 +496,6 @@
 
   <script src="/js/main.js?v=5"></script>
   <script src="/js/schools-data.js?v=4"></script>
-  <script src="/js/apply-form.js?v=8"></script>
+  <script src="/js/apply-form.js?v=9"></script>
 </body>
 </html>
