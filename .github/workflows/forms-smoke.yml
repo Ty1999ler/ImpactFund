@@ -109,6 +109,7 @@ jobs:
             -F primary_email='ada@example.com' \
             -F primary_role='President' \
             -F organization_name='CI Test Org' \
+            -F province='ON' \
             -F institution='Test University' \
             -F project_title='CI Smoke Project' \
             -F category='Sustainability' \
