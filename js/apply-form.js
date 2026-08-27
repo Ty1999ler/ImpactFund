@@ -43,7 +43,7 @@
     chooseOption: "Veuillez choisir une option.",
     submitting: "Envoi de votre demande en cours…",
     successTitle: "Demande reçue !",
-    successBody: "Merci — votre soumission a bien été reçue",
+    successBody: "Merci — votre candidature a bien été reçue",
     successRef: "référence",
     successOutro: ". Nous vous contacterons par courriel.",
     uploadFailed: "Le téléversement a échoué — veuillez réessayer.",
@@ -65,7 +65,7 @@
     chooseOption: "Please choose an option.",
     submitting: "Submitting your application…",
     successTitle: "Application received!",
-    successBody: "Thank you — your submission has been received",
+    successBody: "Thank you — your application has been received",
     successRef: "reference",
     successOutro: ". We will be in touch by email.",
     uploadFailed: "Upload failed — please retry.",
@@ -550,11 +550,13 @@
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok, j: j }; }); })
       .then(function (res) {
         if (res.ok) {
+          /* The submission id is deliberately NOT shown: it is an internal
+             tracking reference, and quoting it invites applicants to use it
+             as a case number. The id is still returned by the API and stored
+             with the archive and the SharePoint item. */
           form.innerHTML =
             '<div class="apply-success"><h2>' + T.successTitle + "</h2>" +
-            "<p>" + T.successBody +
-            (res.j.id ? " (" + T.successRef + " <strong>" + res.j.id + "</strong>)" : "") +
-            T.successOutro + "</p></div>";
+            "<p>" + T.successBody + T.successOutro + "</p></div>";
           form.scrollIntoView({ behavior: "smooth", block: "center" });
         } else {
           /* Surface the server's per-field errors on the matching inputs and
