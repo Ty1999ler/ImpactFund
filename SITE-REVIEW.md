@@ -106,7 +106,7 @@ Audited 2026-08-19 against https://impactfund.wareham.stream (deployed content
 verified byte-identical to this repo) and the original alumoimpact.ca mirror.
 `[inherited]` = the mistake exists on the original WordPress site too and was
 copied faithfully; everything else was introduced in the rebuild or the dataset.
-**Totals (re-verified 2026-08-27, after round 2): 131 findings — 8 open (2 major, 6 minor), 108 resolved, 13 superseded, 2 closed (client).** (Original 2026-08-19 tally: 21 major, 110 minor; 109 inherited.)
+**Totals (re-verified 2026-08-27, after round 2 + Terms date): 131 findings — 6 open (2 major, 4 minor), 110 resolved, 13 superseded, 2 closed (client).** (Original 2026-08-19 tally: 21 major, 110 minor; 109 inherited.)
 
 **Currently open — MAJOR (2026-08-27, after round 2):**
 - Partner-list update note dropped from FR (and EN) partner-schools intro card
@@ -179,10 +179,11 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** One convention throughout: sentence case for all step/field/document labels ("2. Project information", "Team members") and consistent Canadian -ize spelling ("recognized", "analyze").
   - **Resolution (2026-08-27):** One convention applied — sentence-case labels and Canadian -ize spellings ("recognized", "analyze") per the client's "Canadian Spellings" comment.
 
-- **[OPEN · MINOR (needs Alumo)]** terms-conditions/index.html (https://impactfund.wareham.stream/terms-conditions/) — line under the H1
+- **[RESOLVED · MINOR]** terms-conditions/index.html (https://impactfund.wareham.stream/terms-conditions/) — line under the H1
   - [inherited] "Last updated: 2026" gives only a year, not an actual revision date, even though section 8 promises "Any changes will be posted on this page with a revised date." Identical in _source/pages/terms-conditions.html.
   - **Should be:** A full revision date, e.g. "Last updated: January 15, 2026".
-  - **Note (2026-08-27, round 2):** Client answer: "not sure" — stays open until Alumo confirms the actual revision date.
+  - **Note (2026-08-27, round 2):** Client answer: "not sure" — stayed open awaiting a date.
+  - **Resolution (2026-08-27):** Tyler chose the site's launch date: "Last updated: August 26, 2026" (EN) / "Dernière mise à jour : 26 août 2026" (FR).
 
 ## Content parity & language — FR
 
@@ -323,10 +324,10 @@ Major findings were adversarially re-verified by a second, independent pass.
   - **Should be:** "Brightstart initiative program"
   - Status: SUPERSEDED 2026-08-26 — Past Winners pages fully hidden for the fund's first year (redirect to home, removed from sitemap); restore from git when the first cohort is announced.
 
-- **[OPEN · MINOR (needs Alumo)]** terms-conditions/index.html line 67 (https://impactfund.wareham.stream/terms-conditions/)
+- **[RESOLVED · MINOR]** terms-conditions/index.html line 67 (https://impactfund.wareham.stream/terms-conditions/)
   - [inherited] Incomplete date: "Last updated: 2026" gives only a year, though section 8 promises "a revised date" for changes.
   - **Should be:** A full date, e.g. "Last updated: January 15, 2026" (confirm actual date with Alumo).
-  - **Note (2026-08-27, round 2):** Client answer: "not sure" — stays open until Alumo confirms the actual revision date.
+  - **Resolution (2026-08-27):** Set to the launch date, August 26, 2026, on both language pages (Tyler's call after the client's "not sure").
 
 - **[RESOLVED · MINOR]** js/schools-data.js lines 24, 60, 66, 78, 84, 270, 324, 330 (displayed on /partner-schools/ and /apply-now/)
   - [inherited — client-provided dataset] "Association" is misspelled in eight association names: "Assoication" (lines 24, 78), "Assocation" (lines 60, 66, 84, 270, 330), and "Asscoiation" (line 324, WUSA).
