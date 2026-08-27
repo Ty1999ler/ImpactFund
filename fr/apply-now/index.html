@@ -255,6 +255,22 @@
                     <input type="text" id="af-org-name" name="organization_name" placeholder="Nom de l'organisme ou du groupe" required aria-required="true">
                   </div>
                   <div class="form-field">
+                    <label for="af-province">Province<span aria-hidden="true">*</span></label>
+                    <!-- Choisie en premier : restreint la liste des écoles
+                         ci-dessous à cette province (voir /js/apply-form.js). -->
+                    <select id="af-province" name="province" required aria-required="true">
+                      <option value="">Sélectionnez votre province</option>
+                      <option value="AB">Alberta</option>
+                      <option value="BC">Colombie-Britannique</option>
+                      <option value="MB">Manitoba</option>
+                      <option value="NB">Nouveau-Brunswick</option>
+                      <option value="NS">Nouvelle-Écosse</option>
+                      <option value="ON">Ontario</option>
+                      <option value="QC">Québec</option>
+                      <option value="SK">Saskatchewan</option>
+                    </select>
+                  </div>
+                  <div class="form-field">
                     <label for="af-institution">École ou association étudiante<span aria-hidden="true">*</span></label>
                     <select id="af-institution" name="institution" required aria-required="true">
                       <option value="">Sélectionnez votre association ou votre école</option>

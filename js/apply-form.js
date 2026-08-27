@@ -1,12 +1,11 @@
 /* ============================================================
-   Apply-now — multi-step application form (front-end only)
+   Apply-now — multi-step application form.
 
-   TODO (backend): submissions are NOT wired yet. Per PLANS.md,
-   the backend is the self-hosted forms-api container: replace
-   the stub inside the submit handler below with
-   fetch("/api/apply", { method: "POST", body: new FormData(form) })
-   once that endpoint exists (multipart: fields + 5 files
-   -> local backup + SharePoint via Graph or email relay).
+   Steps + client-side validation here; on submit the form is
+   POSTed as multipart FormData (fields + up to 5 files) to
+   /api/apply.php, which archives the submission on the server
+   and delivers it per api/config.php (email relay or SharePoint
+   via Microsoft Graph — see api/config.example.php).
    ============================================================ */
 (function () {
   "use strict";
@@ -84,6 +83,7 @@
     "Required": T.required,
     "Invalid email": T.invalidEmail,
     "Invalid category": T.selectOption,
+    "Invalid number": T.invalidNumber,
     "File type not accepted": T.fileType,
     "Upload failed — please retry": T.uploadFailed
   };
@@ -155,16 +155,50 @@
       if (options.length) groups.push({ name: province[1], options: options });
     });
 
-    if (field.tagName === "SELECT") {
-      /* Legacy select fallback (FR page) */
-      groups.forEach(function (group) {
-        group.options.forEach(function (label) {
-          var option = document.createElement("option");
-          option.value = label;
-          option.textContent = label;
-          field.appendChild(option);
-        });
+    /* ---- Province filter ----
+       #af-province is chosen first and narrows this list to that province.
+       With no province picked we show everything, so the field still works
+       if the select is ever removed. Changing province clears an institution
+       that no longer belongs to it. */
+    var provinceField = form.querySelector("#af-province");
+    function selectedProvince() {
+      return provinceField ? provinceField.value : "";
+    }
+    function groupsForProvince() {
+      var code = selectedProvince();
+      if (!code) return groups;
+      var name = null;
+      PROVINCES.forEach(function (p) { if (p[0] === code) name = p[1]; });
+      return groups.filter(function (g) { return g.name === name; });
+    }
+    function labelInCurrentProvince(label) {
+      return groupsForProvince().some(function (g) {
+        return g.options.indexOf(label) !== -1;
       });
+    }
+
+    if (field.tagName === "SELECT") {
+      /* Legacy select (FR page): repopulate on every province change. */
+      var placeholder = field.querySelector("option[value='']");
+      var fillSelect = function () {
+        field.innerHTML = "";
+        if (placeholder) field.appendChild(placeholder);
+        groupsForProvince().forEach(function (group) {
+          group.options.forEach(function (label) {
+            var option = document.createElement("option");
+            option.value = label;
+            option.textContent = label;
+            field.appendChild(option);
+          });
+        });
+      };
+      fillSelect();
+      if (provinceField) {
+        provinceField.addEventListener("change", function () {
+          fillSelect();
+          if (typeof refreshSelectTint === "function") refreshSelectTint(field);
+        });
+      }
       return null;
     }
 
@@ -212,7 +246,7 @@
       visibleOptions = [];
       activeIndex = -1;
       var counter = 0;
-      groups.forEach(function (group) {
+      groupsForProvince().forEach(function (group) {
         var matched = group.options.filter(function (label) {
           return !query || fold(label).indexOf(query) !== -1;
         });
@@ -241,6 +275,19 @@
       var hasOptions = visibleOptions.length > 0;
       panel.hidden = !hasOptions;
       field.setAttribute("aria-expanded", hasOptions ? "true" : "false");
+    }
+
+    /* Switching province drops a school that belongs to the old one, so the
+       submitted value can never disagree with the submitted province. */
+    if (provinceField) {
+      provinceField.addEventListener("change", function () {
+        var current = field.value.trim();
+        if (current && !labelInCurrentProvince(current)) {
+          field.value = "";
+          clearError(field);
+        }
+        if (document.activeElement === field) open();
+      });
     }
 
     field.addEventListener("focus", open);
@@ -272,7 +319,10 @@
     return {
       field: field,
       isValid: function () {
-        return Object.prototype.hasOwnProperty.call(labels, field.value.trim());
+        var value = field.value.trim();
+        if (!Object.prototype.hasOwnProperty.call(labels, value)) return false;
+        /* Must also belong to the province that was selected. */
+        return labelInCurrentProvince(value);
       }
     };
   })();
@@ -521,6 +571,9 @@
             });
           }
           if (firstErrStep !== -1) showStep(firstErrStep, true);
+          /* showStep() hides the status banner — re-show it so the summary
+             message is visible (and announced via aria-live). */
+          statusEl.hidden = false;
           statusEl.textContent = (res.j && res.j.error)
             ? localizeServerError(res.j.error) : T.errServer;
           statusEl.classList.add("is-error");

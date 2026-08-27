@@ -38,6 +38,7 @@ $FIELDS = [
     'secondary_email'     => [false, 254, false],
     'secondary_role'      => [false, 200, false],
     'organization_name'   => [true, 300, false],
+    'province'            => [true, 2, false],
     'institution'         => [true, 300, false],
     'campus_recognised'   => [false, 10, false],
     'off_campus_org'      => [false, 10, false],
@@ -66,6 +67,13 @@ if (!filter_var($data['primary_email'], FILTER_VALIDATE_EMAIL)) {
 if ($data['secondary_email'] !== '' && !filter_var($data['secondary_email'], FILTER_VALIDATE_EMAIL)) {
     $errors['secondary_email'] = 'Invalid email';
 }
+/* Province is submitted as a two-letter code and drives the institution list
+   the applicant was shown, so it must be one we actually serve. */
+$PROVINCES = ['AB', 'BC', 'MB', 'NB', 'NS', 'ON', 'QC', 'SK'];
+if ($data['province'] !== '' && !in_array($data['province'], $PROVINCES, true)) {
+    $errors['province'] = 'Invalid province';
+}
+
 $CATEGORIES = ['Mental Health & Wellbeing', 'Sustainability', 'Arts & Culture', 'Academics', 'Other'];
 if ($data['category'] !== '' && !in_array($data['category'], $CATEGORIES, true)) {
     $errors['category'] = 'Invalid category';
@@ -182,6 +190,7 @@ if ($mode === 'email') {
             'SubmissionId'     => $submissionId,
             'Organization'     => $data['organization_name'],
             'Institution'      => $data['institution'],
+            'Province'         => $data['province'],
             'Category'         => ($data['category'] === 'Other' && trim($data['category_other']) !== '') ? ('Other — ' . trim($data['category_other'])) : $data['category'],
             'PrimaryContact'   => $data['primary_first_name'] . ' ' . $data['primary_last_name'],
             'PrimaryEmail'     => $data['primary_email'],

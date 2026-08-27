@@ -184,13 +184,13 @@
               <li class="form-step">
                 <button type="button" class="form-step-btn" data-step="1" disabled>
                   <span class="form-step-bar" aria-hidden="true"></span>
-                  <span class="form-step-label">2. Project Information</span>
+                  <span class="form-step-label">2. Project information</span>
                 </button>
               </li>
               <li class="form-step">
                 <button type="button" class="form-step-btn" data-step="2" disabled>
                   <span class="form-step-bar" aria-hidden="true"></span>
-                  <span class="form-step-label">3. Required Documents</span>
+                  <span class="form-step-label">3. Required documents</span>
                 </button>
               </li>
             </ol>
@@ -248,6 +248,22 @@
                     <input type="text" id="af-org-name" name="organization_name" placeholder="Type your group's name — e.g. Campus Sustainability Club" required aria-required="true">
                   </div>
                   <div class="form-field">
+                    <label for="af-province">Province<span aria-hidden="true">*</span></label>
+                    <!-- Chosen first: it narrows the institution list below to
+                         that province only (see /js/apply-form.js). -->
+                    <select id="af-province" name="province" required aria-required="true">
+                      <option value="">Select your province</option>
+                      <option value="AB">Alberta</option>
+                      <option value="BC">British Columbia</option>
+                      <option value="MB">Manitoba</option>
+                      <option value="NB">New Brunswick</option>
+                      <option value="NS">Nova Scotia</option>
+                      <option value="ON">Ontario</option>
+                      <option value="QC">Quebec</option>
+                      <option value="SK">Saskatchewan</option>
+                    </select>
+                  </div>
+                  <div class="form-field">
                     <label for="af-institution">Institution / Association<span aria-hidden="true">*</span></label>
                     <div class="combo-wrap">
                       <!-- Autocomplete combobox — options populated at runtime from
@@ -262,7 +278,7 @@
                     </div>
                   </div>
                   <div class="form-field form-field-radio">
-                    <span class="field-label" id="af-recognised-label">Is this a group officially recognised by your campus?</span>
+                    <span class="field-label" id="af-recognised-label">Is this a group officially recognized by your campus?</span>
                     <div class="radio-group" role="radiogroup" aria-labelledby="af-recognised-label">
                       <label class="radio-option"><input type="radio" name="campus_recognised" value="Yes"><span>Yes</span></label>
                       <label class="radio-option"><input type="radio" name="campus_recognised" value="No"><span>No</span></label>
@@ -280,9 +296,9 @@
               </div>
             </fieldset>
 
-            <!-- ============ STEP 2 — Project Information ============ -->
+            <!-- ============ STEP 2 — Project information ============ -->
             <fieldset class="form-step-panel" data-step="1" hidden>
-              <legend class="visually-hidden">Project Information</legend>
+              <legend class="visually-hidden">Project information</legend>
 
               <div class="form-section">
                 <h3 class="block-title">Project details</h3>
@@ -324,7 +340,7 @@
                   </div>
                   <div class="form-col">
                     <div class="form-field form-field-check">
-                      <p class="check-label" id="af-ack-label">The Student Impact Fund won't cover cost of alcohol, prize giveaways, charitable donations. See full details on the <a href="/about-the-fund/">About the Fund</a> page.</p>
+                      <p class="check-label" id="af-ack-label">The Student Impact Fund won't cover the cost of alcohol, prize giveaways, or charitable donations. See full details on the <a href="/about-the-fund/">About the Fund</a> page.</p>
                       <label class="check-option">
                         <input type="checkbox" id="af-ack" name="fund_acknowledgement" value="I acknowledge" required aria-required="true">
                         <span>I acknowledge</span>
@@ -338,7 +354,7 @@
                 <h3 class="block-title">Project summary and impact</h3>
                 <div class="summary-row">
                   <div class="form-field summary-textarea">
-                    <label for="af-summary">Project Summary<span aria-hidden="true">*</span></label>
+                    <label for="af-summary">Project summary<span aria-hidden="true">*</span></label>
                     <div class="textarea-box">
                       <textarea id="af-summary" name="project_summary" maxlength="1000" placeholder="Please provide us with a summary of your project and its expected impact on campus." required aria-required="true" aria-describedby="af-summary-count"></textarea>
                       <span class="char-counter" id="af-summary-count">0 of 1000 max characters</span>
@@ -358,9 +374,9 @@
               </div>
             </fieldset>
 
-            <!-- ============ STEP 3 — Required Documents ============ -->
+            <!-- ============ STEP 3 — Required documents ============ -->
             <fieldset class="form-step-panel" data-step="2" hidden>
-              <legend class="visually-hidden">Required Documents</legend>
+              <legend class="visually-hidden">Required documents</legend>
 
               <div class="form-section">
                 <h3 class="block-title">Required documents</h3>
@@ -369,43 +385,43 @@
                     <label for="af-file-budget">Detailed budget<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include all sources of income and expenditure.</p>
                     <input type="file" id="af-file-budget" name="file_budget" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
-                    <label for="af-file-team">Team Members<span aria-hidden="true">*</span></label>
+                    <label for="af-file-team">Team members<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include: name, role, years of study, school attended</p>
                     <input type="file" id="af-file-team" name="file_team_members" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-plan">Action plan and schedule<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Must include key milestones leading up to the project or event date.</p>
                     <input type="file" id="af-file-plan" name="file_action_plan" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-extra">Additional information (optional)</label>
                     <p class="field-desc">Marketing material, photographs, or any other documents that may assist us in understanding your project</p>
                     <input type="file" id="af-file-extra" name="file_additional" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
                     <label for="af-file-letter">Letter of support<span aria-hidden="true">*</span></label>
                     <p class="field-desc">Upload the letter of support from your student association or school.</p>
                     <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
-                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf, Max. file size: 10 MB.</p>
+                    <p class="field-filetypes">Accepted file types: doc, docx, xls, xlsx, csv, pdf. Max. file size: 10 MB.</p>
                   </div>
                 </div>
               </div>
 
               <div class="form-field form-field-check consent-field">
                 <label class="check-option">
-                  <input type="checkbox" id="af-consent" name="consent" required aria-required="true">
+                  <input type="checkbox" id="af-consent" name="consent" value="I confirm" required aria-required="true">
                   <span>I confirm that, to the best of my knowledge, the information provided in this application is accurate, and I understand that incomplete or inaccurate information may affect the review of this application.</span>
                 </label>
               </div>
 
-              <p class="form-fineprint">All data provided will be used by Alumo to analyse project submissions and will be processed in accordance with our <a href="https://studentcare.ca/RTEContent/Document/Privacy_Policy/Studentcare_Privacy_Policy_2025.pdf" target="_blank" rel="noopener">privacy policy</a>.</p>
+              <p class="form-fineprint">All data provided will be used by Alumo to analyze project submissions and will be processed in accordance with our <a href="https://studentcare.ca/RTEContent/Document/Privacy_Policy/Studentcare_Privacy_Policy_2025.pdf" target="_blank" rel="noopener">privacy policy</a>.</p>
             </fieldset>
 
             <!-- Honeypot — ignored by validation, checked on submit -->
