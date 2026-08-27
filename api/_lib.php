@@ -365,6 +365,7 @@ function graph_make_folder(array $auth, string $driveId, array $segments, string
     return [
         'path'   => $parentPath === '' ? $leaf : "$parentPath/$leaf",
         'webUrl' => (string)($folder['webUrl'] ?? ''),
+        'id'     => (string)($folder['id'] ?? ''),
     ];
 }
 
@@ -426,7 +427,11 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
         sp_safe_name(sp_province_name((string)($fields['Province'] ?? '')), 'Province not given'),
         sp_safe_name((string)($fields['Institution'] ?? ''), 'Institution not given'),
         sp_safe_name((string)($fields['Title'] ?? ''), 'Untitled project'),
-    ], $submissionId) : ['path' => '', 'webUrl' => ''];
+    ], $submissionId) : ['path' => '', 'webUrl' => '', 'id' => ''];
+
+    /* The drive-item id, not the path: it survives someone tidying the
+       library, so scripts that read the documents keep working. */
+    $fields['FolderId'] = $folder['id'];
 
     $item = http_json(
         "https://graph.microsoft.com/v1.0/sites/{$g['site_id']}/lists/{$g['list_id']}/items",
