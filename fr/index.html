@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/home.css?v=5">
+  <link rel="stylesheet" href="/css/pages/home.css?v=6">
   <link rel="stylesheet" href="/css/pages/fr-home.css?v=3">
 </head>
 <body>
@@ -46,10 +46,10 @@
           <nav class="nav-menu-wrap" aria-label="Menu principal">
             <ul class="nav-menu">
               <li class="menu-item"><a href="/fr/" aria-current="page">Accueil</a></li>
-              <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
-              <li class="menu-item"><a href="/fr/how-to-apply/">Comment soumettre</a></li>
-              <li class="menu-item" data-opens-at="2026-09-01T00:00:00-04:00" hidden><a href="/fr/apply-now/">Soumettre</a></li>
-              <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
+              <li class="menu-item"><a href="/fr/a-propos/">À propos</a></li>
+              <li class="menu-item"><a href="/fr/comment-soumettre/">Comment soumettre</a></li>
+              <li class="menu-item" data-opens-at="2026-09-01T00:00:00-04:00" hidden><a href="/fr/soumettre/">Soumettre</a></li>
+              <li class="menu-item"><a href="/fr/ecoles-partenaires/">Partenaires</a></li>
               <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
               <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
             </ul>
@@ -59,7 +59,7 @@
             <!-- "Soumettre" button exists in the source but is hidden at every
                  breakpoint while submissions are closed. Kept for re-enabling. -->
             <div class="btn btn-primary" hidden>
-              <a href="/fr/apply-now/"><span>Soumettre</span></a>
+              <a href="/fr/soumettre/"><span>Soumettre</span></a>
             </div>
 
             <div class="lang-switcher">
@@ -87,7 +87,7 @@
           <div class="hero-side">
             <h2 class="text-size-24-36-tight">250 000 $ entièrement consacrés aux projets conçus et menés par la communauté étudiante</h2>
             <div class="btn btn-outline-dark btn-icon btn-icon-primary">
-              <a href="/fr/about-the-fund/"><span>En savoir plus</span></a>
+              <a href="/fr/a-propos/"><span>En savoir plus</span></a>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@
       <div class="container">
         <div class="hero-bar">
           <!-- Scheduled swap — same data-opens-at closed/open mechanism as the
-               orange period card on /fr/how-to-apply/ (handled in /js/main.js):
+               orange period card on /fr/comment-soumettre/ (handled in /js/main.js):
                before Sept 1 the informational non-interactive <span> shows; from
                that date (or with ?preview-form=1) it swaps to the apply-now link. -->
           <span class="hero-pill-slot" data-opens-at="2026-09-01T00:00:00-04:00">
@@ -116,7 +116,7 @@
               <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
               <span>Les soumissions ouvrent en septembre</span>
             </span>
-            <a class="hero-status-pill apply-form-open" href="/fr/apply-now/" hidden>
+            <a class="hero-status-pill apply-form-open" href="/fr/soumettre/" hidden>
               <img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13">
               <span>Les soumissions sont ouvertes — soumettez votre projet&#8239;!</span>
             </a>
@@ -136,7 +136,7 @@
           <div class="intro-side">
             <p class="text-size-16-31-9-tightpx">Le Fonds d'impact étudiant est un programme annuel de 250 000 $ qui aide les étudiant·es du Canada à transformer leurs idées en actions concrètes sur le campus. Alumo soutient  les initiatives étudiantes qui contribuent à renforcer la vie sur le campus et à favoriser le bien-être de la communauté étudiante.</p>
             <div class="btn btn-outline-dark btn-icon btn-icon-primary">
-              <a href="/fr/about-the-fund/"><span>En savoir plus</span></a>
+              <a href="/fr/a-propos/"><span>En savoir plus</span></a>
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@
               <img src="/assets/img/icon-m.svg" alt="" width="50" height="50">
             </div>
             <h3 class="text-size-40-42-tight">Qui est Alumo&#8239;?</h3>
-            <p class="text-size-16-24-tight">Alumo est le fournisseur principal d'avantages étudiants et de solutions de bien-être au Québec et au Canada. Nous offrons des régimes de soins de santé et dentaires ainsi que d'autres services de bien-être (comme du soutien en santé mentale, des soins de santé virtuels et une assistance juridique) aux étudiant·es de niveau postsecondaire.<br><br>Vous étudiez dans un établissement partenaire d'Alumo&#8239;? <a href="/fr/partner-schools/"><strong>Consultez la liste ici.</strong></a></p>
+            <p class="text-size-16-24-tight">Alumo est le fournisseur principal d'avantages étudiants et de solutions de bien-être au Québec et au Canada. Nous offrons des régimes de soins de santé et dentaires ainsi que d'autres services de bien-être (comme du soutien en santé mentale, des soins de santé virtuels et une assistance juridique) aux étudiant·es de niveau postsecondaire.<br><br>Vous étudiez dans un établissement partenaire d'Alumo&#8239;? <a href="/fr/ecoles-partenaires/"><strong>Consultez la liste ici.</strong></a></p>
           </div>
 
           <div class="fueling-card">
@@ -174,7 +174,7 @@
               <img src="/assets/img/icon-m.svg" alt="" width="50" height="50">
             </div>
             <h3 class="text-size-40-42-tight">Qui peut soumettre un projet&#8239;?</h3>
-            <p class="text-size-16-24-tight">Toute personne inscrite dans un établissement partenaire peut soumettre un projet, avec l’accord du campus. Avant de faire une soumission, assurez-vous d'avoir l'accord de votre école ou de votre association étudiante.<br><br> Visitez la page <a href="/fr/how-to-apply/"><strong>Soumission de projets</strong></a> pour plus d'informations.</p>
+            <p class="text-size-16-24-tight">Toute personne inscrite dans un établissement partenaire peut soumettre un projet, avec l’accord du campus. Avant de faire une soumission, assurez-vous d'avoir l'accord de votre école ou de votre association étudiante.<br><br> Visitez la page <a href="/fr/comment-soumettre/"><strong>Soumission de projets</strong></a> pour plus d'informations.</p>
           </div>
 
           <div class="fueling-card">
@@ -213,7 +213,7 @@
                  live breakpoint there; hidden here too per the client-approved
                  corrections round. Kept for re-enabling. -->
             <div class="btn btn-white btn-icon btn-icon-primary period-btn" hidden>
-              <a href="/fr/how-to-apply/"><span>En savoir plus</span></a>
+              <a href="/fr/comment-soumettre/"><span>En savoir plus</span></a>
             </div>
           </div>
           <div class="period-art">
@@ -272,14 +272,14 @@
               <details open>
                 <summary><h3>Qui peut soumettre un projet&#8239;?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
                 <div class="accordion-content">
-                  <p class="text-size-16-24-tight">Toute personne inscrite dans un établissement partenaire peut soumettre un projet, avec l’accord du campus.<br>Vous avez des doutes à savoir si vous étudiez dans un établissement partenaire&#8239;? <a href="/fr/partner-schools/"><strong>Consultez la liste complète ici.</strong></a></p>
+                  <p class="text-size-16-24-tight">Toute personne inscrite dans un établissement partenaire peut soumettre un projet, avec l’accord du campus.<br>Vous avez des doutes à savoir si vous étudiez dans un établissement partenaire&#8239;? <a href="/fr/ecoles-partenaires/"><strong>Consultez la liste complète ici.</strong></a></p>
                 </div>
               </details>
 
               <details>
                 <summary><h3>Quels types de projets sont admissibles&#8239;?</h3><span class="accordion-icon" aria-hidden="true"></span></summary>
                 <div class="accordion-content">
-                  <p class="text-size-16-24-tight">Les projets doivent être initiés par des étudiant·es, inclusifs, sans objectif commercial et alignés sur le bien-être de la communauté.<br>Pour plus de détails, visitez la page <a href="/fr/how-to-apply/"><strong>Soumission de projets</strong></a>.</p>
+                  <p class="text-size-16-24-tight">Les projets doivent être initiés par des étudiant·es, inclusifs, sans objectif commercial et alignés sur le bien-être de la communauté.<br>Pour plus de détails, visitez la page <a href="/fr/comment-soumettre/"><strong>Soumission de projets</strong></a>.</p>
                 </div>
               </details>
 
@@ -370,23 +370,23 @@
         <nav aria-label="Menu de pied de page">
           <ul class="footer-menu">
             <li class="menu-item"><a href="/fr/">Accueil</a></li>
-            <li class="menu-item"><a href="/fr/about-the-fund/">À propos</a></li>
-            <li class="menu-item"><a href="/fr/how-to-apply/">Comment soumettre</a></li>
+            <li class="menu-item"><a href="/fr/a-propos/">À propos</a></li>
+            <li class="menu-item"><a href="/fr/comment-soumettre/">Comment soumettre</a></li>
             <!-- Revealed automatically on Sept 1, in step with the header tab. -->
-            <li class="menu-item" data-opens-at="2026-09-01T00:00:00-04:00" hidden><a href="/fr/apply-now/">Soumettre</a></li>
-            <li class="menu-item"><a href="/fr/partner-schools/">Partenaires</a></li>
+            <li class="menu-item" data-opens-at="2026-09-01T00:00:00-04:00" hidden><a href="/fr/soumettre/">Soumettre</a></li>
+            <li class="menu-item"><a href="/fr/ecoles-partenaires/">Partenaires</a></li>
             <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
           </ul>
         </nav>
         <div class="btn btn-primary btn-lg">
-          <a href="/fr/about-the-fund/"><span>En savoir plus</span></a>
+          <a href="/fr/a-propos/"><span>En savoir plus</span></a>
         </div>
       </div>
       <div class="footer-bottom">
         <p>Alumo 2026 - Tous droits réservés</p>
         <div class="footer-legal">
-          <a href="/fr/terms-conditions/">Conditions d'utilisation</a>
+          <a href="/fr/conditions-utilisation/">Conditions d'utilisation</a>
           <a href="https://aseq.ca/RTEContent/Document/Privacy_Policy/ASEQ_Politique_confidentialit%C3%A9_2025.pdf" target="_blank" rel="noopener">Politique de confidentialité</a>
         </div>
       </div>

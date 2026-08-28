@@ -57,9 +57,13 @@
   max-width: 100%;
   height: auto;
 }
+/* The cream half-banner masks the bottom of the green M. Its `bottom` MUST sit
+   at or below .hero-m-banner's, or the green edge shows through underneath as a
+   thin stripe on each side — it used to be -38px against the green's -60px,
+   which left a 22px sliver (fixed 2026-08-28). */
 .hero .hero-media .hero-m-half-banner {
   position: absolute;
-  bottom: -38px;
+  bottom: -60px;
   left: 0;
   width: 100%;
   z-index: 3;
@@ -124,13 +128,13 @@
   .hero { padding-top: 130px; }
   .hero .hero-media { margin-top: -130px; }
   .hero .hero-media .hero-student img { width: 420px; }
-  .hero .hero-media .hero-m-half-banner { bottom: -26px; }
 }
 @media (max-width: 992px) {
   .hero { padding-top: 120px; }
   .hero .hero-media { margin-top: 0; }
   .hero .hero-media .hero-m-banner { bottom: 0; }
   .hero .hero-media .hero-student img { width: 400px; }
+  /* Tracks .hero-m-banner's bottom: 0 above — see the note on the base rule. */
   .hero .hero-media .hero-m-half-banner { bottom: 0; }
 }
 @media (max-width: 768px) {
@@ -143,7 +147,6 @@
   .hero .hero-side .btn { align-self: flex-end; }
   .hero .hero-media .hero-m-banner { bottom: 16px; }
   .hero .hero-media .hero-student img { width: 60%; }
-  .hero .hero-media .hero-m-half-banner { bottom: 0; }
   .hero .hero-bar { margin-top: 0; justify-content: flex-end; flex-wrap: wrap; }
 }
 

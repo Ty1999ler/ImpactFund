@@ -2,7 +2,8 @@
 """
 Whole-site integrity regression net for the Alumo website.
 
-Checks, for the 20 tracked page files (12 live + 4 policy stubs + 4 past-winners stubs):
+Checks, for the 25 tracked page files (12 live + 4 policy stubs + 4 past-winners
+stubs + 5 French-slug redirect stubs):
   1. Strict UTF-8 decodability + no mojibake markers.
   2. Structural tag balance (html.parser based).
   3. Internal href/src/action targets exist (with an expected-missing allowlist).
@@ -27,11 +28,11 @@ LIVE_PAGES = [
     "partner-schools/index.html",
     "terms-conditions/index.html",
     "fr/index.html",
-    "fr/about-the-fund/index.html",
-    "fr/how-to-apply/index.html",
-    "fr/apply-now/index.html",
-    "fr/partner-schools/index.html",
-    "fr/terms-conditions/index.html",
+    "fr/a-propos/index.html",
+    "fr/comment-soumettre/index.html",
+    "fr/soumettre/index.html",
+    "fr/ecoles-partenaires/index.html",
+    "fr/conditions-utilisation/index.html",
 ]
 POLICY_STUBS = [
     "privacy-policy/index.html",
@@ -39,13 +40,23 @@ POLICY_STUBS = [
     "fr/privacy-policy/index.html",
     "fr/cookies-policy/index.html",
 ]
+# The French pages moved onto French slugs on 2026-08-28; each old URL keeps a
+# redirect stub so existing links never break. Like the other stubs these carry
+# no CSS/JS, so they are exempt from the live-page checks.
+FR_SLUG_STUBS = [
+    "fr/about-the-fund/index.html",
+    "fr/how-to-apply/index.html",
+    "fr/apply-now/index.html",
+    "fr/partner-schools/index.html",
+    "fr/terms-conditions/index.html",
+]
 PW_STUBS = [
     "past-winners/index.html",
     "past-winners/2/index.html",
     "fr/past-winners/index.html",
     "fr/past-winners/2/index.html",
 ]
-ALL_PAGES = LIVE_PAGES + POLICY_STUBS + PW_STUBS
+ALL_PAGES = LIVE_PAGES + POLICY_STUBS + PW_STUBS + FR_SLUG_STUBS
 
 MOJIBAKE_MARKERS = ["Ã©", "â€™", "�"]  # "Ã©", "â€™", "�"
 

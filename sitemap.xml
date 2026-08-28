@@ -10,31 +10,31 @@
   <url>
     <loc>https://alumoimpact.ca/about-the-fund/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/about-the-fund/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/about-the-fund/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/a-propos/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/about-the-fund/"/>
   </url>
   <url>
     <loc>https://alumoimpact.ca/apply-now/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/apply-now/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/soumettre/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/apply-now/"/>
   </url>
   <url>
     <loc>https://alumoimpact.ca/how-to-apply/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/how-to-apply/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/how-to-apply/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/comment-soumettre/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/how-to-apply/"/>
   </url>
   <url>
     <loc>https://alumoimpact.ca/partner-schools/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/partner-schools/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/partner-schools/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/ecoles-partenaires/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/partner-schools/"/>
   </url>
   <url>
     <loc>https://alumoimpact.ca/terms-conditions/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/terms-conditions/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/terms-conditions/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/conditions-utilisation/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/terms-conditions/"/>
   </url>
   <url>
@@ -44,33 +44,33 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/"/>
   </url>
   <url>
-    <loc>https://alumoimpact.ca/fr/about-the-fund/</loc>
+    <loc>https://alumoimpact.ca/fr/a-propos/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/about-the-fund/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/about-the-fund/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/a-propos/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/about-the-fund/"/>
   </url>
   <url>
-    <loc>https://alumoimpact.ca/fr/apply-now/</loc>
+    <loc>https://alumoimpact.ca/fr/soumettre/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/apply-now/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/soumettre/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/apply-now/"/>
   </url>
   <url>
-    <loc>https://alumoimpact.ca/fr/how-to-apply/</loc>
+    <loc>https://alumoimpact.ca/fr/comment-soumettre/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/how-to-apply/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/how-to-apply/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/comment-soumettre/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/how-to-apply/"/>
   </url>
   <url>
-    <loc>https://alumoimpact.ca/fr/partner-schools/</loc>
+    <loc>https://alumoimpact.ca/fr/ecoles-partenaires/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/partner-schools/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/partner-schools/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/ecoles-partenaires/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/partner-schools/"/>
   </url>
   <url>
-    <loc>https://alumoimpact.ca/fr/terms-conditions/</loc>
+    <loc>https://alumoimpact.ca/fr/conditions-utilisation/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://alumoimpact.ca/terms-conditions/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/terms-conditions/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/conditions-utilisation/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://alumoimpact.ca/terms-conditions/"/>
   </url>
 </urlset>

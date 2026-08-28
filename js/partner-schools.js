@@ -1,5 +1,5 @@
 /* Student Impact Fund by Alumo — partner schools list
-   Used by /partner-schools/ and /fr/partner-schools/.
+   Used by /partner-schools/ and /fr/ecoles-partenaires/.
 
    Recreates the live hidden UI: a search box, a grid of province cards
    (default view), and — after picking a province or typing a search — a

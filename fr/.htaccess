@@ -1,0 +1,22 @@
+# French URL redirects — added 2026-08-28.
+#
+# The French pages moved off the English slugs onto French ones. These rules
+# keep every old link working with a real 301 (search engines and bookmarks
+# follow it; the stub index.html left at each old path is only a fallback for
+# the case where .htaccess is not honoured).
+#
+# WHY mod_alias (Redirect) AND NOT mod_rewrite: a child .htaccess that declares
+# its own RewriteRule stops inheriting the parent's rewrite rules, and the
+# HTTP -> HTTPS redirect for this site lives in public_html/.htaccess. Using
+# Redirect here leaves that inheritance untouched.
+#
+# NOTE: mod_alias matches the FULL URL-path, not a path relative to this
+# directory — hence the leading /fr/ on every source below.
+
+<IfModule mod_alias.c>
+Redirect 301 /fr/about-the-fund/ /fr/a-propos/
+Redirect 301 /fr/how-to-apply/ /fr/comment-soumettre/
+Redirect 301 /fr/apply-now/ /fr/soumettre/
+Redirect 301 /fr/partner-schools/ /fr/ecoles-partenaires/
+Redirect 301 /fr/terms-conditions/ /fr/conditions-utilisation/
+</IfModule>

@@ -22,12 +22,6 @@ window.ALUMO_SCHOOLS = [
   "email": "cuesavpstudentlife@student.concordia.ab.ca"
  },
  {
-  "school": "Keyano College",
-  "association": "Students' Association of Keyano College (SAKC)",
-  "province": "AB",
-  "email": "Contact Email Coming Soon"
- },
- {
   "school": "Lakeland College",
   "association": "Students' Association of Lakeland College (SALC)",
   "province": "AB",
@@ -245,7 +239,7 @@ window.ALUMO_SCHOOLS = [
  },
  {
   "school": "University of Manitoba",
-  "association": "University of Manitoba Graduate Students' Association (UMGSA)",
+  "association": "University of Manitoba Graduate & Postdoctoral Society (UMGPS)",
   "province": "MB",
   "email": "governance@umgps.org"
  },
@@ -314,6 +308,18 @@ window.ALUMO_SCHOOLS = [
   "association": "N/A",
   "province": "ON",
   "email": "maryliz.warwick@cambriancollege.ca"
+ },
+ {
+  "school": "Canadian College of Naturopathic Medicine",
+  "association": "Naturopathic Students' Association (CCNM-NSA)",
+  "province": "ON",
+  "email": "Contact Information Coming Soon"
+ },
+ {
+  "school": "Canadian Memorial Chiropractic College",
+  "association": "Student Council (CMCC-SC)",
+  "province": "ON",
+  "email": "Contact Email Coming Soon"
  },
  {
   "school": "Carleton University",
