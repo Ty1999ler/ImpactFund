@@ -12,20 +12,22 @@ deployment:
   tasks:
     # Default to STAGING. Production is opt-in via the branch name, so any
     # failure of the check below lands on staging rather than the live site.
-    - export DEPLOYPATH=/home/aseqhosting/staging
+    # Paths are $HOME-based (2026-08-28): the account was reprovisioned onto a
+    # new server with a new username, and hardcoded /home/<user> paths broke.
+    - export DEPLOYPATH=$HOME/staging
     - export RSYNC_DELETE=--delete
     - export IS_PROD=no
     - export IS_SEPT=no
     - export BRANCH=$(/usr/bin/git rev-parse --abbrev-ref HEAD)
-    - if [ "$BRANCH" = "release" ]; then export DEPLOYPATH=/home/aseqhosting/public_html; export IS_PROD=yes; fi
+    - if [ "$BRANCH" = "release" ]; then export DEPLOYPATH=$HOME/public_html; export IS_PROD=yes; fi
     # september-preview: identical content to main, but the deployed copy has
     # the submissions-open date rolled back so the site renders exactly as it
     # will on Sept 1. Keeping the branch content identical means it never
     # conflicts when main moves forward.
-    - if [ "$BRANCH" = "september-preview" ]; then export DEPLOYPATH=/home/aseqhosting/september; export IS_SEPT=yes; fi
-    # public_html is SHARED with other sites on this account (_continuumplan.com,
-    # _plancontinuum.com, _skybleu.com, _video, Assets, cgi-bin). --delete there
-    # would erase them, so it is only ever used on the staging docroot.
+    - if [ "$BRANCH" = "september-preview" ]; then export DEPLOYPATH=$HOME/september; export IS_SEPT=yes; fi
+    # public_html may hold other sites' docroots (it did on the old account:
+    # the Continuum sites). --delete is never used there, only on the
+    # staging docroot.
     - if [ "$IS_PROD" = "yes" ]; then export RSYNC_DELETE=; fi
     # Hard guard: never rsync into an empty or missing path.
     - test -n "$DEPLOYPATH" || exit 1
