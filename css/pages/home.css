@@ -48,8 +48,12 @@
   z-index: 1;
 }
 .hero .hero-media .hero-m-banner img { width: 100%; }
+/* `top` nudges her down visually without changing layout height (she is the
+   only in-flow child of .hero-media, so her box still sets its height and the
+   absolutely-positioned M banners do not move with her). */
 .hero .hero-media .hero-student {
   position: relative;
+  top: 14px;
   z-index: 3;
 }
 .hero .hero-media .hero-student img {
@@ -57,9 +61,12 @@
   max-width: 100%;
   height: auto;
 }
+/* Nudged down from -38px so less of the green banner's bottom edge shows
+   underneath. NOT taken all the way to the green's own -60px — that closed the
+   gap completely but changed the look too much. */
 .hero .hero-media .hero-m-half-banner {
   position: absolute;
-  bottom: -38px;
+  bottom: -44px;
   left: 0;
   width: 100%;
   z-index: 3;
@@ -124,12 +131,16 @@
   .hero { padding-top: 130px; }
   .hero .hero-media { margin-top: -130px; }
   .hero .hero-media .hero-student img { width: 420px; }
-  .hero .hero-media .hero-m-half-banner { bottom: -26px; }
+  .hero .hero-media .hero-m-half-banner { bottom: -32px; }
 }
 @media (max-width: 992px) {
   .hero { padding-top: 120px; }
   .hero .hero-media { margin-top: 0; }
   .hero .hero-media .hero-m-banner { bottom: 0; }
+  /* Cancel the desktop nudge: from here down both M banners sit at bottom:0,
+     so pushing her lower leaves a strip of her sleeve visible below the cream
+     mask on the left. */
+  .hero .hero-media .hero-student { top: 0; }
   .hero .hero-media .hero-student img { width: 400px; }
   .hero .hero-media .hero-m-half-banner { bottom: 0; }
 }
