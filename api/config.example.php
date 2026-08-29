@@ -75,6 +75,14 @@ return [
     // */30 * * * * /usr/local/bin/php /home/aseqhosting/public_html/api/redeliver.php >/dev/null 2>&1
     'failure_notify_to' => '',
 
+    /* Acknowledgement email sent to the APPLICANT after a submission (added
+       Aug 2026). Defaults to true when the key is absent, so existing configs
+       keep working. Language follows the form's hidden 'locale' input, so the
+       French form gets the French wording. Sending failures are swallowed on
+       purpose — the submission is already archived and must never be reported
+       as failed because an acknowledgement bounced. */
+    'applicant_ack' => true,
+
     /* Only needed for delivery_mode = 'graph' (Entra app registration with
        Sites.Selected on the target site, client-credentials flow). */
     'graph' => [

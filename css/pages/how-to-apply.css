@@ -42,14 +42,17 @@
 }
 
 /* ------------------------------
-   THREE STEPS grid
+   STEPS grid
    ------------------------------ */
 .apply-steps {
   padding-top: 50px;
 }
+/* 2-up (2x2). The client's Aug 2026 rewrite took this from three steps to
+   four; 4-up would leave each column ~250px, which wraps the 40px headings
+   badly and squeezes step 3's document list. */
 .apply-steps .steps-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 80px;
 }
 .apply-steps .step-card {

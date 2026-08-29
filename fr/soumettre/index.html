@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Apply now – Alumo Fund</title>
-  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez le formulaire attestation et découvrez quels projets sont admissibles.">
+  <meta name="description" content="Soumettez votre projet au Fonds d'impact étudiant par Alumo. Téléchargez le formulaire d'attestation et découvrez quels projets sont admissibles.">
   <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/">
   <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/soumettre/">
   <link rel="canonical" href="https://alumoimpact.ca/fr/soumettre/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Fonds d&#x27;impact étudiant par Alumo">
   <meta property="og:title" content="Apply now – Alumo Fund">
-  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez le formulaire attestation et découvrez quels projets sont admissibles.">
+  <meta property="og:description" content="Soumettez votre projet au Fonds d&#x27;impact étudiant par Alumo. Téléchargez le formulaire d'attestation et découvrez quels projets sont admissibles.">
   <meta property="og:url" content="https://alumoimpact.ca/fr/soumettre/">
   <meta property="og:locale" content="fr_CA">
   <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
@@ -81,20 +81,20 @@
     <!-- ============ HERO — Soumettre ============ -->
     <!-- The source contains a second, older hero block hidden at every breakpoint —
          skipped, as in the EN build. On the FR page the visible download button is
-         the btn-fr document button, now "Formulaire attestation" —
-         EN "Partner Sign-off Form" = FR "Formulaire attestation"
-         (client-confirmed verbatim, September sheet; masculine — "le formulaire
-         attestation"; replaces the former "Attestation de partenariat scolaire",
-         which itself replaced "Lettre de parrainage"). The btn-en
-         "Lettre de soutien" is the hidden EN-page variant — skipped. -->
+         the btn-fr document button, now "Formulaire d'attestation" —
+         EN "Partner Sign-off Form" = FR "Formulaire d'attestation" (client,
+         Aug 2026; supersedes the earlier verbatim spelling without the
+         apostrophe-d, and before that "Attestation de partenariat scolaire" and
+         "Lettre de parrainage"). The btn-en "Lettre de soutien" is the hidden
+         EN-page variant — skipped. -->
     <section class="hero">
       <div class="container">
         <h1 class="hero-title text-size-72-72-tight">Soumettre </h1>
         <div class="hero-sub">
-          <p class="text-size-24-36-tight">Téléchargez le formulaire attestation que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
+          <p class="text-size-24-36-tight">Téléchargez le formulaire d'attestation que vous pouvez envoyer à la personne responsable de votre école et que vous devrez fournir lors de votre soumission.</p>
           <!-- Real document downloaded from the live site (sample-pdf-fr-1.pdf). -->
           <div class="btn btn-primary">
-            <a href="/assets/docs/support-letter-fr.pdf" target="_blank" rel="noopener"><span>Formulaire attestation</span></a>
+            <a href="/assets/docs/formulaire-attestation-fr.pdf" target="_blank" rel="noopener"><span>Formulaire d'attestation</span></a>
           </div>
         </div>
       </div>
@@ -118,7 +118,7 @@
           <!-- Third column: the Questions card with the help/download blurbs
                stacked directly beneath it (client request — they must sit
                under "Des questions ?", not in a separate full-width band).
-               The duplicate "Formulaire attestation" download button
+               The duplicate "Formulaire d'attestation" download button
                that used to sit here was removed; the hero button above is the
                only one. -->
           <div class="info-card-stack">
@@ -129,8 +129,7 @@
             <div class="help-block">
               <p class="text-size-16-24-tight">Voici une ressource pour vous aider à planifier votre projet et à préparer votre candidature.</p>
               <div class="help-buttons">
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-                <div class="btn btn-primary" hidden>
+                <div class="btn btn-primary">
                   <a href="/assets/docs/application-guide-fr.pdf" target="_blank" rel="noopener"><span>Guide de candidature</span></a>
                 </div>
               </div>
@@ -138,17 +137,15 @@
             <div class="help-block">
               <p class="text-size-16-24-tight">Modèles facultatifs&nbsp;: téléchargez ces modèles si vous souhaitez un peu plus d'encadrement. Vous pouvez les remplir et les téléverser avec votre candidature.</p>
               <div class="help-buttons">
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <!-- STILL HIDDEN: no Project overview template was supplied in the Aug 2026 document set. Unhide once the file lands. -->
                 <div class="btn btn-primary" hidden>
                   <a href="/assets/docs/template-project-overview-fr.pdf" target="_blank" rel="noopener"><span>Aperçu du projet</span></a>
                 </div>
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-                <div class="btn btn-primary" hidden>
-                  <a href="/assets/docs/template-team-members-fr.pdf" target="_blank" rel="noopener"><span>Membres de l'équipe</span></a>
+                <div class="btn btn-primary">
+                  <a href="/assets/docs/template-team-members-fr.xlsx" target="_blank" rel="noopener"><span>Membres de l'équipe</span></a>
                 </div>
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-                <div class="btn btn-primary" hidden>
-                  <a href="/assets/docs/template-action-plan-fr.pdf" target="_blank" rel="noopener"><span>Plan d'action</span></a>
+                <div class="btn btn-primary">
+                  <a href="/assets/docs/template-action-plan-fr.xlsx" target="_blank" rel="noopener"><span>Plan d'action</span></a>
                 </div>
               </div>
             </div>
@@ -179,6 +176,10 @@
                the PHP handler expects them.
                ================================================================== -->
           <form class="apply-form" action="#" method="post" enctype="multipart/form-data" data-handler="sharepoint" novalidate>
+            <!-- Tells api/apply.php which language to acknowledge the applicant in.
+                 The form is POSTed as a plain FormData(form), so a hidden input is
+                 all that is needed — no JS change. -->
+            <input type="hidden" name="locale" value="fr">
             <div class="apply-form-logo" aria-hidden="true"></div>
 
             <!-- Step indicator -->
@@ -253,6 +254,10 @@
                   <h3 class="block-title">Information sur l'organisme</h3>
                   <div class="form-field">
                     <label for="af-org-name">Nom de l'organisme ou du groupe<span aria-hidden="true">*</span></label>
+                    <!-- "N/A" and not the more idiomatic "S.O.": both forms feed the
+                         same SharePoint column, so keeping one token avoids a mix of
+                         N/A and S.O. in the data the reviewers read. -->
+                    <p class="field-desc">Si vous n'appartenez à aucun organisme ou groupe, inscrivez N/A.</p>
                     <input type="text" id="af-org-name" name="organization_name" placeholder="Nom de l'organisme ou du groupe" required aria-required="true">
                   </div>
                   <div class="form-field">
@@ -421,8 +426,8 @@
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>
                   <div class="form-field form-field-file">
-                    <label for="af-file-letter">Formulaire attestation<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">Téléversez le formulaire attestation de votre association étudiante ou de votre école.</p>
+                    <label for="af-file-letter">Formulaire d'attestation<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">Téléversez le formulaire d'attestation de votre association étudiante ou de votre école.</p>
                     <input type="file" id="af-file-letter" name="file_support_letter" accept=".doc,.docx,.xls,.xlsx,.csv,.pdf" required aria-required="true">
                     <p class="field-filetypes">Types de fichier acceptés&nbsp;: doc, docx, xls, xlsx, csv, pdf. Taille maximum des fichiers&nbsp;: 10 MB.</p>
                   </div>

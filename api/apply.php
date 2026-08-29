@@ -58,6 +58,10 @@ $FIELDS = [
     'students_in_org'     => [true, 20, false],
     'students_reached'    => [true, 20, false],
     'consent'             => [true, 50, false],
+    /* Hidden input on each form ("en" on /apply-now/, "fr" on /fr/soumettre/).
+       Optional on purpose: it only picks the language of the acknowledgement
+       email, so an older cached page that omits it must not fail validation. */
+    'locale'              => [false, 2, false],
 ];
 
 $data = [];
@@ -189,6 +193,28 @@ file_put_contents($dir . '/submission.json', json_encode($record, JSON_PRETTY_PR
    delivery runs after the response is closed. */
 respond_and_continue(200, ['ok' => true, 'id' => $submissionId]);
 @set_time_limit(180);
+
+/* ---------- acknowledge the applicant ----------
+   Runs after the response is closed, and its result never affects the
+   submission: the application is already safely on disk, so a bounced or
+   refused acknowledgement must not make a successful submission look failed.
+   Set 'applicant_ack' => false in config.php to switch it off. */
+if (($cfg['applicant_ack'] ?? true) && $data['primary_email'] !== '') {
+    $isFr = strtolower($data['locale'] ?? '') === 'fr';
+    $ackSubject = $isFr
+        ? 'Nous avons bien reçu votre candidature — Fonds d\'impact étudiant'
+        : 'We received your application — Student Impact Fund';
+    $ackBody = $isFr
+        ? "Merci d'avoir soumis votre candidature au Fonds d'impact étudiant, par Alumo. "
+          . "Les candidatures seront examinées après la fermeture de la période de soumission, "
+          . "et vous pouvez vous attendre à recevoir une mise à jour concernant votre candidature "
+          . "dans les deux mois suivant la date de clôture.\n"
+        : "Thank you for your application to the Student Impact Fund, by Alumo. "
+          . "Applications will be reviewed after the submission window closes and you can "
+          . "expect to receive an update on your application within two months of the "
+          . "closing date.\n";
+    @send_mail($cfg, $data['primary_email'], $ackSubject, $ackBody);
+}
 
 /* Payload builders live in _lib.php, shared with redeliver.php, so a retried
    delivery is byte-for-byte the one that would have gone out first time. */

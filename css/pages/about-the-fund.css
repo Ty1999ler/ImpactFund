@@ -166,6 +166,15 @@
   flex-direction: column;
   gap: 20px;
 }
+/* Asterisk note under the funding-maximum list (added Aug 2026). Sits tighter
+   to the list than the 20px group gap, since it belongs to the item above it. */
+.about-info .info-footnote {
+  margin-top: -8px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--accent);
+}
 .about-info .tag-pill {
   width: fit-content;
   display: inline-flex;

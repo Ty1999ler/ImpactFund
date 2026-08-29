@@ -84,11 +84,11 @@
         <div class="hero-sub">
           <p class="text-size-24-36-tight">Download the Partner Sign-off Form, which you can send to your contact at your school. You will need to submit it as part of your application.</p>
           <!-- Real document downloaded from the live site (sample-pdf-en-1.pdf);
-               FR version at /assets/docs/support-letter-fr.pdf for the future FR build.
+               FR version at /assets/docs/formulaire-attestation-fr.pdf for the future FR build.
                "Partner Sign-off Form" is the client's new name — the file path and the
                file_support_letter input name deliberately stay unchanged. -->
           <div class="btn btn-primary">
-            <a href="/assets/docs/support-letter-en.pdf" target="_blank" rel="noopener"><span>Partner Sign-off Form</span></a>
+            <a href="/assets/docs/partner-sign-off-form-en.pdf" target="_blank" rel="noopener"><span>Partner Sign-off Form</span></a>
           </div>
         </div>
       </div>
@@ -122,8 +122,7 @@
             <div class="help-block">
               <p class="text-size-16-24-tight">Here is a resource to help you plan your project and build your application.</p>
               <div class="help-buttons">
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-                <div class="btn btn-primary" hidden>
+                <div class="btn btn-primary">
                   <a href="/assets/docs/application-guide-en.pdf" target="_blank" rel="noopener"><span>Application guide</span></a>
                 </div>
               </div>
@@ -131,17 +130,15 @@
             <div class="help-block">
               <p class="text-size-16-24-tight">Optional templates: Download these templates if you'd like some extra guidance. You can fill them out and upload them with your application.</p>
               <div class="help-buttons">
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
+                <!-- STILL HIDDEN: no Project overview template was supplied in the Aug 2026 document set. Unhide once the file lands. -->
                 <div class="btn btn-primary" hidden>
                   <a href="/assets/docs/template-project-overview-en.pdf" target="_blank" rel="noopener"><span>Project overview</span></a>
                 </div>
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-                <div class="btn btn-primary" hidden>
-                  <a href="/assets/docs/template-team-members-en.pdf" target="_blank" rel="noopener"><span>Team members</span></a>
+                <div class="btn btn-primary">
+                  <a href="/assets/docs/template-team-members-en.xlsx" target="_blank" rel="noopener"><span>Team members</span></a>
                 </div>
-                <!-- unhide when the instructions PDF lands in /assets/docs/ -->
-                <div class="btn btn-primary" hidden>
-                  <a href="/assets/docs/template-action-plan-en.pdf" target="_blank" rel="noopener"><span>Action plan</span></a>
+                <div class="btn btn-primary">
+                  <a href="/assets/docs/template-action-plan-en.xlsx" target="_blank" rel="noopener"><span>Action plan</span></a>
                 </div>
               </div>
             </div>
@@ -168,6 +165,10 @@
                for delivery to SharePoint / email).
                ================================================================== -->
           <form class="apply-form" action="#" method="post" enctype="multipart/form-data" data-handler="sharepoint" novalidate>
+            <!-- Tells api/apply.php which language to acknowledge the applicant in.
+                 The form is POSTed as a plain FormData(form), so a hidden input is
+                 all that is needed — no JS change. -->
+            <input type="hidden" name="locale" value="en">
             <div class="apply-form-logo" aria-hidden="true"></div>
 
             <!-- Step indicator -->
@@ -242,6 +243,7 @@
                   <h3 class="block-title">Organization information</h3>
                   <div class="form-field">
                     <label for="af-org-name">Organization / Group name<span aria-hidden="true">*</span></label>
+                    <p class="field-desc">If you don't belong to an organization or group, write N/A.</p>
                     <input type="text" id="af-org-name" name="organization_name" placeholder="Type your group's name — e.g. Campus Sustainability Club" required aria-required="true">
                   </div>
                   <div class="form-field">
