@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/home.css?v=7">
+  <link rel="stylesheet" href="/css/pages/home.css?v=8">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -196,9 +196,15 @@
     </section>
 
     <!-- ============ SUBMISSION PERIOD (orange card) ============ -->
-    <section class="period">
+    <!-- Scheduled swap — before the date in data-opens-at the "closed" card
+         shows; from that date the "open" card shows automatically (handled in
+         /js/main.js), same mechanism as the period card on /how-to-apply/.
+         Preview the open state early with ?preview-form=1.
+         This card used to be static and would still have read "will open soon"
+         on Sept 1 with no way through to the form. -->
+    <section class="period" data-opens-at="2026-09-01T00:00:00-04:00">
       <div class="container">
-        <div class="period-card">
+        <div class="period-card apply-form-closed">
           <div class="period-content">
             <div class="period-logo">
               <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
@@ -212,6 +218,23 @@
                  corrections round. Kept for re-enabling. -->
             <div class="btn btn-white btn-icon btn-icon-primary period-btn" hidden>
               <a href="/how-to-apply/"><span>Learn more</span></a>
+            </div>
+          </div>
+          <div class="period-art">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+        </div>
+        <div class="period-card apply-form-open" hidden>
+          <div class="period-content">
+            <div class="period-logo">
+              <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
+            </div>
+            <h2 class="period-kicker text-size-28-70-tight">The next submission period:</h2>
+            <h3 class="period-date text-size-72-70-tight">September 1 to October 15</h3>
+            <p class="period-status text-size-20-31-9-tightpx">The submission period is now open!</p>
+            <p class="period-note text-size-16-24-tightpx">Have a cool project in mind but need money to make it happen? The Student Impact Fund is here to help!</p>
+            <div class="btn btn-primary period-cta">
+              <a href="/apply-now/"><span>Apply Now</span></a>
             </div>
           </div>
           <div class="period-art">
@@ -404,6 +427,6 @@
   <!-- Analytics + consent banner. Inert unless the hostname is listed in
        ENABLED_HOSTS inside the file: production is deliberately NOT listed
        while the client has not approved analytics. -->
-  <script src="/js/analytics.js?v=2" defer></script>
+  <script src="/js/analytics.js?v=3" defer></script>
 </body>
 </html>

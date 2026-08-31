@@ -29,13 +29,16 @@
   "use strict";
 
   /* GA4 Measurement ID (Admin -> Data streams -> Web). Not a secret — it ships
-     in the page source of every site that uses GA.
-     This property currently belongs to TYLER's Google account, for preview use.
-     When Alumo approves, they create a property in THEIR account and this one
-     string changes; the test traffic never lands in their reporting.
+     in the page source of every site that uses GA, which is why it lives in
+     this repo rather than in server-side config.
+     Switching properties is this one string; nothing else in the file changes.
+       2026-08-29  G-KJYPC798JQ  first preview property
+       2026-08-29  G-1Q7HZYT3F1  current
+     Google's own install snippet loads gtag immediately on page load. We
+     deliberately do NOT do that — see the consent note at the top of the file.
      If this is ever reset to the G-XXXX placeholder the banner still renders,
      but no Google script is loaded — handy for demoing the flow safely. */
-  var MEASUREMENT_ID = "G-KJYPC798JQ";
+  var MEASUREMENT_ID = "G-1Q7HZYT3F1";
 
   /* Hosts where analytics is offered at all. Production is deliberately
      absent until the client approves. */

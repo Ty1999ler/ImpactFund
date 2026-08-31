@@ -476,6 +476,21 @@
 }
 
 /* Period-card "Learn more" button (added per user fix list — matches About's) */
+/* Scheduled swap between the closed and open period cards. REQUIRED: guard
+   [hidden], because .period-card above sets display:flex, which otherwise wins
+   over the hidden attribute and shows BOTH cards stacked. Same guard exists in
+   how-to-apply.css for the same reason. */
+.period .period-card[hidden] { display: none; }
+
+/* Apply Now CTA on the "open" variant of the period card. btn-primary's orange
+   fill vanishes against the orange card, so it takes the card's native
+   white-button palette — same treatment as the CTA on /how-to-apply/, which
+   keeps its copy of these rules in how-to-apply.css. */
+.period .period-cta { position: relative; z-index: 2; margin-top: 8px; }
+.period .period-cta > a { border-color: var(--white); color: var(--text); }
+.period .period-cta > a::after { background: var(--white); }
+.period .period-cta > a:hover { color: var(--white); }
+
 .period .period-btn { margin-top: 8px; }
 .period .period-btn > a:hover::before { background-color: var(--white); }
 @media (max-width: 576px) {
