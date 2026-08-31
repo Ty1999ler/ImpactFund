@@ -194,28 +194,6 @@ file_put_contents($dir . '/submission.json', json_encode($record, JSON_PRETTY_PR
 respond_and_continue(200, ['ok' => true, 'id' => $submissionId]);
 @set_time_limit(180);
 
-/* ---------- acknowledge the applicant ----------
-   Runs after the response is closed, and its result never affects the
-   submission: the application is already safely on disk, so a bounced or
-   refused acknowledgement must not make a successful submission look failed.
-   Set 'applicant_ack' => false in config.php to switch it off. */
-if (($cfg['applicant_ack'] ?? true) && $data['primary_email'] !== '') {
-    $isFr = strtolower($data['locale'] ?? '') === 'fr';
-    $ackSubject = $isFr
-        ? 'Nous avons bien reçu votre candidature — Fonds d\'impact étudiant'
-        : 'We received your application — Student Impact Fund';
-    $ackBody = $isFr
-        ? "Merci d'avoir soumis votre candidature au Fonds d'impact étudiant, par Alumo. "
-          . "Les candidatures seront examinées après la fermeture de la période de soumission, "
-          . "et vous pouvez vous attendre à recevoir une mise à jour concernant votre candidature "
-          . "dans les deux mois suivant la date de clôture.\n"
-        : "Thank you for your application to the Student Impact Fund, by Alumo. "
-          . "Applications will be reviewed after the submission window closes and you can "
-          . "expect to receive an update on your application within two months of the "
-          . "closing date.\n";
-    @send_mail($cfg, $data['primary_email'], $ackSubject, $ackBody);
-}
-
 /* Payload builders live in _lib.php, shared with redeliver.php, so a retried
    delivery is byte-for-byte the one that would have gone out first time. */
 $mode = $cfg['delivery_mode'] ?? 'off';
@@ -249,4 +227,33 @@ if ($mode === 'email' || $mode === 'graph') {
         error_log("apply.php: delivery ($mode) failed for $submissionId — archived, queued for retry: $deliveryError");
         delivery_record_failure($cfg, $dir, $submissionId, $mode, $deliveryError, $data);
     }
+}
+
+/* ---------- acknowledge the applicant ----------
+   DELIBERATELY LAST, and inside a catch-all. Delivery and the
+   DELIVERY-PENDING bookkeeping above are the parts that must never be
+   skipped: if this courtesy email threw on its way out and it ran any
+   earlier, the submission would be archived but never delivered AND never
+   marked for retry — silently lost, after the applicant had been told it
+   worked. Nothing below this line may affect the submission.
+   Set 'applicant_ack' => false in config.php to switch it off. */
+try {
+    if (($cfg['applicant_ack'] ?? true) && $data['primary_email'] !== '') {
+        $isFr = strtolower($data['locale'] ?? '') === 'fr';
+        $ackSubject = $isFr
+            ? 'Nous avons bien reçu votre candidature — Fonds d\'impact étudiant'
+            : 'We received your application — Student Impact Fund';
+        $ackBody = $isFr
+            ? "Merci d'avoir soumis votre candidature au Fonds d'impact étudiant, par Alumo. "
+              . "Les candidatures seront examinées après la fermeture de la période de soumission, "
+              . "et vous pouvez vous attendre à recevoir une mise à jour concernant votre candidature "
+              . "dans les deux mois suivant la date de clôture.\n"
+            : "Thank you for your application to the Student Impact Fund, by Alumo. "
+              . "Applications will be reviewed after the submission window closes and you can "
+              . "expect to receive an update on your application within two months of the "
+              . "closing date.\n";
+        @send_mail($cfg, $data['primary_email'], $ackSubject, $ackBody);
+    }
+} catch (Throwable $e) {
+    error_log("apply.php: applicant acknowledgement failed for $submissionId (submission is delivered and safe): " . $e->getMessage());
 }
