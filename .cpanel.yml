@@ -69,7 +69,7 @@ deployment:
     # the application form, the Apply Now nav item and anything else gated on
     # data-opens-at render as they will once submissions open. The repo itself
     # is never modified.
-    - if [ "$IS_SEPT" = "yes" ]; then /usr/bin/find $DEPLOYPATH -name '*.html' -exec /bin/sed -i 's/2026-09-01T00/2020-01-01T00/g' {} + ; fi
+    - if [ "$IS_SEPT" = "yes" ]; then /usr/bin/find $DEPLOYPATH -name '*.html' -exec /bin/sed -i 's/2026-08-31T18/2020-01-01T00/g' {} + ; fi
     # Staging must never be indexed; production keeps the repo's own robots.txt.
     # The content is copied from a file rather than echoed inline because a
     # colon-space inside an unquoted YAML task silently breaks this whole file
