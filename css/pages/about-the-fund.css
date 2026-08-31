@@ -32,11 +32,19 @@
   font-weight: 400;
   color: var(--text);
 }
+/* align-items was flex-end, which lines the pills up by their bottom edge — so
+   a pill whose label wraps to two lines (French: "Qui peut soumettre ?", and
+   now a fourth pill for "Montant du financement") stood proud of the others and
+   the row read as ragged. stretch gives every pill the height of the tallest so
+   the row is level, and the label stays vertically centred inside because
+   .anchor-pill already sets align-items:center. wrap keeps four French labels
+   from overflowing the column at narrower widths. */
 .about-hero .about-hero-anchors {
   grid-column: 1 / 2;
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: 16px;
 }
 .about-hero .anchor-pill {
