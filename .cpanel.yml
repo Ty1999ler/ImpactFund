@@ -41,6 +41,7 @@ deployment:
       --exclude='.git'
       --exclude='api/config.php'
       --exclude='api/.htaccess'
+      --exclude='/.htaccess'
       --exclude='.github'
       --exclude='.cpanel.yml'
       --exclude='.gitignore'
