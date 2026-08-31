@@ -231,8 +231,97 @@
     footer.appendChild(wrap);
   }
 
+  /* ---------- events ----------
+     Everything below OBSERVES the page; it never calls into apply-form.js and
+     apply-form.js knows nothing about it. That is deliberate: the application
+     form is the one thing on this site that must not break, so analytics is
+     wired as a passive listener that cannot interfere with a submission even
+     if it throws.
+
+     NO PERSONAL DATA IS EVER SENT. Not names, emails, schools or project
+     titles — only which step was reached, which file was downloaded, and the
+     page language. Google's terms forbid it, and shipping applicant details to
+     a third party would be indefensible for this client in particular.
+
+     Nothing fires before consent: track() is a no-op until gtag exists, and
+     gtag only exists after Accept. Events are not replayed retroactively if
+     someone consents later — that is the correct behaviour, not a gap. */
+  function track(name, params) {
+    if (typeof window.gtag !== "function") return;
+    try { window.gtag("event", name, params || {}); } catch (e) {}
+  }
+
+  var lang = IS_FR ? "fr" : "en";
+
+  function wireEvents() {
+    /* Template / guide downloads. Delegated, so it also covers buttons added
+       later without needing to be rewired. */
+    document.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href*="/assets/docs/"]') : null;
+      if (!a) return;
+      var href = a.getAttribute("href") || "";
+      track("file_download", {
+        file_name: href.split("/").pop().split("?")[0],
+        language: lang
+      });
+    });
+
+    var form = document.querySelector("form.apply-form");
+    if (!form) return;
+
+    /* apply_start = someone actually began filling it in, which is a more
+       useful denominator than "loaded the page". Fires once. */
+    var started = false;
+    form.addEventListener("focusin", function (e) {
+      if (started) return;
+      var t = e.target;
+      if (!t || !/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+      if (t.type === "hidden") return; // the locale field, which carries no intent
+      started = true;
+      track("apply_start", { language: lang });
+    });
+
+    /* apply_step = which of the multi-step panels was reached. apply-form.js
+       toggles .is-active on the .form-step items; watching that class is how we
+       stay decoupled from its internals. Each step reports once. */
+    var stepsList = form.querySelector(".form-steps");
+    if (stepsList) {
+      var seenSteps = {};
+      var reportStep = function () {
+        var items = stepsList.querySelectorAll(".form-step");
+        for (var i = 0; i < items.length; i++) {
+          if (!items[i].classList.contains("is-active")) continue;
+          if (seenSteps[i]) return;
+          seenSteps[i] = true;
+          var label = items[i].querySelector(".form-step-label");
+          track("apply_step", {
+            step_number: i + 1,
+            step_name: label ? label.textContent.trim() : "step " + (i + 1),
+            language: lang
+          });
+          return;
+        }
+      };
+      reportStep();
+      new MutationObserver(reportStep).observe(stepsList, {
+        subtree: true, attributes: true, attributeFilter: ["class"]
+      });
+    }
+
+    /* apply_submit = the success panel that apply-form.js swaps in once the
+       server has accepted the submission. Watching for it means we only count
+       real successes, never a click on a button that then failed validation. */
+    var submitted = false;
+    new MutationObserver(function () {
+      if (submitted || !form.querySelector(".apply-success")) return;
+      submitted = true;
+      track("apply_submit", { language: lang });
+    }).observe(form, { childList: true, subtree: true });
+  }
+
   function start() {
     addFooterLink();
+    wireEvents();
     var choice = stored();
     if (choice === "granted") loadGoogle();
     else if (choice !== "denied") showBanner();
