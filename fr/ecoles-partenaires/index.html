@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=5">
-  <link rel="stylesheet" href="/css/pages/partner-schools.css?v=6">
+  <link rel="stylesheet" href="/css/pages/partner-schools.css?v=7">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -81,10 +81,10 @@
     <!-- ============ PARTNER SCHOOLS HERO (title + orange intro card) ============ -->
     <section class="partners-hero">
       <div class="container">
-        <h1 class="partners-title text-size-72-72-tight">Écoles partenaires</h1>
+        <h1 class="partners-title text-size-72-72-tight">Écoles partenaires participantes</h1>
         <div class="partners-card">
           <div class="partners-card-text">
-            <p class="text-size-16-24-tightpx">Les étudiant·es de toutes les écoles partenaires d'Alumo peuvent soumettre un projet au Fonds. Vous ne savez pas si vous pouvez soumettre votre projet&#8239;? <a href="#partner-list"><strong>Vérifiez si votre établissement d'enseignement est dans la liste ci-dessous.</strong></a></p>
+            <p class="text-size-16-24-tightpx">Les étudiant·es de toutes les écoles partenaires participantes d'Alumo peuvent soumettre un projet au Fonds. Vous ne savez pas si vous pouvez soumettre votre projet&#8239;? <a href="#partner-list"><strong>Vérifiez si votre établissement d'enseignement est dans la liste ci-dessous.</strong></a></p>
             <!-- Source has "Lettre de soutien" / "Formulaire d'attestation" download buttons
                  here, hidden at every breakpoint (list update pending). Skipped until
                  re-enabled. EN "Partner Sign-off Form" = FR "Formulaire d'attestation"
@@ -103,15 +103,13 @@
          VISIBLE here. Data: /js/schools-data.js (rendered by /js/partner-schools.js). -->
     <section class="partner-list" id="partner-list">
       <div class="container">
-        <div class="partner-list-header">
-          <h2 class="partner-list-title text-size-60-70-tight">Partenaires</h2>
+        <div class="partner-list-header partner-list-header-single">
+          <!-- Same change as the EN page. Converted from the client's "tu" draft to
+               "vous" to match every other French surface on the site (their own
+               draft switched register mid-paragraph). -->
           <div class="partner-list-download">
-            <p class="text-size-28-42-tight">Téléchargez le formulaire d'attestation que vous pouvez envoyer à la personne représentante de votre association étudiante et que vous devrez fournir lors de la soumission.</p>
-            <!-- "Formulaire d'attestation" download is hidden at every breakpoint
-                 in the source (list update pending). Keep it hidden until re-enabled. -->
-            <div class="btn btn-primary" hidden>
-              <a href="/assets/docs/formulaire-attestation-fr.pdf" target="_blank" rel="noopener"><span>Formulaire d'attestation</span></a>
-            </div>
+            <p class="text-size-28-42-tight">Lorsque vous êtes prêt&#183;e à soumettre votre idée, téléchargez et remplissez le <a href="/assets/docs/formulaire-attestation-fr.pdf" target="_blank" rel="noopener"><strong>Formulaire d&#8217;attestation</strong></a>, puis envoyez-le à la personne représentante désignée ci-dessous pour obtenir l&#8217;approbation de votre campus. Cette étape confirme simplement que votre établissement est au courant de votre projet et de votre candidature au Fonds d&#8217;impact étudiant.</p>
+            <p class="partner-list-note text-size-16-24-tightpx">Remarque&#8239;: Si vous avez une question au sujet du Fonds d&#8217;impact, vous pouvez nous la poser <a href="/fr/#contact-form"><strong>ici</strong></a>. L&#8217;adresse courriel de votre personne représentante ci-dessous sert uniquement pour le formulaire d&#8217;attestation.</p>
           </div>
         </div>
 
@@ -120,6 +118,9 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
             <symbol id="icon-flag-banner" viewBox="0 0 30 30"><path d="M27.9804 6.06211C27.896 5.92833 27.7791 5.81809 27.6406 5.74166C27.502 5.66524 27.3464 5.6251 27.1882 5.625H4.68824C4.50271 5.62485 4.32131 5.67976 4.16701 5.78276C4.0127 5.88577 3.89242 6.03224 3.8214 6.20363C3.75039 6.37503 3.73182 6.56365 3.76805 6.7456C3.80429 6.92755 3.8937 7.09467 4.02496 7.22578L8.98785 12.1875L4.02496 17.1492C3.8937 17.2803 3.80429 17.4474 3.76805 17.6294C3.73182 17.8114 3.75039 18 3.8214 18.1714C3.89242 18.3428 4.0127 18.4892 4.16701 18.5922C4.32131 18.6952 4.50271 18.7501 4.68824 18.75H20.3468L16.9671 25.8469C16.9106 25.9584 16.877 26.0801 16.8682 26.2049C16.8595 26.3296 16.8757 26.4548 16.9161 26.5732C16.9564 26.6915 17.02 26.8006 17.1032 26.894C17.1863 26.9874 17.2873 27.0632 17.4002 27.117C17.513 27.1707 17.6355 27.2014 17.7605 27.2071C17.8854 27.2129 18.0101 27.1936 18.1275 27.1503C18.2448 27.1071 18.3523 27.0409 18.4436 26.9555C18.535 26.8701 18.6083 26.7673 18.6593 26.6531L28.0343 6.96563C28.1023 6.82272 28.1331 6.66492 28.1236 6.50693C28.1142 6.34895 28.0649 6.19592 27.9804 6.06211ZM21.2386 16.875H6.95113L10.9765 12.8508C11.0637 12.7637 11.1328 12.6603 11.18 12.5465C11.2272 12.4327 11.2515 12.3107 11.2515 12.1875C11.2515 12.0643 11.2272 11.9423 11.18 11.8285C11.1328 11.7147 11.0637 11.6113 10.9765 11.5242L6.95113 7.5H25.7011L21.2386 16.875Z" fill="#D6D1CB"></path></symbol>
           </svg>
+
+          <p class="search-prompt">Votre campus participe-t-il&#8239;? Recherchez ci-dessous&#8239;!</p>
+
 
           <div class="school-controls">
             <label class="visually-hidden" for="school-search">Écrivez le nom de votre école</label>
@@ -295,7 +296,7 @@
   <!-- Analytics + consent banner. Inert unless the hostname is listed in
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>
-  <script src="/js/schools-data.js?v=6"></script>
-  <script src="/js/partner-schools.js?v=6"></script>
+  <script src="/js/schools-data.js?v=7"></script>
+  <script src="/js/partner-schools.js?v=7"></script>
 </body>
 </html>

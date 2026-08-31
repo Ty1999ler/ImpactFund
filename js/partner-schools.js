@@ -17,6 +17,17 @@
 (function () {
   "use strict";
 
+  /* Both language pages share this script and one data file, so anything
+     user-visible that isn't in the data has to be chosen at render time.
+     Same test as js/apply-form.js uses. */
+  var IS_FR = (document.documentElement.lang || "").toLowerCase().indexOf("fr") === 0;
+
+  /* Province browsing switched off (client, Aug 2026): they did not want every
+     school laid out on the page, so it is search-only — type a name, get that
+     row. The province grid stays in the DOM but is never shown, so this is a
+     one-line revert if they change their mind. */
+  var PROVINCE_BROWSE = false;
+
   var table = document.getElementById("schools-table");
   var searchInput = document.getElementById("school-search");
   var sortGrid = document.getElementById("school-sort");
@@ -87,14 +98,24 @@
     var td = document.createElement("td");
     td.className = "email-col";
     if (email && email.indexOf("@") !== -1) {
+      /* The address itself is deliberately NOT shown (client, Aug 2026): the
+         cell is a plain "Email me" link so contacts' addresses are not sitting
+         in the page for scrapers, and the list reads less like a directory.
+         The mailto still carries the real address, so clicking it works. */
       var link = document.createElement("a");
       link.href = "mailto:" + email;
-      link.textContent = email;
+      link.textContent = IS_FR ? "Écrivez-moi" : "Email me";
       td.appendChild(link);
     } else {
-      /* "TBD" and malformed values (no @) stay plain text — shown verbatim,
-         never turned into a link. */
-      td.textContent = email || "";
+      /* No address yet. The data carries the English placeholder as its single
+         source of truth, so translate it at render time rather than storing two
+         variants — otherwise the French page shows English. Anything else
+         without an "@" is shown verbatim and never linked. */
+      var placeholder = email || "";
+      if (IS_FR && /coming soon/i.test(placeholder)) {
+        placeholder = "Adresse courriel à venir";
+      }
+      td.textContent = placeholder;
     }
     return td;
   }
@@ -160,13 +181,19 @@
       var hasRows = count > 0;
       if (tableWrap) tableWrap.style.display = hasRows ? "" : "none";
       if (noResult) noResult.style.display = hasRows ? "none" : "";
-    } else {
+    } else if (PROVINCE_BROWSE) {
       /* Grid view */
       schoolList.style.display = "none";
       provinceListWrap.style.display = "";
       if (noResult) noResult.style.display = "none";
       if (currentProvinceEl) currentProvinceEl.textContent = "";
       sortProvinceCards();
+    } else {
+      /* Search-only: nothing is listed until the visitor types. */
+      schoolList.style.display = "none";
+      provinceListWrap.style.display = "none";
+      if (noResult) noResult.style.display = "none";
+      if (currentProvinceEl) currentProvinceEl.textContent = "";
     }
   }
 

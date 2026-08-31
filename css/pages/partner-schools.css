@@ -122,6 +122,31 @@
   width: 381px;                      /* live: d860f0a --width:381px */
   max-width: 100%;
 }
+
+/* Aug 2026: the repeated "Partners" heading was removed and this blurb moved
+   from the right-hand column to the left. With nothing to sit beside, the
+   381px column from the two-up layout would leave it stranded in a narrow
+   strip, so it goes full width and left-aligned. */
+.partner-list-header-single { justify-content: flex-start; }
+.partner-list-header-single .partner-list-download {
+  width: 100%;
+  max-width: 760px;
+  margin-right: auto;
+}
+.partner-list-note {
+  margin-top: 16px !important;
+  font-family: var(--font-inter);
+  color: var(--accent);
+}
+
+/* Prompt above the search box. The province grid is gone, so this is the only
+   cue telling people the box is how they check their campus. */
+.partner-school-list-wrap .search-prompt {
+  margin: 0 0 16px;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  color: var(--text);
+}
 .partner-list-download p {
   margin: 0;
   font-family: var(--font-source-serif);
