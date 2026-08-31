@@ -1028,3 +1028,27 @@ img[src$="shape-blob-orange.svg"] { display: none; }
    .btn wraps <span>, never <strong>.
    ------------------------------ */
 main a > strong { text-decoration: underline; }
+
+/* ------------------------------
+   Open-state period card (Aug 2026 copy change).
+   The card was designed as: small caption, then a huge date. The new copy
+   reverses that -- the announcement is the headline and the dates are the
+   supporting line. Left at the original sizes, "From: September 1st to
+   October 15th" sat in the 72px slot and wrapped to FOUR lines (280px tall)
+   in the 36.7%-wide content column, while the announcement itself was stuck
+   at 28px. Card came out 750px tall and read as though the text was missing.
+   Only the OPEN card is touched; the closed card keeps the original design.
+   ------------------------------ */
+.period .apply-form-open .period-kicker {
+  font-size: 44px;
+  line-height: 1.12;
+  margin-bottom: 12px;
+}
+.period .apply-form-open .period-date {
+  font-size: 26px;
+  line-height: 1.3;
+}
+@media (max-width: 992px) {
+  .period .apply-form-open .period-kicker { font-size: 34px; }
+  .period .apply-form-open .period-date { font-size: 22px; }
+}
