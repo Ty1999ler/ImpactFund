@@ -33,11 +33,13 @@ LIVE_PAGES = [
     "fr/soumettre/index.html",
     "fr/ecoles-partenaires/index.html",
     "fr/conditions-utilisation/index.html",
+    # Alumo's privacy policy is now reproduced on this site (Aug 2026) instead
+    # of linking out to alumo.ca, so these are full pages, not stubs.
+    "privacy-policy/index.html",
+    "fr/privacy-policy/index.html",
 ]
 POLICY_STUBS = [
-    "privacy-policy/index.html",
     "cookies-policy/index.html",
-    "fr/privacy-policy/index.html",
     "fr/cookies-policy/index.html",
 ]
 # The French pages moved onto French slugs on 2026-08-28; each old URL keeps a

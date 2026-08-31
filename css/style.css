@@ -1017,3 +1017,14 @@ img[src$="shape-blob-orange.svg"] { display: none; }
 }
 .form-status.is-error { color: #b3261e; }
 .contact-form [aria-invalid="true"] { border-color: #b3261e !important; }
+
+/* ------------------------------
+   Bolded links in body copy are underlined (client, Aug 2026).
+   Several page stylesheets already did this one at a time, so whether a bold
+   prose link looked clickable depended on which page you were on. This covers
+   all of them in one place.
+   Underlines the <strong> rather than the <a> so no :has() is needed, and it is
+   scoped to <main> so header/footer navigation is untouched. Buttons are safe:
+   .btn wraps <span>, never <strong>.
+   ------------------------------ */
+main a > strong { text-decoration: underline; }
