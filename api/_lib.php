@@ -655,21 +655,14 @@ function graph_write_links(array $g, array $auth, string $itemId, array $folder,
     }
     if (!$patch) return;
 
-    /* Six columns in one PATCH is six round trips saved. It is also a single
-       transaction, so one unhappy column loses the lot — hence the per-column
-       pass below, which only runs when the cheap path fails. */
-    $primary = $shapes['object+prefer'];
-    try {
-        $bulk = [];
-        foreach ($patch as $column => $link) {
-            $bulk[$column] = $primary['value']($link['url'], $link['label']);
-        }
-        http_json($url, json_encode($bulk), array_merge($base, ['Prefer: apiversion=2.1']), 'PATCH');
-        return;
-    } catch (Throwable $e) {
-        error_log("graph: bulk link write failed for item $itemId, retrying per column: " . $e->getMessage());
-    }
+    /* One PATCH per column, deliberately. Six columns in a single PATCH is
+       five round trips cheaper and was tried — but a bulk write is one
+       transaction, so a single column SharePoint dislikes takes the other five
+       with it, and that is precisely what a reviewer notices. Per column, a bad
+       one costs only itself and names itself in the log.
 
+       The round trips no longer cost the applicant anything either: since the
+       confirmation is returned before delivery starts, nobody is waiting. */
     $winner = null;
     foreach ($patch as $column => $link) {
         $written = false;
