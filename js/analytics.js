@@ -28,10 +28,14 @@
 (function () {
   "use strict";
 
-  /* Paste the GA4 Measurement ID here (Admin -> Data streams -> Web).
-     While it is still the placeholder the banner renders so the flow can be
-     tested, but no Google script is ever loaded. */
-  var MEASUREMENT_ID = "G-XXXXXXXXXX";
+  /* GA4 Measurement ID (Admin -> Data streams -> Web). Not a secret — it ships
+     in the page source of every site that uses GA.
+     This property currently belongs to TYLER's Google account, for preview use.
+     When Alumo approves, they create a property in THEIR account and this one
+     string changes; the test traffic never lands in their reporting.
+     If this is ever reset to the G-XXXX placeholder the banner still renders,
+     but no Google script is loaded — handy for demoing the flow safely. */
+  var MEASUREMENT_ID = "G-KJYPC798JQ";
 
   /* Hosts where analytics is offered at all. Production is deliberately
      absent until the client approves. */
