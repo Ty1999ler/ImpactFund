@@ -1,9 +1,9 @@
 /* ============================================================
    Google Analytics 4 + consent banner.
 
-   NOT APPROVED BY THE CLIENT YET (as of 2026-08-29). This file is
-   deliberately inert everywhere except the hosts listed in ENABLED_HOSTS,
-   so it can sit in the repo without doing anything on alumoimpact.ca.
+   Live on alumoimpact.ca since 2026-08-31 (client approved). It is inert on
+   any host not listed in ENABLED_HOSTS, which is how the same file can ship to
+   the September preview without reporting anything from there.
 
    HOW IT BEHAVES
      - On a host with no ID configured: does nothing at all. No banner, no
@@ -18,12 +18,12 @@
      - The choice is kept in localStorage, NOT a cookie, so declining
        leaves no cookie behind at all.
 
-   TO GO LIVE ON PRODUCTION
-     1. Paste the Measurement ID below.
-     2. Add "alumoimpact.ca" and "www.alumoimpact.ca" to ENABLED_HOSTS.
-     3. Restore a cookies-policy page — the banner links to it, and right
-        now /cookies-policy/ is a redirect stub (the client had it removed
-        back when the site set no cookies at all).
+   STILL OUTSTANDING
+     /cookies-policy/ is a redirect stub — the client had it removed back
+     when the site set no cookies at all. The banner's policy link therefore
+     falls back to the ASEQ privacy PDF, which says nothing about Google
+     Analytics and is not a document we control. Either Alumo amends that
+     PDF or a real cookies page comes back. Flagged and accepted at launch.
    ============================================================ */
 (function () {
   "use strict";
@@ -40,9 +40,17 @@
      but no Google script is loaded — handy for demoing the flow safely. */
   var MEASUREMENT_ID = "G-1Q7HZYT3F1";
 
-  /* Hosts where analytics is offered at all. Production is deliberately
-     absent until the client approves. */
-  var ENABLED_HOSTS = ["september.alumoimpact.ca", "localhost", "127.0.0.1"];
+  /* Hosts where analytics is offered at all. Anywhere else this file loads and
+     does nothing: no banner, no request, no storage.
+     september.alumoimpact.ca is deliberately NOT listed — the preview exists to
+     be poked at, and that traffic would be indistinguishable from real visitors
+     in the reports. The file still ships there; it just stays inert. */
+  var ENABLED_HOSTS = [
+    "alumoimpact.ca",
+    "www.alumoimpact.ca",
+    "localhost",
+    "127.0.0.1"
+  ];
 
   var STORAGE_KEY = "alumo-analytics-consent"; // "granted" | "denied"
   var host = location.hostname;
