@@ -152,6 +152,29 @@
    Source: 1143e99 bg secondary, radius 20, padding 60.
    Footer's own padding-top (80px) provides the gap below.
    ------------------------------ */
+/* Gap above the form card. This used to live on the section that sat above it
+   — .info-cards had `margin-bottom: 60px` commented "parent gap to the form
+   card" — and the merge deleted that section, so the gap went with it and the
+   green card ended up butting straight against the template buttons.
+
+   Put on .apply-form-section rather than back on .apply-steps deliberately:
+   .apply-steps is defined in how-to-apply.css, which loads AFTER this file on
+   the merged page, so a rule there would be one added declaration away from
+   silently losing. Nothing else owns .apply-form-section.
+
+   120px, not the old 60px: what sits above is now a whole steps block ending
+   in a row of buttons rather than a tidy three-column grid, and at that scale
+   60px reads as a mistake rather than a gap. */
+.apply-form-section {
+  padding-top: 120px;
+}
+@media (max-width: 992px) {
+  .apply-form-section { padding-top: 72px; }
+}
+@media (max-width: 576px) {
+  .apply-form-section { padding-top: 48px; }
+}
+
 .apply-form-section .apply-form-card {
   background-color: var(--secondary);
   border-radius: var(--radius-card);
