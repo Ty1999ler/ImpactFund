@@ -12,6 +12,19 @@
    still starts at 1159. Verified at 1920px: green clipped 18px on both. */
 .hero { margin-bottom: 35px; }
 
+/* FR only: the cream half-banner nudged 6px lower, the same size of step as
+   the -38px -> -44px move already in home.css and for the same reason — less
+   of the green banner's bottom edge shows underneath it. Client's call on the
+   French page specifically.
+
+   Scoped to min-width 1201px because that is the only range where the shared
+   -44px applies: home.css steps this to -32px at 1200 and to 0 at 992, and an
+   unscoped override here would load after those and flatten them, since it
+   carries the same specificity and wins on order alone. */
+@media (min-width: 1201px) {
+  .hero .hero-media .hero-m-half-banner { bottom: -50px; }
+}
+
 /* Live FR: the intro side column is 440px wide (EN uses 520px), which
    changes the paragraph wrapping (6 lines) and the band height. */
 .intro .intro-side { width: 440px; }
