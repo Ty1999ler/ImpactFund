@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=7">
-  <link rel="stylesheet" href="/css/pages/about-the-fund.css?v=6">
+  <link rel="stylesheet" href="/css/pages/about-the-fund.css?v=7">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -279,9 +279,15 @@ Ce fonds annuel de 250&thinsp;000&nbsp;$ est entièrement consacré à réaliser
     </section>
 
     <!-- ============ SUBMISSION PERIOD (orange card) ============ -->
-    <section class="period">
+    <!-- Scheduled swap — before the date in data-opens-at the "closed" card
+         shows; from that date the "open" card shows automatically (handled in
+         /js/main.js), same mechanism as the period cards on /fr/ and
+         /fr/comment-soumettre/. Preview the open state with ?preview-form=1.
+         This card was missed when the other two were wired up and was still
+         reading "ouvrira bientôt" after submissions had opened. -->
+    <section class="period" data-opens-at="2026-08-31T18:30:00-04:00">
       <div class="container">
-        <div class="period-card">
+        <div class="period-card apply-form-closed">
           <div class="period-content">
             <div class="period-logo">
               <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
@@ -292,6 +298,27 @@ Ce fonds annuel de 250&thinsp;000&nbsp;$ est entièrement consacré à réaliser
             <p class="period-note text-size-16-24-tightpx">Vous avez une bonne idée, mais vous avez besoin de financement pour la concrétiser&#8239;? Le Fonds d’impact étudiant est là pour vous aider&#8239;!</p>
             <div class="btn btn-white btn-icon btn-icon-primary period-btn">
               <a href="/fr/comment-soumettre/"><span>En savoir plus</span></a>
+            </div>
+          </div>
+          <div class="period-art">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+          <div class="period-art-abs">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+        </div>
+        <!-- Open state: same copy and CTA as the French home page's open card.
+             Keeps this page's own two blob layers so the card is identical to
+             its closed sibling above; the home page only has the one. -->
+        <div class="period-card apply-form-open" hidden>
+          <div class="period-content">
+            <div class="period-logo">
+              <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
+            </div>
+            <h2 class="period-kicker text-size-28-70-tight">La période de soumission pour l'automne est maintenant ouverte&#8239;!</h2>
+            <h3 class="period-date text-size-72-70-tight">Du 1er septembre au 15 octobre</h3>
+            <div class="btn btn-primary period-cta">
+              <a href="/fr/soumettre/"><span>Soumettre</span></a>
             </div>
           </div>
           <div class="period-art">

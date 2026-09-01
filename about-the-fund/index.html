@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=7">
-  <link rel="stylesheet" href="/css/pages/about-the-fund.css?v=6">
+  <link rel="stylesheet" href="/css/pages/about-the-fund.css?v=7">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -281,9 +281,15 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
     </section>
 
     <!-- ============ SUBMISSION PERIOD (orange card) ============ -->
-    <section class="period">
+    <!-- Scheduled swap — before the date in data-opens-at the "closed" card
+         shows; from that date the "open" card shows automatically (handled in
+         /js/main.js), same mechanism as the period cards on / and
+         /how-to-apply/. Preview the open state early with ?preview-form=1.
+         This card was missed when the other two were wired up and was still
+         reading "will open soon" after submissions had opened. -->
+    <section class="period" data-opens-at="2026-08-31T18:30:00-04:00">
       <div class="container">
-        <div class="period-card">
+        <div class="period-card apply-form-closed">
           <div class="period-content">
             <div class="period-logo">
               <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
@@ -294,6 +300,27 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
             <p class="period-note text-size-16-24-tightpx">Have a cool project in mind but need money to make it happen? The Student Impact Fund is here to help!</p>
             <div class="btn btn-white btn-icon btn-icon-primary period-btn">
               <a href="/how-to-apply/"><span>Learn more</span></a>
+            </div>
+          </div>
+          <div class="period-art">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+          <div class="period-art-abs">
+            <img src="/assets/img/shape-blob-orange.svg" alt="">
+          </div>
+        </div>
+        <!-- Open state: same copy and CTA as the home page's open card. Keeps
+             this page's own two blob layers so the card is identical to its
+             closed sibling above; the home page only has the one. -->
+        <div class="period-card apply-form-open" hidden>
+          <div class="period-content">
+            <div class="period-logo">
+              <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
+            </div>
+            <h2 class="period-kicker text-size-28-70-tight">The Fall submission period is now open!</h2>
+            <h3 class="period-date text-size-72-70-tight">From: September 1st to October 15th</h3>
+            <div class="btn btn-primary period-cta">
+              <a href="/apply-now/"><span>Apply Now</span></a>
             </div>
           </div>
           <div class="period-art">
