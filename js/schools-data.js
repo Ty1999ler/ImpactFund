@@ -313,13 +313,13 @@ window.ALUMO_SCHOOLS = [
   "school": "Canadian College of Naturopathic Medicine",
   "association": "Naturopathic Students' Association (CCNM-NSA)",
   "province": "ON",
-  "email": "Contact Email Coming Soon"
+  "email": "mhenesey@ccnm.edu"
  },
  {
   "school": "Canadian Memorial Chiropractic College",
   "association": "Student Council (CMCC-SC)",
   "province": "ON",
-  "email": "Contact Email Coming Soon"
+  "email": "EEsangbedo@cmcc.ca"
  },
  {
   "school": "Carleton University",
