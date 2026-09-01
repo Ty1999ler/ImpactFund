@@ -1,33 +1,16 @@
-/* FR-only overrides for the home page (loaded after home.css). */
+/* FR-only overrides for the home page (loaded after home.css).
+   The live FR page differs from EN in two measured ways. */
 
-/* Make the French hero the same HEIGHT as the English one, so the green M
-   banner lands in the same place on both homes.
+/* Live FR: intro section starts at y=1159 — 35px lower than the shared
+   layout produces (FR pill/bar block is taller on live).
 
-   The M was never positioned differently — it hangs off .hero-media, which is
-   shared, and it sits 46px below the student on each page. What moved was
-   everything above it: the French h1 wrapped to FOUR lines in the shared 435px
-   column ("Fonds / d'impact / étudiant par / Alumo") where the English one
-   takes three, and .hero-top is as tall as its tallest child. That pushed the
-   girl and the M down 70px on French, which is what reads as "the M doesn't
-   match".
-
-   So widen the two hero columns until the French copy wraps the way the
-   English does — h1 to three lines, and the right-hand blurb from four lines
-   to three so it stops being the tallest thing in the row. Thresholds measured
-   at 1440px: the h1 breaks to three lines at 470px and the blurb at 330px;
-   these sit just past both so a font fallback can't tip them back.
-
-   Result is exact parity with English, verified at 1440px: hero-top 210px,
-   hero-media top 180, green banner 506-1071, clipped 17px, 46px below the
-   student — every number identical to /.
-
-   Scoped to the wide two-column layout. Below 993px home.css rearranges the
-   hero (the banners go to bottom:0, .hero-side goes full width at 576px) and
-   these widths would fight it — .hero-side would keep 340px on a phone. */
-@media (min-width: 993px) {
-  .hero .hero-title { max-width: 480px; }
-  .hero .hero-side { width: 340px; }
-}
+   MARGIN, not padding. .hero sets overflow:clip, which clips at the PADDING
+   box — so as padding-bottom this 35px moved the clip line down past the
+   bottom of the green M banner (which hangs to -60px). English clips 18px off
+   that curve; French was showing it whole, and the two homes did not match.
+   As margin the clip edge sits exactly where English's does, and the intro
+   still starts at 1159. Verified at 1920px: green clipped 18px on both. */
+.hero { margin-bottom: 35px; }
 
 /* Live FR: the intro side column is 440px wide (EN uses 520px), which
    changes the paragraph wrapping (6 lines) and the band height. */
