@@ -1052,3 +1052,16 @@ main a > strong { text-decoration: underline; }
   .period .apply-form-open .period-kicker { font-size: 34px; }
   .period .apply-form-open .period-date { font-size: 22px; }
 }
+
+/* "Next submission period" under the CTA (client, Sept 2026). Deliberately the
+   smallest type on the card: it is a footnote to the window that is open right
+   now, and at any larger size the two dates compete and the reader has to work
+   out which one applies to them. Inter rather than the serif for the same
+   reason — it reads as an aside, not a second announcement. */
+.period .apply-form-open .period-next {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 16px 0 0;
+  opacity: 0.75;
+}

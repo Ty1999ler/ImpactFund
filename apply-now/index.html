@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Apply now – Alumo Fund</title>
-  <meta name="description" content="Submit your project to the Student Impact Fund by Alumo. Download the Partner Sign-off Form and find out who can submit and which student-led projects are eligible.">
+  <title>Submit your Idea – Alumo Fund</title>
+  <meta name="description" content="How to submit a project to the Student Impact Fund by Alumo: the four steps, the Partner Sign-off Form, the templates, and the application form itself.">
   <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/apply-now/">
   <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/soumettre/">
   <link rel="canonical" href="https://alumoimpact.ca/apply-now/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Student Impact Fund by Alumo">
-  <meta property="og:title" content="Apply now – Alumo Fund">
-  <meta property="og:description" content="Submit your project to the Student Impact Fund by Alumo. Download the Partner Sign-off Form and find out who can submit and which student-led projects are eligible.">
+  <meta property="og:title" content="Submit your Idea – Alumo Fund">
+  <meta property="og:description" content="How to submit a project to the Student Impact Fund by Alumo: the four steps, the Partner Sign-off Form, the templates, and the application form itself.">
   <meta property="og:url" content="https://alumoimpact.ca/apply-now/">
   <meta property="og:locale" content="en_CA">
   <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
@@ -21,8 +21,12 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
-  <link rel="stylesheet" href="/css/style.css?v=7">
-  <link rel="stylesheet" href="/css/pages/apply-now.css?v=6">
+  <link rel="stylesheet" href="/css/style.css?v=8">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=7">
+  <!-- How to Submit merged into this page (Sept 2026), so it needs that page's
+       stylesheet too. The two files share no selectors — checked — so loading
+       both is additive, not a conflict. -->
+  <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -44,8 +48,7 @@
             <ul class="nav-menu">
               <li class="menu-item"><a href="/">Home</a></li>
               <li class="menu-item"><a href="/about-the-fund/">About</a></li>
-              <li class="menu-item"><a href="/how-to-apply/">How to Submit</a></li>
-              <li class="menu-item" data-opens-at="2026-08-31T18:30:00-04:00" hidden><a href="/apply-now/">Apply Now</a></li>
+              <li class="menu-item"><a href="/apply-now/">Submit your Idea</a></li>
               <li class="menu-item"><a href="/partner-schools/">Partners</a></li>
               <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
               <li class="menu-item"><a href="/#contact-form">Contact</a></li>
@@ -74,51 +77,67 @@
 
   <main id="content">
 
-    <!-- ============ HERO — Submit Now ============ -->
-    <!-- The source contains a second, older "Submit Now" hero block hidden at every
-         breakpoint — skipped. The FR "Lettre de soutien" button is hidden on EN
-         pages — future work under /fr/. -->
-    <section class="hero">
+    <!-- ============ HERO ============ -->
+    <!-- Merged from /how-to-apply/ (Sept 2026). The old "Submit Now" hero and
+         the three info cards that used to sit here are gone: everything they
+         said is said better by the four steps below, which is exactly why the
+         two pages were merged. The nav calls this "Submit your Idea"; the page
+         keeps the "How to Submit a Project" heading. -->
+    <section class="apply-hero">
       <div class="container">
-        <h1 class="hero-title text-size-72-72-tight">Submit Now</h1>
-        <div class="hero-sub">
-          <p class="text-size-24-36-tight">Download the Partner Sign-off Form, which you can send to your contact at your school. You will need to submit it as part of your application.</p>
-          <!-- Real document downloaded from the live site (sample-pdf-en-1.pdf);
-               FR version at /assets/docs/formulaire-attestation-fr.pdf for the future FR build.
-               "Partner Sign-off Form" is the client's new name — the file path and the
-               file_support_letter input name deliberately stay unchanged. -->
-          <div class="btn btn-primary">
-            <a href="/assets/docs/partner-sign-off-form-en.pdf" target="_blank" rel="noopener"><span>Partner Sign-off Form</span></a>
-          </div>
-        </div>
+        <h1 class="apply-title text-size-72-72-tight">How to Submit a Project</h1>
       </div>
     </section>
 
-    <!-- ============ INFO CARDS ============ -->
-    <section class="info-cards">
+    <!-- ============ INTRO ============ -->
+    <section class="apply-intro">
       <div class="container">
-        <div class="cards-grid">
+        <p class="intro-text text-size-16-31-9-tightpx">Applying is easy! Just follow these simple steps.<br>We're here to support you every step of the way.</p>
+      </div>
+    </section>
 
-          <div class="info-card">
-            <h2 class="text-size-40-42-tight">Who can submit?</h2>
-            <p class="text-size-16-24-tight">Any student enrolled at a participating <a href="/partner-schools/"><strong>partner school</strong></a> may apply with campus approval.</p>
+    <!-- ============ FOUR STEPS ============ -->
+    <section class="apply-steps">
+      <div class="container">
+        <div class="steps-grid">
+
+          <div class="step-card">
+            <h2 class="text-size-40-42-tight">1. Start with your idea</h2>
+            <p class="text-size-16-24-tight">Think about a project that could make a positive difference on your campus.<br><br>And don't forget to review the guidelines to make sure your project meets the eligibility requirements! <a href="/about-the-fund/" target="_blank" rel="noopener"><strong>Make sure you read the guidelines.</strong></a></p>
           </div>
 
-          <div class="info-card">
-            <h2 class="text-size-40-42-tight">Project Eligibility</h2>
-            <p class="text-size-16-24-tight">Projects designed by students for students. Make a difference on your campus by proposing an inclusive, sustainable, and caring initiative that is politically neutral and has no commercial objectives.<br><br>For more details on eligible projects, see the <a href="/about-the-fund/"><strong>About</strong></a> page.</p>
-          </div>
-
-          <!-- Third column: the Questions card with the help/download blurbs
-               stacked directly beneath it (client request — they must sit
-               under "Questions?", not in a separate full-width band).
-               The duplicate "Support letter" download button that used to sit
-               here was removed; the hero button above is the only one. -->
-          <div class="info-card-stack">
-            <div class="info-card">
-              <h2 class="text-size-40-42-tight">Questions?</h2>
-              <p class="text-size-16-24-tight">Need help submitting your project? We can help!</p>
+          <div class="step-card">
+            <h2 class="text-size-40-42-tight">2. Get partner sign-off</h2>
+            <p class="text-size-16-24-tight">Complete the <em>partner sign-off form</em> and have it signed by the appropriate contact listed on the <a href="/partner-schools/"><strong>Partners</strong></a> page. This confirms that your school knows about your project and your application to the Student Impact Fund.</p>
+            <!-- The Partner Sign-off Form download sits in this step because it's a
+                 REQUIRED document (the templates in the help block are optional).
+                 It used to also appear in the old Submit Now hero; that hero is
+                 gone, so this is now the only copy on the page. -->
+            <div class="btn btn-primary">
+              <a href="/assets/docs/partner-sign-off-form-en.pdf" target="_blank" rel="noopener"><span>Partner Sign-off Form</span></a>
             </div>
+          </div>
+
+          <div class="step-card">
+            <h2 class="text-size-40-42-tight">3. Prepare your submission</h2>
+            <p class="text-size-16-24-tight">Complete all required fields of the online webform and the following documents:<br>
+• Project overview <br>• Budget <br>• Team member information <br>• Action plan <br>
+• Partner Sign-off Form</p>
+          </div>
+
+          <div class="step-card">
+            <h2 class="text-size-40-42-tight">4. Review &amp; submit</h2>
+            <p class="text-size-16-24-tight">Review your project &amp; submit before the deadline!<br><br>Submissions will be reviewed after the deadline. You can expect to receive an update approximately two months after the submission deadline.</p>
+          </div>
+
+        </div>
+
+        <!-- ============ HELP / DOWNLOADS (unnumbered, full-width block) ============ -->
+        <!-- Deliberately UNNUMBERED (client, Aug 2026): the four numbered steps
+             end above; this sits below them as a standalone block. -->
+        <div class="step-help">
+          <h2 class="text-size-40-42-tight">Need help getting started?</h2>
+          <div class="help-blocks">
             <div class="help-block">
               <p class="text-size-16-24-tight">Here is a resource to help you plan your project and build your application.</p>
               <div class="help-buttons">
@@ -130,23 +149,26 @@
             <div class="help-block">
               <p class="text-size-16-24-tight"><strong>Optional templates:</strong> Download these templates if you'd like some extra guidance. You can fill them out and upload them with your application.</p>
               <div class="help-buttons">
-                <!-- STILL HIDDEN: no Project overview template was supplied in the Aug 2026 document set. Unhide once the file lands. -->
+                <!-- STILL HIDDEN: no Project overview template was supplied in the
+                     Aug 2026 document set. Unhide once the file lands. The webform
+                     still REQUIRES a project overview upload — only the optional
+                     template is missing. -->
                 <div class="btn btn-primary" hidden>
                   <a href="/assets/docs/template-project-overview-en.pdf" target="_blank" rel="noopener"><span>Project overview</span></a>
                 </div>
+                <!-- Templates are .xlsx as of Aug 2026 (were speced as PDF). -->
                 <div class="btn btn-primary">
-                  <a href="/assets/docs/template-budget-en.xlsx" target="_blank" rel="noopener"><span>Budget</span></a>
+                  <a href="/assets/docs/template-budget-en.xlsx"><span>Budget</span></a>
                 </div>
                 <div class="btn btn-primary">
-                  <a href="/assets/docs/template-team-members-en.xlsx" target="_blank" rel="noopener"><span>Team members</span></a>
+                  <a href="/assets/docs/template-team-members-en.xlsx"><span>Team members</span></a>
                 </div>
                 <div class="btn btn-primary">
-                  <a href="/assets/docs/template-action-plan-en.xlsx" target="_blank" rel="noopener"><span>Action plan</span></a>
+                  <a href="/assets/docs/template-action-plan-en.xlsx"><span>Action plan</span></a>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>
@@ -157,8 +179,18 @@
          /js/main.js). Preview the open state early with ?preview-form=1. -->
     <section class="apply-form-section" data-opens-at="2026-08-31T18:30:00-04:00">
       <div class="container">
+        <!-- Closed state (client, Sept 2026). The old text was a bare "This form
+             is not yet available.", which read like a fault rather than a
+             season. Now it is the orange notice naming the next window, which
+             is what the period card at the bottom of the old How to Submit page
+             used to do — that card was dropped in the merge, so this carries
+             the message on its own. -->
         <div class="apply-form-card apply-form-closed">
-          <p>This form is not yet available.</p>
+          <div class="apply-closed-logo">
+            <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
+          </div>
+          <h2 class="apply-closed-kicker">Submissions are currently closed.</h2>
+          <p class="apply-closed-date">Next submission period: January 4 to March 1, 2027</p>
         </div>
         <div class="apply-form-card apply-form-open" hidden>
           <!-- ==================================================================
@@ -457,9 +489,8 @@
           <ul class="footer-menu">
             <li class="menu-item"><a href="/">Home</a></li>
             <li class="menu-item"><a href="/about-the-fund/">About</a></li>
-            <li class="menu-item"><a href="/how-to-apply/">How to Submit</a></li>
+            <li class="menu-item"><a href="/apply-now/">Submit your Idea</a></li>
             <!-- Revealed automatically on Sept 1, in step with the header tab. -->
-            <li class="menu-item" data-opens-at="2026-08-31T18:30:00-04:00" hidden><a href="/apply-now/">Apply Now</a></li>
             <li class="menu-item"><a href="/partner-schools/">Partners</a></li>
             <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/#contact-form">Contact</a></li>

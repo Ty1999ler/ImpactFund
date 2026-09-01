@@ -165,6 +165,39 @@
   .apply-form-section .apply-form-card { padding: 16px; }
 }
 
+/* Out-of-season notice (client, Sept 2026). Orange, not the form's green: it
+   is an announcement about a date, not a form, and the period cards elsewhere
+   on the site already train people to read orange that way. Type scale matches
+   the open period card (44/26) so the two read as the same voice.
+
+   REQUIRED: the [hidden] guard. /js/main.js sets the hidden attribute to swap
+   these two cards, and .apply-form-card sets a background and padding but not
+   a display — so hidden works here today only by accident of the default. The
+   guard makes it deliberate, and matches .period .period-card[hidden]
+   elsewhere. */
+.apply-form-section .apply-form-card[hidden] { display: none; }
+.apply-form-section .apply-form-card.apply-form-closed {
+  background-color: var(--primary);
+}
+.apply-form-section .apply-closed-logo { margin-bottom: 32px; }
+.apply-form-section .apply-closed-logo img { display: block; }
+.apply-form-section .apply-closed-kicker {
+  font-family: var(--font-source-serif);
+  font-size: 44px;
+  line-height: 1.05;
+  margin: 0 0 16px;
+  max-width: 18ch;
+}
+.apply-form-section .apply-closed-date {
+  font-size: 26px;
+  line-height: 1.2;
+  margin: 0;
+}
+@media (max-width: 992px) {
+  .apply-form-section .apply-closed-kicker { font-size: 34px; }
+  .apply-form-section .apply-closed-date { font-size: 22px; }
+}
+
 /* ============================================================
    MULTI-STEP APPLICATION FORM (inside .apply-form-open)
    Field look mirrors the shared .contact-form (style.css); step

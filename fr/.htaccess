@@ -13,9 +13,16 @@
 # NOTE: mod_alias matches the FULL URL-path, not a path relative to this
 # directory — hence the leading /fr/ on every source below.
 
+# 2026-09-01: /fr/comment-soumettre/ merged into /fr/soumettre/, mirroring the
+# English merge. Note the old /fr/how-to-apply/ rule now points straight at
+# /fr/soumettre/ rather than at comment-soumettre — otherwise an old English-slug
+# link would take two hops to land, and a redirect to a redirect is a thing
+# search engines penalise and some clients refuse to follow.
+
 <IfModule mod_alias.c>
 Redirect 301 /fr/about-the-fund/ /fr/a-propos/
-Redirect 301 /fr/how-to-apply/ /fr/comment-soumettre/
+Redirect 301 /fr/how-to-apply/ /fr/soumettre/
+Redirect 301 /fr/comment-soumettre/ /fr/soumettre/
 Redirect 301 /fr/apply-now/ /fr/soumettre/
 Redirect 301 /fr/partner-schools/ /fr/ecoles-partenaires/
 Redirect 301 /fr/terms-conditions/ /fr/conditions-utilisation/

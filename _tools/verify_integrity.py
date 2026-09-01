@@ -23,13 +23,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 LIVE_PAGES = [
     "index.html",
     "about-the-fund/index.html",
-    "how-to-apply/index.html",
+    # how-to-apply and fr/comment-soumettre merged into the two submit pages on
+    # 2026-09-01 and are redirect stubs now — see MERGED_STUBS below.
     "apply-now/index.html",
     "partner-schools/index.html",
     "terms-conditions/index.html",
     "fr/index.html",
     "fr/a-propos/index.html",
-    "fr/comment-soumettre/index.html",
     "fr/soumettre/index.html",
     "fr/ecoles-partenaires/index.html",
     "fr/conditions-utilisation/index.html",
@@ -58,7 +58,15 @@ PW_STUBS = [
     "fr/past-winners/index.html",
     "fr/past-winners/2/index.html",
 ]
-ALL_PAGES = LIVE_PAGES + POLICY_STUBS + PW_STUBS + FR_SLUG_STUBS
+# How to Submit merged into Submit Now on 2026-09-01 (and the French pair with
+# it), so these two paths are redirect stubs. Like the other stubs they carry no
+# CSS/JS, so they are exempt from the live-page checks — but they are still
+# tracked, because a broken stub is a broken inbound link.
+MERGED_STUBS = [
+    "how-to-apply/index.html",
+    "fr/comment-soumettre/index.html",
+]
+ALL_PAGES = LIVE_PAGES + POLICY_STUBS + PW_STUBS + FR_SLUG_STUBS + MERGED_STUBS
 
 MOJIBAKE_MARKERS = ["Ã©", "â€™", "�"]  # "Ã©", "â€™", "�"
 

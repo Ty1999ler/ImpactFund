@@ -1,0 +1,18 @@
+# /how-to-apply/ -> /apply-now/ — added 2026-09-01.
+#
+# The two pages merged: everything that was on How to Submit now sits above the
+# webform on Submit Now, so this path is retired. A real 301 keeps every old
+# link, bookmark and search result working (the stub index.html here is only a
+# fallback for the case where .htaccess is not honoured).
+#
+# WHY mod_alias (Redirect) AND NOT mod_rewrite: a child .htaccess that declares
+# its own RewriteRule stops inheriting the parent's rewrite rules, and the
+# HTTP -> HTTPS redirect for this site lives in public_html/.htaccess. Using
+# Redirect here leaves that inheritance untouched. Same reasoning as fr/.htaccess.
+#
+# NOTE: mod_alias matches the FULL URL-path, not a path relative to this
+# directory — hence the leading /how-to-apply/ below.
+
+<IfModule mod_alias.c>
+Redirect 301 /how-to-apply/ /apply-now/
+</IfModule>
