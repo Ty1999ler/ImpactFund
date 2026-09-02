@@ -722,6 +722,11 @@ function apply_graph_fields(array $data, string $submissionId): array {
         'Province'         => $d('province'),
         'CampusRecognised' => $d('campus_recognised'),
         'OffCampusOrg'     => $d('off_campus_org'),
+        /* Added Sept 2026 with the two affiliation questions. The list MUST have
+           a column with this exact internal name before this ships: field_map is
+           empty, so these keys go to Graph verbatim, and an unrecognised column
+           fails the entire list-item create — not just this value. */
+        'OffCampusOrgName' => $d('off_campus_org_name'),
         'Category'         => ($d('category') === 'Other' && trim($d('category_other')) !== '')
                               ? ('Other — ' . trim($d('category_other'))) : $d('category'),
         'PrimaryContact'   => $d('primary_first_name') . ' ' . $d('primary_last_name'),

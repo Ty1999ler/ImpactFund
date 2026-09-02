@@ -357,6 +357,38 @@
     syncCategoryOther();
   }
 
+  /* ---- Affiliation questions: "Yes" reveals + requires a name field ----
+     Two pairs, same shape as the category "Other" pair above. Clearing the box
+     on "No" is the part that matters: without it, a name typed and then
+     retracted by switching to No would still be submitted and land in
+     SharePoint contradicting the Yes/No sitting beside it.
+
+     Driven off the radio NAME rather than an id, because the two languages
+     share this file and only the visible labels differ. */
+  [
+    ["campus_recognised", "af-org-name-wrap", "af-org-name"],
+    ["off_campus_org", "af-offcampus-name-wrap", "af-offcampus-name"]
+  ].forEach(function (pair) {
+    var radios = form.querySelectorAll('input[type="radio"][name="' + pair[0] + '"]');
+    var wrap = form.querySelector("#" + pair[1]);
+    var input = form.querySelector("#" + pair[2]);
+    if (!radios.length || !wrap || !input) return;
+
+    var sync = function () {
+      var yes = form.querySelector('input[name="' + pair[0] + '"][value="Yes"]');
+      var isYes = !!(yes && yes.checked);
+      wrap.hidden = !isYes;
+      input.required = isYes;
+      if (!isYes) { input.value = ""; clearError(input); }
+    };
+    Array.prototype.forEach.call(radios, function (radio) {
+      radio.addEventListener("change", sync);
+    });
+    /* Run once at load: covers a browser restoring a checked radio on refresh,
+       which fires no change event and would otherwise leave the box hidden. */
+    sync();
+  });
+
   /* ---- Select placeholder tint ---- */
   function refreshSelectTint(select) {
     select.classList.toggle("is-placeholder", select.value === "");
@@ -460,10 +492,18 @@
 
     Array.prototype.forEach.call(fields, function (field) {
       if (field.disabled || field.closest(".hp-field")) return;
+
+      /* Bail out for a radio group's later members BEFORE clearing, not after.
+         Every radio in a group shares one .form-field wrapper and therefore one
+         error note, so with the clear first the "No" radio wiped the note the
+         "Yes" radio had just set — a blank required group blocked the step with
+         nothing on screen to say why. Latent until Sept 2026, when the two
+         affiliation questions became the form's first required radio groups. */
+      if (field.type === "radio" && seenRadioGroups[field.name]) return;
+
       clearError(field);
 
       if (field.type === "radio") {
-        if (seenRadioGroups[field.name]) return;
         seenRadioGroups[field.name] = true;
         var group = panel.querySelectorAll('input[type="radio"][name="' + field.name + '"]');
         var required = Array.prototype.some.call(group, function (r) { return r.required; });

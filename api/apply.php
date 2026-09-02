@@ -43,11 +43,21 @@ $FIELDS = [
     'secondary_last_name' => [false, 100, false],
     'secondary_email'     => [false, 254, false],
     'secondary_role'      => [false, 200, false],
-    'organization_name'   => [true, 255, false],
+    /* Conditional as of Sept 2026: only asked when campus_recognised is Yes, so
+       it cannot be required here. Same treatment as category_other below, which
+       has always been conditionally required on the client and optional on the
+       server — the client owns "required when revealed"; the server's job is the
+       length cap and never rejecting a submission it could store. */
+    'organization_name'   => [false, 255, false],
     'province'            => [true, 2, false],
     'institution'         => [true, 255, false],
     'campus_recognised'   => [false, 10, false],
     'off_campus_org'      => [false, 10, false],
+    /* Name of the off-campus organization, revealed when off_campus_org is Yes.
+       NEEDS A MATCHING SHAREPOINT COLUMN named OffCampusOrgName — field_map is
+       empty, so canonical names are sent through as column names, and Graph
+       rejects the WHOLE list item if it does not recognise one of them. */
+    'off_campus_org_name' => [false, 255, false],
     'project_title'       => [true, 255, false],
     'category'            => [true, 100, false],
     'category_other'      => [false, 200, false],

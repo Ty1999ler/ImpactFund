@@ -318,35 +318,42 @@
                            aria-label="Associations et écoles" hidden></div>
                     </div>
                   </div>
-                  <div class="form-field">
-                    <label for="af-org-name">Nom de l'organisme ou du groupe<span aria-hidden="true">*</span></label>
-                    <!-- Reformulé en sept. 2026 : l'ancienne phrase demandait si la
-                         personne appartenait à un groupe, ce qui invitait à répondre
-                         sur soi plutôt que sur le projet.
+                  <!-- Deux questions Oui/Non, chacune révélant un champ de nom sur
+                       « Oui » (client, sept. 2026). Même mécanisme que la paire
+                       « Autre » de la catégorie plus bas : /js/apply-form.js affiche
+                       l'encadré et bascule .required, et vide la boîte sur « Non ».
 
-                         "N/A" and not the more idiomatic "S.O.": both forms feed the
-                         same SharePoint column, so keeping one token avoids a mix of
-                         N/A and S.O. in the data the reviewers read. Laura's copy had
-                         it lowercase; kept capitalised for that reason.
+                       Les boutons radio sont maintenant OBLIGATOIRES : ils commandent
+                       un champ requis, et une paire vide empêcherait de distinguer
+                       « aucun groupe » de « pas répondu ».
 
-                         "vous" and not the "tu" of the supplied translation — every
-                         other French surface on this site uses vous. -->
-                    <p class="field-desc">Si votre initiative n'est pas affiliée à une organisation ou à un groupe, inscrivez N/A.</p>
-                    <input type="text" id="af-org-name" name="organization_name" placeholder="Nom de l'organisme ou du groupe" required aria-required="true">
-                  </div>
+                       "vous" and not the "tu" of the supplied translation — every
+                       other French surface on this site uses vous.
+
+                       This replaces the "inscrivez N/A" convention: the Yes/No now
+                       carries that, so an unaffiliated project leaves the box empty
+                       instead of typing a token. -->
                   <div class="form-field form-field-radio">
-                    <span class="field-label" id="af-recognized-label">Est-ce un groupe reconnu officiellement par votre campus&#8239;?</span>
+                    <span class="field-label" id="af-recognized-label">Votre initiative est-elle affiliée à un groupe officiellement reconnu par votre campus&#8239;? (ex.&nbsp;: un club du campus).</span>
                     <div class="radio-group" role="radiogroup" aria-labelledby="af-recognized-label">
-                      <label class="radio-option"><input type="radio" name="campus_recognised" value="Yes"><span>Oui</span></label>
-                      <label class="radio-option"><input type="radio" name="campus_recognised" value="No"><span>Non</span></label>
+                      <label class="radio-option"><input type="radio" name="campus_recognised" value="Yes" required aria-required="true"><span>Oui</span></label>
+                      <label class="radio-option"><input type="radio" name="campus_recognised" value="No" required aria-required="true"><span>Non</span></label>
                     </div>
                   </div>
+                  <div class="form-field" id="af-org-name-wrap" hidden>
+                    <label for="af-org-name">Nom du groupe<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-org-name" name="organization_name" maxlength="255" placeholder="Inscrivez le nom de votre groupe">
+                  </div>
                   <div class="form-field form-field-radio">
-                    <span class="field-label" id="af-offcampus-label">Êtes-vous une organisation officielle hors campus&#8239;?</span>
+                    <span class="field-label" id="af-offcampus-label">Votre initiative est-elle affiliée à une organisation officielle hors campus&#8239;?</span>
                     <div class="radio-group" role="radiogroup" aria-labelledby="af-offcampus-label">
-                      <label class="radio-option"><input type="radio" name="off_campus_org" value="Yes"><span>Oui</span></label>
-                      <label class="radio-option"><input type="radio" name="off_campus_org" value="No"><span>Non</span></label>
+                      <label class="radio-option"><input type="radio" name="off_campus_org" value="Yes" required aria-required="true"><span>Oui</span></label>
+                      <label class="radio-option"><input type="radio" name="off_campus_org" value="No" required aria-required="true"><span>Non</span></label>
                     </div>
+                  </div>
+                  <div class="form-field" id="af-offcampus-name-wrap" hidden>
+                    <label for="af-offcampus-name">Nom de l'organisation hors campus<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-offcampus-name" name="off_campus_org_name" maxlength="255" placeholder="Inscrivez le nom de l'organisation hors campus">
                   </div>
                 </div>
 
@@ -547,6 +554,6 @@
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>
   <script src="/js/schools-data.js?v=8"></script>
-  <script src="/js/apply-form.js?v=9"></script>
+  <script src="/js/apply-form.js?v=10"></script>
 </body>
 </html>

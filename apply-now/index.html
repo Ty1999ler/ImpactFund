@@ -310,29 +310,44 @@
                            aria-label="Associations and schools" hidden></div>
                     </div>
                   </div>
-                  <div class="form-field">
-                    <label for="af-org-name">Organization / Group name<span aria-hidden="true">*</span></label>
-                    <!-- Reworded Sept 2026. The old line was "If you don't belong to
-                         an organization or group, write N/A", which invited people to
-                         answer the question about themselves rather than the project
-                         — Sophia's point. N/A stays capitalised: both languages feed
-                         one SharePoint column and a single token keeps it readable. -->
-                    <p class="field-desc">If your initiative is not affiliated with an organization or group, write N/A.</p>
-                    <input type="text" id="af-org-name" name="organization_name" placeholder="Type your group's name — e.g. Campus Sustainability Club" required aria-required="true">
-                  </div>
+                  <!-- Two Yes/No questions, each revealing a name field on Yes
+                       (client, Sept 2026). Same mechanism as the category "Other"
+                       pair further down: /js/apply-form.js unhides the wrapper and
+                       flips .required, and empties the box on No — otherwise a name
+                       typed and then retracted would still be submitted and sit in
+                       SharePoint contradicting the answer beside it.
+
+                       The radios are REQUIRED now. They were optional as standalone
+                       side questions; now they gate a required field, and a blank
+                       pair would leave a reviewer unable to tell "no group" from
+                       "didn't answer".
+
+                       organization_name keeps its name and its SharePoint column
+                       (Organization) — it is the same question, just asked second
+                       and only when it applies. This replaces the "write N/A"
+                       convention: the Yes/No now carries that, so an unaffiliated
+                       project leaves the box empty rather than typing a token. -->
                   <div class="form-field form-field-radio">
-                    <span class="field-label" id="af-recognized-label">Is this a group officially recognized by your campus?</span>
+                    <span class="field-label" id="af-recognized-label">Is your initiative affiliated with a group officially recognized by your campus? (ex. a campus club).</span>
                     <div class="radio-group" role="radiogroup" aria-labelledby="af-recognized-label">
-                      <label class="radio-option"><input type="radio" name="campus_recognised" value="Yes"><span>Yes</span></label>
-                      <label class="radio-option"><input type="radio" name="campus_recognised" value="No"><span>No</span></label>
+                      <label class="radio-option"><input type="radio" name="campus_recognised" value="Yes" required aria-required="true"><span>Yes</span></label>
+                      <label class="radio-option"><input type="radio" name="campus_recognised" value="No" required aria-required="true"><span>No</span></label>
                     </div>
                   </div>
+                  <div class="form-field" id="af-org-name-wrap" hidden>
+                    <label for="af-org-name">Group name<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-org-name" name="organization_name" maxlength="255" placeholder="Type your group's name">
+                  </div>
                   <div class="form-field form-field-radio">
-                    <span class="field-label" id="af-offcampus-label">Are you an official off-campus organization?</span>
+                    <span class="field-label" id="af-offcampus-label">Is your initiative affiliated with an official off-campus organization?</span>
                     <div class="radio-group" role="radiogroup" aria-labelledby="af-offcampus-label">
-                      <label class="radio-option"><input type="radio" name="off_campus_org" value="Yes"><span>Yes</span></label>
-                      <label class="radio-option"><input type="radio" name="off_campus_org" value="No"><span>No</span></label>
+                      <label class="radio-option"><input type="radio" name="off_campus_org" value="Yes" required aria-required="true"><span>Yes</span></label>
+                      <label class="radio-option"><input type="radio" name="off_campus_org" value="No" required aria-required="true"><span>No</span></label>
                     </div>
+                  </div>
+                  <div class="form-field" id="af-offcampus-name-wrap" hidden>
+                    <label for="af-offcampus-name">Off-campus organization name<span aria-hidden="true">*</span></label>
+                    <input type="text" id="af-offcampus-name" name="off_campus_org_name" maxlength="255" placeholder="Type the name of the off-campus organization">
                   </div>
                 </div>
 
@@ -523,6 +538,6 @@
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>
   <script src="/js/schools-data.js?v=8"></script>
-  <script src="/js/apply-form.js?v=9"></script>
+  <script src="/js/apply-form.js?v=10"></script>
 </body>
 </html>
