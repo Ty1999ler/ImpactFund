@@ -156,7 +156,10 @@
               </div>
             </div>
             <div class="help-block">
-              <p class="text-size-16-24-tight"><strong>Modèles facultatifs&nbsp;:</strong> téléchargez ces modèles si vous souhaitez un peu plus d'encadrement. Vous pouvez les remplir et les téléverser avec votre candidature.</p>
+              <!-- "vous" throughout: the supplied translation was drafted in "tu"
+                   ("tu peux", "ta candidature", "n'hésite pas"), and every other
+                   French surface on this site uses vous. -->
+              <p class="text-size-16-24-tight"><strong>Modèles&nbsp;:</strong> Nous avons créé des modèles que vous pouvez utiliser pour préparer votre candidature. Ils sont entièrement facultatifs, alors n'hésitez pas à les utiliser s'ils vous sont utiles, ou vous pouvez aussi soumettre les renseignements requis dans votre propre format.</p>
               <div class="help-buttons">
                 <!-- STILL HIDDEN: no Aperçu du projet template was supplied in the
                      Aug 2026 document set. Unhide once the file lands. -->
@@ -284,17 +287,11 @@
                 <div class="form-col">
                   <h3 class="block-title">Information sur l'organisme</h3>
                   <div class="form-field">
-                    <label for="af-org-name">Nom de l'organisme ou du groupe<span aria-hidden="true">*</span></label>
-                    <!-- "N/A" and not the more idiomatic "S.O.": both forms feed the
-                         same SharePoint column, so keeping one token avoids a mix of
-                         N/A and S.O. in the data the reviewers read. -->
-                    <p class="field-desc">Si vous n'appartenez à aucun organisme ou groupe, inscrivez N/A.</p>
-                    <input type="text" id="af-org-name" name="organization_name" placeholder="Nom de l'organisme ou du groupe" required aria-required="true">
-                  </div>
-                  <div class="form-field">
                     <label for="af-province">Province<span aria-hidden="true">*</span></label>
-                    <!-- Choisie en premier : restreint la liste des écoles
-                         ci-dessous à cette province (voir /js/apply-form.js). -->
+                    <!-- PREMIÈRE de la section (client, sept. 2026), ce qu'elle était
+                         déjà dans les faits : elle restreint la liste des écoles
+                         ci-dessous à cette province (voir /js/apply-form.js). Le nom
+                         du groupe se trouvait au-dessus et suit maintenant l'école. -->
                     <select id="af-province" name="province" required aria-required="true">
                       <option value="">Sélectionnez votre province</option>
                       <option value="AB">Alberta</option>
@@ -320,6 +317,22 @@
                       <div id="af-institution-listbox" class="combo-panel" role="listbox"
                            aria-label="Associations et écoles" hidden></div>
                     </div>
+                  </div>
+                  <div class="form-field">
+                    <label for="af-org-name">Nom de l'organisme ou du groupe<span aria-hidden="true">*</span></label>
+                    <!-- Reformulé en sept. 2026 : l'ancienne phrase demandait si la
+                         personne appartenait à un groupe, ce qui invitait à répondre
+                         sur soi plutôt que sur le projet.
+
+                         "N/A" and not the more idiomatic "S.O.": both forms feed the
+                         same SharePoint column, so keeping one token avoids a mix of
+                         N/A and S.O. in the data the reviewers read. Laura's copy had
+                         it lowercase; kept capitalised for that reason.
+
+                         "vous" and not the "tu" of the supplied translation — every
+                         other French surface on this site uses vous. -->
+                    <p class="field-desc">Si votre initiative n'est pas affiliée à une organisation ou à un groupe, inscrivez N/A.</p>
+                    <input type="text" id="af-org-name" name="organization_name" placeholder="Nom de l'organisme ou du groupe" required aria-required="true">
                   </div>
                   <div class="form-field form-field-radio">
                     <span class="field-label" id="af-recognized-label">Est-ce un groupe reconnu officiellement par votre campus&#8239;?</span>

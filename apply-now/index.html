@@ -147,7 +147,7 @@
               </div>
             </div>
             <div class="help-block">
-              <p class="text-size-16-24-tight"><strong>Optional templates:</strong> Download these templates if you'd like some extra guidance. You can fill them out and upload them with your application.</p>
+              <p class="text-size-16-24-tight"><strong>Templates:</strong> We've created templates you can use to prepare your submission. They're completely optional, so feel free to use them if they're helpful or submit the required information in your own format.</p>
               <div class="help-buttons">
                 <!-- STILL HIDDEN: no Project overview template was supplied in the
                      Aug 2026 document set. Unhide once the file lands. The webform
@@ -277,14 +277,13 @@
                 <div class="form-col">
                   <h3 class="block-title">Organization information</h3>
                   <div class="form-field">
-                    <label for="af-org-name">Organization / Group name<span aria-hidden="true">*</span></label>
-                    <p class="field-desc">If you don't belong to an organization or group, write N/A.</p>
-                    <input type="text" id="af-org-name" name="organization_name" placeholder="Type your group's name — e.g. Campus Sustainability Club" required aria-required="true">
-                  </div>
-                  <div class="form-field">
                     <label for="af-province">Province<span aria-hidden="true">*</span></label>
-                    <!-- Chosen first: it narrows the institution list below to
-                         that province only (see /js/apply-form.js). -->
+                    <!-- FIRST in the section (client, Sept 2026), which it always
+                         was in effect: it narrows the institution list below to
+                         that province only (see /js/apply-form.js). The group name
+                         used to sit above it and now follows the school, so the
+                         three questions read outward — where you are, where you
+                         study, who you are. -->
                     <select id="af-province" name="province" required aria-required="true">
                       <option value="">Select your province</option>
                       <option value="AB">Alberta</option>
@@ -310,6 +309,16 @@
                       <div id="af-institution-listbox" class="combo-panel" role="listbox"
                            aria-label="Associations and schools" hidden></div>
                     </div>
+                  </div>
+                  <div class="form-field">
+                    <label for="af-org-name">Organization / Group name<span aria-hidden="true">*</span></label>
+                    <!-- Reworded Sept 2026. The old line was "If you don't belong to
+                         an organization or group, write N/A", which invited people to
+                         answer the question about themselves rather than the project
+                         — Sophia's point. N/A stays capitalised: both languages feed
+                         one SharePoint column and a single token keeps it readable. -->
+                    <p class="field-desc">If your initiative is not affiliated with an organization or group, write N/A.</p>
+                    <input type="text" id="af-org-name" name="organization_name" placeholder="Type your group's name — e.g. Campus Sustainability Club" required aria-required="true">
                   </div>
                   <div class="form-field form-field-radio">
                     <span class="field-label" id="af-recognized-label">Is this a group officially recognized by your campus?</span>
