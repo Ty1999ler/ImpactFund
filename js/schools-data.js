@@ -43,7 +43,7 @@ window.ALUMO_SCHOOLS = [
   "school": "Mount Royal University",
   "association": "Students' Association of Mount Royal University (SAMRU)",
   "province": "AB",
-  "email": "Contact Email Coming Soon"
+  "email": "j.fisher@samru.ca"
  },
  {
   "school": "NorQuest College",
@@ -55,7 +55,7 @@ window.ALUMO_SCHOOLS = [
   "school": "Northern Alberta Institute of Technology (NAIT)",
   "association": "NAIT Students' Association (NAITSA)",
   "province": "AB",
-  "email": "Contact Email Coming Soon"
+  "email": "shaynam@nait.ca"
  },
  {
   "school": "Olds College",
@@ -133,7 +133,7 @@ window.ALUMO_SCHOOLS = [
   "school": "Douglas College",
   "association": "Douglas Students' Union (DSU)",
   "province": "BC",
-  "email": "Contact Email Coming Soon"
+  "email": "dalton@thedsu.ca"
  },
  {
   "school": "Kwantlen Polytechnic",
@@ -878,12 +878,6 @@ window.ALUMO_SCHOOLS = [
   "association": "N/A",
   "province": "SK",
   "email": "r.cross@suncrestcollege.ca"
- },
- {
-  "school": "University of Regina",
-  "association": "N/A",
-  "province": "SK",
-  "email": "Contact Email Coming Soon"
  },
  {
   "school": "University of Saskatchewan",
