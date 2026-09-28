@@ -418,12 +418,6 @@ window.ALUMO_SCHOOLS = [
   "email": "adoupe@loyalistcollege.com"
  },
  {
-  "school": "Maritime College of Forest Technology",
-  "association": "N/A",
-  "province": "NB",
-  "email": "Contact Email Coming Soon"
- },
- {
   "school": "McMaster University",
   "association": "McMaster Students' Union (MSU)",
   "province": "ON",
@@ -490,6 +484,12 @@ window.ALUMO_SCHOOLS = [
   "email": "sue.misasi@saultcollege.ca"
  },
  {
+  "school": "Seneca Polytechnic",
+  "association": "Seneca Student Federation (SSF)",
+  "province": "ON",
+  "email": "roel.isufllari@senecapolytechnic.ca"
+ },
+ {
   "school": "Seneca Polytechnic (International Students)",
   "association": "N/A",
   "province": "ON",
@@ -554,12 +554,6 @@ window.ALUMO_SCHOOLS = [
   "association": "University of Ottawa Students' Union (UOSU)",
   "province": "ON",
   "email": "president@seuo-uosu.com"
- },
- {
-  "school": "University of Toronto",
-  "association": "University of Toronto Students' Union (UTSU)",
-  "province": "ON",
-  "email": "Contact Email Coming Soon"
  },
  {
   "school": "University of Toronto",
