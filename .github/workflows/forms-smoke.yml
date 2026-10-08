@@ -664,6 +664,91 @@ jobs:
           grep -q 'We received your documents for your project:' /tmp/wack.txt
           if grep -qi 'evil' /tmp/wack.txt; then echo "the confirmation carries the link"; exit 1; fi
 
+      # ---- [TEST] marking on the winners page: sent as a test copy of the
+      # site (curl -H 'Host: staging.alumoimpact.ca', as in the application
+      # smoke), every winners subject starts "[TEST] " and submission.json says
+      # "test": true; localhost stays unmarked. CI has no SharePoint, so the
+      # team email here is the failure notice (the "filed" notices and the
+      # TEST / <root_folder> / … folder are covered by the php CLI step below).
+      - name: Winners — sent as staging, every subject says [TEST]; test and real never count as each other's second submission
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          first=$(cat /tmp/wfirst.id)
+          # subjects <container>: the decoded Subject: of every message it has
+          # captured so far, one per line.
+          subjects() {
+            docker exec "$1" sh -c 'cat /tmp/mail.all 2>/dev/null || true' > /tmp/mail.captured
+            sh ci/mail-subjects.sh /tmp/mail.captured
+          }
+          # wait_mail <container> <n>: until it has captured n messages. Each
+          # submission sends two after its response (the team email, then the
+          # confirmation), so each request waits for its pair.
+          wait_mail() {
+            for i in $(seq 1 30); do
+              [ "$(subjects "$1" | wc -l)" -ge "$2" ] && return 0
+              sleep 0.5
+            done
+            echo "expected $2 messages in $1"; subjects "$1"; return 1
+          }
+          docs=(-F file_agreement=@/tmp/wfix/agreement.docx
+                -F file_finance_form=@/tmp/wfix/finance-form.pdf
+                -F file_void_cheque=@/tmp/wfix/cheque.png)
+          # Only localhost has posted so far: nothing is marked.
+          subjects winners-open > /tmp/wsubj.txt
+          cat /tmp/wsubj.txt
+          if grep -q '\[TEST\]' /tmp/wsubj.txt; then echo "a localhost subject says [TEST]"; exit 1; fi
+          n=$(wc -l < /tmp/wsubj.txt)
+
+          # 1. The first real winner's own name and title, sent as staging: a
+          #    test submission, and NOT a second submission of the real one.
+          code=$(post 8791 -H 'Host: staging.alumoimpact.ca' "${FIELDS[@]}" "${docs[@]}")
+          test "$code" = "200"
+          t1=$(jq -r .id /tmp/body.json)
+          docker exec winners-open cat "/var/www/_submissions/winners/$t1/submission.json" > /tmp/wsubt.json
+          test "$(jq -r .test /tmp/wsubt.json)" = "true"
+          test "$(jq -r '.earlier_submissions | length' /tmp/wsubt.json)" = "0"
+          wait_mail winners-open $((n + 2))
+          subjects winners-open | tail -n 2 > /tmp/wsubj.txt
+          cat /tmp/wsubj.txt
+          test "$(sed -n 1p /tmp/wsubj.txt)" = "[TEST] Winner documents NOT yet filed — will retry ($t1)"
+          test "$(sed -n 2p /tmp/wsubj.txt)" = "[TEST] We received your documents — Student Impact Fund"
+
+          # 2. The same name again (reordered), in French, as staging: a
+          #    second submission of the TEST one only.
+          code=$(post 8791 -H 'Host: staging.alumoimpact.ca' -F school='University of Regina' \
+            -F full_name='Winner, CI' -F project_title='CI Test Project' -F email='ci-test@example.com' \
+            -F confirm='I confirm' -F locale=fr "${docs[@]}")
+          test "$code" = "200"
+          t2=$(jq -r .id /tmp/body.json)
+          docker exec winners-open cat "/var/www/_submissions/winners/$t2/submission.json" > /tmp/wsubt.json
+          test "$(jq -r .test /tmp/wsubt.json)" = "true"
+          test "$(jq -r '[.earlier_submissions[].id] | join(" ")' /tmp/wsubt.json)" = "$t1"
+          wait_mail winners-open $((n + 4))
+          subjects winners-open | tail -n 2 > /tmp/wsubj.txt
+          cat /tmp/wsubj.txt
+          test "$(sed -n 1p /tmp/wsubj.txt)" = "[TEST] SECOND SUBMISSION — Winner documents NOT yet filed — will retry ($t2)"
+          test "$(sed -n 2p /tmp/wsubj.txt)" = "[TEST] Nous avons bien reçu vos documents — Fonds d'impact étudiant"
+
+          # 3. The same name from localhost once more: unmarked, and its
+          #    earlier submissions are the two real ones — neither test id.
+          code=$(post 8791 "${FIELDS[@]}" "${docs[@]}")
+          test "$code" = "200"
+          r3=$(jq -r .id /tmp/body.json)
+          docker exec winners-open cat "/var/www/_submissions/winners/$r3/submission.json" > /tmp/wsubr.json
+          test "$(jq -r .test /tmp/wsubr.json)" = "false"
+          jq -r '.earlier_submissions[].id' /tmp/wsubr.json > /tmp/wearlier.txt
+          cat /tmp/wearlier.txt
+          grep -qx "$first" /tmp/wearlier.txt
+          test "$(wc -l < /tmp/wearlier.txt)" = "2"   # the first and second real submissions
+          if grep -qx -e "$t1" -e "$t2" /tmp/wearlier.txt; then echo "a real submission counted a test one"; exit 1; fi
+          wait_mail winners-open $((n + 6))
+          subjects winners-open | tail -n 2 > /tmp/wsubj.txt
+          cat /tmp/wsubj.txt
+          test "$(sed -n 1p /tmp/wsubj.txt)" = "SECOND SUBMISSION — Winner documents NOT yet filed — will retry ($r3)"
+          test "$(sed -n 2p /tmp/wsubj.txt)" = "We received your documents — Student Impact Fund"
+          no_attachments winners-open
+
       - name: Winners — missing file and field errors are 422 and store nothing
         run: |
           set -euo pipefail
@@ -861,6 +946,27 @@ jobs:
           $expect('school on the frozen list (any case)', winners_school_listed($list, 'university of regina') === true);
           $expect('school not on the list', winners_school_listed($list, 'Anything At All') === false);
           $expect('unreadable list -> unchecked', winners_school_listed('/nonexistent.js', 'x') === null);
+          // [TEST] marking reads the ARCHIVED flag (a retry has no host).
+          $expect('record without test -> real', winners_is_test(['id' => 'x']) === false);
+          $expect("record with test 'yes' -> real (true only)", winners_is_test(['test' => 'yes']) === false);
+          $expect('record with test true -> test', winners_is_test(['test' => true]) === true);
+          $rec = ['root_folder' => 'Winners', 'round' => 'Fall 2026', 'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P']];
+          $expect('real folder: Winners / round / leaf, root at 0',
+              winners_folder_segments($rec) === [['Winners', 'Fall 2026', 'Jane Doe - P'], 0]);
+          $rec['test'] = true;
+          $expect('test folder: TEST / Winners / round / leaf, root at 1',
+              winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P'], 1]);
+          $tmp = sys_get_temp_dir() . '/winners-sep-' . getmypid();
+          foreach (['real-a' => false, 'test-b' => true] as $sid => $t) {
+              @mkdir("$tmp/$sid", 0700, true);
+              file_put_contents("$tmp/$sid/submission.json", json_encode(['id' => $sid, 'kind' => 'winners',
+                  'round' => 'R', 'test' => $t, 'fields' => ['full_name' => 'Jane Doe']]));
+          }
+          $ids = fn(array $e): array => array_column($e, 'id');
+          $expect('real submission: earlier = real ones only',
+              $ids(winners_earlier_submissions($tmp, 'R', 'Doe, Jane', 'new', false)) === ['real-a']);
+          $expect('test submission: earlier = test ones only',
+              $ids(winners_earlier_submissions($tmp, 'R', 'Doe, Jane', 'new', true)) === ['test-b']);
           exit($failed ? 1 : 0);
           PHP
 

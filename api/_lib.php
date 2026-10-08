@@ -930,6 +930,12 @@ function delivery_record_failure(array $cfg, string $dir, string $submissionId, 
      directory level, submissions_dir/<id>/DELIVERY-PENDING — cannot see them
      and can never push one down its email-capable path; and they list their
      files under 'documents', not 'files', as a second guard.
+   A submission from a test copy of the site (site_is_test, above) is marked
+   the way applications are: "[TEST] " in front of every winners email
+   subject, its documents filed under a top-level TEST folder
+   (TEST / <root_folder> / <round> / …), and 'test' => true in its
+   submission.json, which the retry reads back (cron has no host). Test and
+   real archives never count as each other's second submission.
    ====================================================================== */
 
 /* Where winner documents go, read from config every time (the retry job
@@ -1143,6 +1149,14 @@ function winners_check_upload($f, array $exts, int $maxBytes): array {
     return ['error' => 'file_type'];
 }
 
+/* Was this record sent from a test copy of the site? Read from the archived
+   'test' flag (winners.php sets it from site_is_test), never from the
+   current request: api/redeliver.php runs from cron, with no host to ask.
+   Absent (or anything but true) = a real submission. */
+function winners_is_test(array $record): bool {
+    return ($record['test'] ?? false) === true;
+}
+
 /* "Void cheque - Jane Doe.jpg". The extension goes on AFTER sp_safe_name,
    whose 100-character cap would otherwise cut it off a long name. */
 function winners_doc_name(string $label, string $fullName, string $ext): string {
@@ -1250,8 +1264,11 @@ function winners_name_keys(string $name): array {
    know it, therefore still reads as a second submission; the folder-name
    clash in winners_make_folder only catches an exact repeat. Called before
    this submission's own record is written, so every record found is an
-   earlier (or simultaneous) one. */
-function winners_earlier_submissions(string $winnersDir, string $round, string $fullName, string $ownId): array {
+   earlier (or simultaneous) one. Only records on the same side of $test
+   (winners_is_test) count: a dry run under a real winner's name must never
+   put a SECOND SUBMISSION warning on their real documents, nor a real
+   submission be flagged because someone tested with that name first. */
+function winners_earlier_submissions(string $winnersDir, string $round, string $fullName, string $ownId, bool $test): array {
     $keys = winners_name_keys($fullName);
     if (!$keys) return [];
     $found = [];
@@ -1261,6 +1278,7 @@ function winners_earlier_submissions(string $winnersDir, string $round, string $
         $otherId = (string)($other['id'] ?? '');
         if ($otherId === '' || $otherId === $ownId) continue;
         if ((string)($other['round'] ?? '') !== $round) continue;
+        if (winners_is_test($other) !== $test) continue;
         $otherName = (string)($other['fields']['full_name'] ?? '');
         if (!array_intersect($keys, winners_name_keys($otherName))) continue;
         $found[] = [
@@ -1325,10 +1343,31 @@ function winners_graph_get(array $auth, string $url, array $tolerate = [], &$sta
     return is_array($decoded) ? $decoded : [];
 }
 
+/* The folder a record is filed in, as [segments, index of the root]:
+   <root_folder> / <round> / "<Full name> - <Project title>" (root at 0), or
+   for a test submission (winners_is_test) the same one level down,
+   TEST / <root_folder> / … (root at 1) — the top-level TEST folder test
+   applications use. So test documents never sit beside a real winner's, and
+   a test folder can never clash with a real one. */
+function winners_folder_segments(array $record): array {
+    $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
+    $segments = [
+        sp_safe_name((string)($record['root_folder'] ?? ''), 'Winners'),
+        sp_safe_name((string)($record['round'] ?? ''), 'Round'),
+        sp_safe_name((string)($f['full_name'] ?? '') . ' - ' . (string)($f['project_title'] ?? ''), 'Winner'),
+    ];
+    if (!winners_is_test($record)) return [$segments, 0];
+    array_unshift($segments, 'TEST');
+    return [$segments, 1];
+}
+
 /* Root / round / "<Full name> - <Project title>". The round level is created
    when missing; the root only when create_root is true (see
    winners_graph_target) — otherwise a missing root fails the delivery, which
    leaves the documents queued for retry instead of filed somewhere open.
+   $rootIndex is the root's place in $segments (winners_folder_segments):
+   anything above it — the TEST folder — is created like the round, and the
+   restricted root then has to exist inside it (TEST / <root_folder>).
 
    A second submission NEVER goes into the existing folder. Folder names come
    from what the sender typed, and winners' names and projects are public once
@@ -1337,23 +1376,24 @@ function winners_graph_get(array $auth, string $url, array $tolerate = [], &$sta
    on the leaf instead gets a sibling "<leaf> (2 - <id suffix>)" — the
    graph_make_folder suffix pattern — and 'second' => true, which puts the
    SECOND SUBMISSION warning on the team notice. */
-function winners_make_folder(array $auth, string $driveId, array $segments, string $submissionId, bool $createRoot): array {
+function winners_make_folder(array $auth, string $driveId, array $segments, string $submissionId, bool $createRoot, int $rootIndex = 0): array {
     $leaf = array_pop($segments);
 
     $parentPath = '';
     foreach (array_values($segments) as $i => $segment) {
-        if ($i === 0 && !$createRoot) {
+        $path = $parentPath === '' ? $segment : "$parentPath/$segment";
+        if ($i === $rootIndex && !$createRoot) {
             winners_graph_get($auth, "https://graph.microsoft.com/v1.0/drives/$driveId/root:/"
-                . sp_encode_path($segment), [404], $rootStatus);
+                . sp_encode_path($path), [404], $rootStatus);
             if ($rootStatus === 404) {
-                throw new RuntimeException("SharePoint folder '$segment' does not exist. Alumo creates it "
+                throw new RuntimeException("SharePoint folder '$path' does not exist. Alumo creates it "
                     . '(with restricted permissions) before winners get the link; or set '
                     . "winners.create_root => true to let the site create it.");
             }
         } else {
             graph_create_folder($auth, $driveId, $parentPath, $segment, 'fail');
         }
-        $parentPath = $parentPath === '' ? $segment : "$parentPath/$segment";
+        $parentPath = $path;
     }
 
     $folder = graph_create_folder($auth, $driveId, $parentPath, $leaf, 'fail', $status);
@@ -1444,12 +1484,9 @@ function winners_graph_deliver(array $cfg, array $record, array $docs, array &$f
 
     $retry = !empty($folder['path']);
     if (!$retry) {
-        $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
-        $folder = winners_make_folder($auth, $target['drive_id'], [
-            sp_safe_name((string)($record['root_folder'] ?? ''), 'Winners'),
-            sp_safe_name((string)($record['round'] ?? ''), 'Round'),
-            sp_safe_name((string)($f['full_name'] ?? '') . ' - ' . (string)($f['project_title'] ?? ''), 'Winner'),
-        ], (string)($record['id'] ?? ''), $target['create_root']);
+        [$segments, $rootIndex] = winners_folder_segments($record);
+        $folder = winners_make_folder($auth, $target['drive_id'], $segments,
+            (string)($record['id'] ?? ''), $target['create_root'], $rootIndex);
     }
     if ((string)($folder['id'] ?? '') === '') {
         /* A recorded folder without its id: look it up where it was made. If it
@@ -1509,7 +1546,8 @@ function winners_finish_delivery(string $dir, array $docs, array $folder, string
     return !$left;
 }
 
-/* Team notice once SharePoint has the documents (first try or a retry). */
+/* Team notice once SharePoint has the documents (first try or a retry).
+   "[TEST] " in front of the subject for a test record. */
 function winners_notify_delivered(array $cfg, array $record, array $folder, bool $afterRetry, bool $copiesDeleted): void {
     try {
         $to = winners_notify_address($cfg);
@@ -1531,7 +1569,7 @@ function winners_notify_delivered(array $cfg, array $record, array $folder, bool
                    ? "The copies on the web server have been deleted.\n"
                    : "WARNING: the copies on the web server could NOT all be deleted — see\n"
                      . "files_delete_failed in the archive's submission.json and remove them by hand.\n");
-        winners_send_mail($cfg, $to, $subject, $body);
+        winners_send_mail($cfg, $to, test_prefix(winners_is_test($record), $subject), $body);
     } catch (Throwable $e) {
         error_log('winners: team notice failed for ' . (string)($record['id'] ?? '?') . ': ' . $e->getMessage());
     }
@@ -1541,6 +1579,7 @@ function winners_notify_delivered(array $cfg, array $record, array $folder, bool
    the team ONE notice (redeliver.php never repeats it) — without attachments.
    $mode is 'graph' (SharePoint refused) or 'awaiting-graph' (delivery not
    configured; only reachable with allow_without_graph, i.e. in CI).
+   "[TEST] " in front of the subject for a test record.
    Shielded: the winner already has ok:true, and nothing here may throw. */
 function winners_record_failure(array $cfg, string $dir, array $record, string $mode, string $error, array $folder): void {
     $id = (string)($record['id'] ?? basename($dir));
@@ -1575,8 +1614,8 @@ function winners_record_failure(array $cfg, string $dir, array $record, string $
                   : "delivery_mode is not 'graph' on this server, so nothing can file them\n"
                     . "until SharePoint delivery is switched on; the retry job then picks\n"
                     . "them up.\n");
-        $sent = winners_send_mail($cfg, $to, ($second !== '' ? 'SECOND SUBMISSION — ' : '')
-            . "Winner documents NOT yet filed — will retry ($id)", $body);
+        $sent = winners_send_mail($cfg, $to, test_prefix(winners_is_test($record),
+            ($second !== '' ? 'SECOND SUBMISSION — ' : '') . "Winner documents NOT yet filed — will retry ($id)"), $body);
         if ($sent) {
             $marker['notified'] = true;
             @file_put_contents($dir . '/DELIVERY-PENDING', json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -1605,9 +1644,12 @@ function winners_ack_value(string $value, int $max): string {
    mail strangers. A round has a few dozen winners, far below the cap; past
    it the documents are still archived, filed and notified to the team as
    usual — only the confirmation is skipped (and logged). Same fixed-window
-   file as rate_limit(), and it fails open the same way. */
-function winners_ack_budget(int $max, int $windowSeconds): bool {
-    $file = sys_get_temp_dir() . '/impactfund-winners-ack';
+   file as rate_limit(), and it fails open the same way. Test confirmations
+   ($test) have a budget of their own, so a day of testing on a copy of the
+   site that shares this server's temp directory can never use up the real
+   winners' confirmations. */
+function winners_ack_budget(int $max, int $windowSeconds, bool $test = false): bool {
+    $file = sys_get_temp_dir() . '/impactfund-winners-ack' . ($test ? '-test' : '');
     $now = time();
     $stamps = [];
     if (is_file($file)) {
@@ -1626,12 +1668,14 @@ function winners_ack_budget(int $max, int $windowSeconds): bool {
    TYPES only; nothing is attached. Replies go to winners.notify_to when set,
    because the email invites them ("just reply to this email"). The name and
    title go through winners_ack_value, and at most 30 confirmations a day go
-   out (winners_ack_budget). */
+   out (winners_ack_budget). "[TEST] " in front of the subject for a test
+   record. */
 function winners_ack(array $cfg, array $record): void {
     $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
     $email = (string)($f['email'] ?? '');
     if ($email === '') return;
-    if (!winners_ack_budget(30, 86400)) {
+    $test = winners_is_test($record);
+    if (!winners_ack_budget(30, 86400, $test)) {
         error_log('winners: daily confirmation cap reached — no confirmation sent for '
             . (string)($record['id'] ?? '?') . ' (documents are safe)');
         return;
@@ -1658,12 +1702,15 @@ function winners_ack(array $cfg, array $record): void {
               . "Student Impact Fund by Alumo\n";
     }
     $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
-    winners_send_mail($cfg, $email, $subject, $body, trim((string)($w['notify_to'] ?? '')));
+    winners_send_mail($cfg, $email, test_prefix($test, $subject), $body, trim((string)($w['notify_to'] ?? '')));
 }
 
 /* Retry one winner archive (api/redeliver.php, cron). Mirrors redeliver_one's
    bookkeeping, but delivers through Graph ONLY: with any other delivery_mode
-   the archive is left pending, never emailed. Returns the one-line summary. */
+   the archive is left pending, never emailed. Returns the one-line summary.
+   A test record keeps its marks on the retry ("[TEST] " subjects, the TEST
+   folder): they come from its archived 'test' flag (winners_is_test), as a
+   cron run has no host. */
 function winners_redeliver_one(array $cfg, string $dir, string $id): string {
     $label = "winners/$id";
     $markerPath = $dir . '/DELIVERY-PENDING';

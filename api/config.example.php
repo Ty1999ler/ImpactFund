@@ -74,6 +74,8 @@ return [
        SharePoint list item's Title, and its documents go under a top-level
        "TEST" folder (TEST / Region / Title - School). Recorded as "test" in
        submission.json, so api/redeliver.php keeps the marks on a retry.
+       The Winners page (api/winners.php) is marked the same way — see the
+       'winners' block at the end of this file.
        Production (alumoimpact.ca, www.) and any other host are never marked.
        true / false forces it either way (booleans only; anything else counts
        as absent) — on every host except alumoimpact.ca / www., which stay
@@ -177,10 +179,19 @@ return [
        before paying". No SharePoint list item is created.
        Each submission emails notify_to (else failure_notify_to, else
        relay_to) a notice WITHOUT attachments, and the winner a confirmation
-       whose replies go to notify_to. */
+       whose replies go to notify_to.
+       Sent from a test copy of the site (test_mode above; automatic on
+       staging and its preview copies and the NAS): "[TEST] " in front of
+       every winners email subject (team notice, confirmation, failure and
+       filed-after-retry notices), documents under
+       TEST / <root_folder> / <round> / … — so with create_root false,
+       TEST / <root_folder> has to exist in that drive too — and "test": true
+       in submission.json, which the retry reads back. A test submission
+       never counts as an earlier submission of a real winner, nor the
+       reverse. */
     'winners' => [
         'round'       => 'Fall 2026',   // SharePoint level 2; next round: 'Winter 2027'
-        'root_folder' => 'Winners',     // SharePoint level 1; staging: 'Winners (TEST)'
+        'root_folder' => 'Winners',     // SharePoint level 1 (test copies of the site: under TEST /)
         'opens_at'    => '',            // '' = open as soon as configured
         'closes_at'   => '',            // REQUIRED, e.g. '2026-10-30T23:59:59-04:00'; 'none' = no deadline; '' = page stays closed
         /* Submissions only: an upload already on its way at closes_at is

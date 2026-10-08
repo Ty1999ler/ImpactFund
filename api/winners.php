@@ -18,6 +18,10 @@
    4. emails the team a notice and the winner a confirmation. Neither ever
       carries an attachment: documents never travel by email (see the winners
       block at the end of _lib.php for how that is enforced).
+   Sent from a test copy of the site (staging and its preview copies, the
+   NAS — site_is_test in _lib.php), every email subject says "[TEST]", the
+   documents are filed under TEST / <root_folder> / …, and test and real
+   submissions never count as each other's second submission.
    Errors answer {ok:false, error:<key>, message:<English>, fields:{name:<key>}};
    js/winners-form.js maps the keys onto its EN/FR copy.
 
@@ -146,6 +150,12 @@ $fields = [
     'locale'        => $data['locale'],
 ];
 
+/* Sent from a test copy of the site (see site_is_test in _lib.php)? Worked
+   out once and archived as 'test' — api/redeliver.php has no host and reads
+   it back — so every email subject, the SharePoint folder and the
+   second-submission check follow the record, not the request. */
+$isTest = site_is_test($cfg);
+
 $id   = gmdate('Ymd-His') . '-' . bin2hex(random_bytes(4));
 $base = rtrim((string)$cfg['submissions_dir'], '/\\');
 $dir  = $base . '/winners/' . $id;
@@ -179,13 +189,15 @@ $record = [
     'round'        => $w['round'],
     'root_folder'  => $w['root_folder'],
     'received_utc' => gmdate('c'),
+    'test'         => $isTest,
     'fields'       => $fields,
     /* Someone sending a different void cheque for a real winner need only
        type the project title differently to get a fresh folder, so repeats
        are found by NAME across the round's records, not by folder. Non-empty
        = SECOND SUBMISSION on every team notice; stored, so a retry says the
-       same thing. */
-    'earlier_submissions' => winners_earlier_submissions($base . '/winners', $w['round'], $fields['full_name'], $id),
+       same thing. Test records are only compared with test records, real
+       with real. */
+    'earlier_submissions' => winners_earlier_submissions($base . '/winners', $w['round'], $fields['full_name'], $id, $isTest),
     /* 'documents', NOT 'files': the application retry path reads 'files', so
        a winner archive that somehow reached it would find nothing to send. */
     'documents'    => array_map(fn($s) => ['slot' => $s['slot'], 'label' => $s['label'], 'name' => $s['name']], $stored),

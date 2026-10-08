@@ -17,7 +17,7 @@ assets/img|fonts|docs      all images, self-hosted Inter + Source Serif Pro, PDF
 BUILD_NOTES.md             EN build conventions   BUILD_NOTES_FR.md  FR conventions
 PLANS.md                   forms + i18n forward plans
 _tools/mirror.py           re-downloads the live-site reference mirror into _source/
-_tools/submit_test.py      one-command [TEST] application to staging (never production)
+_tools/submit_test.py      one-command [TEST] application (or winners upload) to staging, never production
 ```
 
 `_source/` (git-ignored) is a mirror of the live WordPress site used as the
@@ -71,7 +71,12 @@ or `caddy file-server --listen :8777`.
   `round`, `root_folder`, `opens_at` (ISO with offset, or ''), `closes_at`
   (REQUIRED: ISO with offset, or 'none'), `close_grace_minutes`, `notify_to`,
   `drive_id`, `create_root` — and stays closed ("not ready", 503) unless
-  `delivery_mode` is `graph` with credentials.
+  `delivery_mode` is `graph` with credentials. Sent from a test copy of the
+  site it is marked like an application (below): `[TEST] ` on every winners
+  email subject, the documents under `TEST/<root_folder>/<round>/…` (so with
+  `create_root` false, `TEST/<root_folder>` must exist too), `"test": true`
+  in its `submission.json`; test and real submissions never count as each
+  other's second submission.
 - Setup: copy `api/config.example.php` to `api/config.php` and fill it in
   (config.php is git-ignored — this repo is public; never commit it).
 - The nginx image does NOT run PHP: once the forms go live, build with
@@ -120,7 +125,11 @@ or `caddy file-server --listen :8777`.
   `--contact`, `--dry-run`) — a complete valid application with five tiny
   PDFs, checked against `api/apply.php`'s own rules first; it refuses
   alumoimpact.ca and the retired september. copy. Counts toward the
-  5-applications-per-hour limit.
+  5-applications-per-hour limit. `--winners` sends a complete Winners page
+  submission to `api/winners.php` instead ("TEST Winner", a school from the
+  frozen list, a tiny .docx / PDF / PNG made in memory, checked against
+  `api/winners.php`'s rules first; 10 per hour), e.g.
+  `python _tools/submit_test.py --winners --email you@example.com --dry-run`.
 
 ## Data
 
