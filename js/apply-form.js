@@ -7,8 +7,9 @@
    and delivers it per api/config.php (email relay or SharePoint
    via Microsoft Graph — see api/config.example.php). The server
    answers JSON {ok, error, fields} with per-field error strings,
-   and 503 "not configured" until api/config.php exists on the
-   server.
+   503 "not configured" until api/config.php exists on the
+   server, and 403 "Submissions are now closed." from closes_at
+   (+ close_grace_minutes) onward — mapped to T.errClosed below.
    ============================================================ */
 (function () {
   "use strict";
@@ -52,6 +53,7 @@
     uploadFailed: "Le téléversement a échoué — veuillez réessayer.",
     errFields: "Veuillez vérifier les champs surlignés.",
     errNotOpen: "Les soumissions ne sont pas encore ouvertes.",
+    errClosed: "Les soumissions sont fermées pour le moment. Revenez consulter cette page le 4 janvier 2027, date à laquelle elles rouvriront pour l'hiver 2027\u202F!",
     errTooLarge: "La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins.",
     errServer: "Votre demande n'a pas pu être envoyée. Veuillez réessayer plus tard.",
     errNetwork: "Votre demande n'a pas pu être envoyée. Veuillez vérifier votre connexion et réessayer.",
@@ -75,6 +77,7 @@
     uploadFailed: "Upload failed — please retry.",
     errFields: "Please check the highlighted fields.",
     errNotOpen: "Submissions are not open yet.",
+    errClosed: "Submissions are closed for now. Please check back on January 4, 2027, when they reopen for Winter 2027!",
     errTooLarge: "The submission is too large. Each file must be 10 MB or less.",
     errServer: "Your application could not be submitted. Please try again later.",
     errNetwork: "Your application could not be submitted. Please check your connection and try again.",
@@ -95,6 +98,8 @@
   var SERVER_ERRORS = {
     "Please check the highlighted fields.": T.errFields,
     "Submissions are not open yet.": T.errNotOpen,
+    /* Key must match api/apply.php byte for byte. */
+    "Submissions are now closed.": T.errClosed,
     "The submission is too large. Each file must be 10 MB or less.": T.errTooLarge,
     "Could not store the submission. Please try again later.": T.errServer
   };

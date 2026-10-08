@@ -3,7 +3,10 @@
 # PHP mail() "succeeds" without a real MTA. mail()'s return value is just the
 # sendmail exit status, so exiting 0 makes contact.php take its 200 path.
 # The raw message (headers + body arrive on stdin) is captured to
-# /tmp/mail.out for the workflow to docker-exec back out and assert on.
+# /tmp/mail.out for the workflow to docker-exec back out and assert on, and
+# appended to /tmp/mail.all, which keeps every message (an application in
+# email mode sends two: the relay, then the acknowledgement).
 # sendmail's -t / -i / -f arguments are ignored on purpose.
 cat > /tmp/mail.out
+cat /tmp/mail.out >> /tmp/mail.all
 exit 0

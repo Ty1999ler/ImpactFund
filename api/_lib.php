@@ -124,6 +124,62 @@ function honeypot_check(): void {
     }
 }
 
+/* ---------- Test copies of the site ----------
+   A submission sent from a test copy (staging, its before./open./closed.
+   preview copies, the retired september. copy, the NAS) is marked so a dry
+   run can never pass for a real application: "[TEST] " in front of every
+   email subject and of the SharePoint list item's Title, its documents filed
+   under a top-level "TEST" folder, and "test": true in submission.json (so
+   api/redeliver.php, which has no host, keeps the marks on a retry).
+   Production (alumoimpact.ca, www.) and every other name — localhost and CI
+   included — stay unmarked.
+   config 'test_mode' (true/false) overrides the host either way; absent (or
+   not a boolean) = by host. Production's own names are checked FIRST and are
+   never marked, whatever test_mode says: a staging config copied to
+   production must not turn every real application into "[TEST]". HTTP_HOST
+   comes from the client, but it is also what picks the document root on the
+   host, so production's own api/ only sees a test name if someone forges
+   one — and marks only their own submission. A leading "www." (cPanel's
+   alias) and a ":port" are ignored. */
+const SITE_LIVE_HOSTS = ['alumoimpact.ca'];
+const SITE_TEST_HOSTS = [
+    'staging.alumoimpact.ca',
+    'before.alumoimpact.ca',
+    'open.alumoimpact.ca',
+    'closed.alumoimpact.ca',
+    'september.alumoimpact.ca',
+    'impactfund.wareham.stream',
+];
+
+function site_is_test(array $cfg): bool {
+    $host = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));   /* CLI: none */
+    $host = rtrim((string)preg_replace('/:\d*$/', '', $host), '.');
+    if (strpos($host, 'www.') === 0) $host = substr($host, 4);
+    if (in_array($host, SITE_LIVE_HOSTS, true)) return false;   /* whatever test_mode says */
+    if (isset($cfg['test_mode']) && is_bool($cfg['test_mode'])) {
+        return $cfg['test_mode'];
+    }
+    return in_array($host, SITE_TEST_HOSTS, true);
+}
+
+/* "[TEST] " in front of a subject/title when $test, else it unchanged. */
+function test_prefix(bool $test, string $text): string {
+    return $test ? '[TEST] ' . $text : $text;
+}
+
+/* A schedule date from config as a Unix timestamp, or false. Only an ISO
+   date-time WITH an explicit offset is accepted ("2026-10-15T23:59:59-04:00"
+   or "...Z"): strtotime() would happily read "2026-10-15 23:59" in the
+   server's default time zone (UTC on most shared hosting), four hours off
+   yet still "valid". Same pattern as /js/main.js and
+   _tools/verify_integrity.py check 6. */
+function schedule_time(string $raw) {
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$/', $raw)) {
+        return false;
+    }
+    return strtotime($raw);
+}
+
 /* ---------- SMTP transport ----------
    Used when config has smtp.host; otherwise send_mail() falls back to PHP
    mail(). Authenticated SMTP is strongly preferred here: alumoimpact.ca
@@ -340,7 +396,8 @@ function http_json(string $url, $body, array $headers, string $method = 'POST', 
    Files are filed as  Region / Project title - School /  — two levels, which
    is how the review is organised. There is no province level: the school in
    the folder name already says where it is, and every level costs characters
-   against SharePoint's 255-character limit on link columns.
+   against SharePoint's 255-character limit on link columns. (Submissions
+   from a test copy of the site go one level down, under TEST /.)
 
    The submission id is not the folder name — it meant nothing to a human —
    but it still identifies the submission in the list, the archive and the
@@ -514,7 +571,9 @@ function parse_amount(string $value): ?float {
     return $number === false ? null : (float)$number;
 }
 
-function graph_deliver(array $g, string $submissionId, array $fields, array $files): void {
+/* $test: a submission from a test copy of the site (site_is_test, or the
+   'test' flag in its submission.json on a retry). */
+function graph_deliver(array $g, string $submissionId, array $fields, array $files, bool $test = false): void {
     $token = graph_token($g);
     $auth  = ["Authorization: Bearer $token"];
 
@@ -530,10 +589,24 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
     $title       = trim((string)($fields['Title'] ?? ''));
     $leaf        = $school !== '' ? "$title - $school" : $title;
 
-    $folder = $files ? graph_make_folder($auth, $g['drive_id'], [
+    $segments = [
         sp_safe_name(sp_region_folder($province, $institution), 'Unfiled'),
         sp_safe_name($leaf, 'Untitled project'),
-    ], $submissionId) : ['path' => '', 'webUrl' => '', 'id' => ''];
+    ];
+    /* A test submission files under its own top-level folder
+       (TEST / Region / Title - School) and its Title gets "[TEST] " — added
+       after the folder name is built from the plain title, and BEFORE
+       graph_map_fields renames the columns. The title is shortened, never
+       the prefix, to keep within the 255 characters a single line of text
+       column holds (the cap in apply.php's $FIELDS). */
+    if ($test) {
+        array_unshift($segments, 'TEST');
+        $fields['Title'] = test_prefix(true, mb_substr((string)($fields['Title'] ?? ''), 0,
+            255 - mb_strlen(test_prefix(true, ''))));
+    }
+
+    $folder = $files ? graph_make_folder($auth, $g['drive_id'], $segments, $submissionId)
+        : ['path' => '', 'webUrl' => '', 'id' => ''];
 
     /* The drive-item id, not the path: it survives someone tidying the
        library, so scripts that read the documents keep working. */
@@ -794,8 +867,9 @@ function delivery_update_record(string $dir, array $delivery): void {
 /* First failure for a submission: write the retry marker, note the failure in
    submission.json, and email the team ONE notice (redeliver.php deliberately
    never repeats it). Everything here is shielded — the applicant already has
-   ok:true, and nothing in this function may throw past it. */
-function delivery_record_failure(array $cfg, string $dir, string $submissionId, string $mode, string $error, array $data): void {
+   ok:true, and nothing in this function may throw past it.
+   $test: a submission from a test copy of the site — "[TEST] " on the notice. */
+function delivery_record_failure(array $cfg, string $dir, string $submissionId, string $mode, string $error, array $data, bool $test = false): void {
     $error = mb_substr($error, 0, 500);
     $failedAt = gmdate('c');
     $marker = [
@@ -824,7 +898,7 @@ function delivery_record_failure(array $cfg, string $dir, string $submissionId, 
               . "The server retries delivery automatically every 30 minutes\n"
               . "(api/redeliver.php) and will email this address again to confirm\n"
               . "once the submission is delivered.\n";
-        $sent = @send_mail($cfg, $to, "Submission delivery FAILED — will retry ($submissionId)", $body);
+        $sent = @send_mail($cfg, $to, test_prefix($test, "Submission delivery FAILED — will retry ($submissionId)"), $body);
         if ($sent) {
             $marker['notified'] = true;
             @file_put_contents($dir . '/DELIVERY-PENDING', json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

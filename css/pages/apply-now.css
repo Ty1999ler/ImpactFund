@@ -221,6 +221,27 @@
   .apply-form-section .apply-closed-date { font-size: 22px; }
 }
 
+/* Post-close note under the H1 (client, Oct 2026). The closed card above sits
+   at the very bottom, below four steps of content; this says it where people
+   land. Orange for the same reason as that card: an announcement about dates.
+   685px = the intro text's width (how-to-apply.css). No display is set on
+   purpose, so the `hidden` attribute /js/main.js toggles keeps working; if a
+   display is ever added, add a [hidden] guard with it (as on .apply-form-card
+   above). */
+.apply-hero .apply-closed-notice {
+  max-width: 685px;
+  margin: 0;
+  padding: 20px 24px;
+  border-radius: var(--radius-card);
+  background-color: var(--primary);
+  font-family: var(--font-inter);
+  font-weight: 500;
+  color: var(--accent);
+}
+@media (max-width: 576px) {
+  .apply-hero .apply-closed-notice { padding: 16px; }
+}
+
 /* ============================================================
    MULTI-STEP APPLICATION FORM (inside .apply-form-open)
    Field look mirrors the shared .contact-form (style.css); step

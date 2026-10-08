@@ -45,7 +45,7 @@ jobs:
           # CONFIG MOUNT: Dockerfile.php rm's api/config.php from the image,
           # but a single-file bind mount creates the missing destination
           # path, so mounting config.ci.php over it works.
-          sed -i 's/\r$//' ci/fake-sendmail.sh   # guard against a CRLF checkout breaking the shebang
+          sed -i 's/\r$//' ci/fake-sendmail.sh ci/mail-subjects.sh   # guard against a CRLF checkout breaking the shebang
           chmod +x ci/fake-sendmail.sh           # exec bit may not survive a Windows-side commit
           docker run -d --name site -p 8777:8777 \
             -v "$PWD/api/config.ci.php:/var/www/html/api/config.php:ro" \
@@ -76,6 +76,8 @@ jobs:
           docker exec site cat /tmp/mail.out > /tmp/mail.captured
           grep -q 'contact-ci@example.invalid' /tmp/mail.captured   # To: header = config contact_to
           grep -q 'Smoke test message from CI' /tmp/mail.captured   # body made it through
+          # localhost is not a test host: no [TEST] in the subject.
+          test "$(sh ci/mail-subjects.sh /tmp/mail.captured)" = "Contact form — Smoke Test"
 
       - name: Contact — bad email returns 422 with fields.email
         run: |
@@ -89,6 +91,60 @@ jobs:
           test "$status" = "422"
           test "$(jq -r .ok /tmp/body.json)" = "false"
           test "$(jq -r '.fields.email' /tmp/body.json)" = "Invalid email"
+
+      # ---- [TEST] marking (Oct 2026): a form sent from a test copy of the
+      # site (staging and its preview copies, the NAS — SITE_TEST_HOSTS in
+      # api/_lib.php) gets "[TEST] " in front of every email subject and
+      # "test": true in submission.json; production and localhost stay
+      # unmarked. curl -H 'Host: …' stands in for the host name the browser
+      # would send; config.ci.php has no test_mode key, so it is automatic.
+      - name: Contact — test hosts get [TEST] in the subject, production names don't
+        run: |
+          set -euo pipefail
+          for pair in 'staging.alumoimpact.ca:[TEST] ' 'www.before.alumoimpact.ca:[TEST] ' \
+                      'impactfund.wareham.stream:[TEST] ' 'alumoimpact.ca:' 'www.alumoimpact.ca:'; do
+            host=${pair%%:*}; prefix=${pair#*:}
+            status=$(curl -sS -o /tmp/body.json -w '%{http_code}' -H "Host: $host" \
+              -d name='Host Test' \
+              -d email='host-test@example.com' \
+              -d message="Sent as $host" \
+              http://localhost:8777/api/contact.php)
+            test "$status" = "200"
+            docker exec site cat /tmp/mail.out > /tmp/mail.captured
+            grep -q "Sent as $host" /tmp/mail.captured             # this request's message
+            subject=$(sh ci/mail-subjects.sh /tmp/mail.captured)
+            echo "$host -> $subject"
+            test "$subject" = "${prefix}Contact form — Host Test"
+          done
+
+      - name: Contact — test_mode true marks any host but production's names
+        run: |
+          set -euo pipefail
+          # Its own container (own rate-limit store) with 'test_mode' => true
+          # added by sed: a staging config copied to production must not mark
+          # real submissions, so alumoimpact.ca / www. stay plain even then.
+          sed "s/'delivery_mode' => 'off',/&\n    'test_mode' => true,/" api/config.ci.php > /tmp/config.forced.php
+          grep -q "'test_mode' => true," /tmp/config.forced.php
+          docker run -d --name site-forced -p 8783:8777 \
+            -v /tmp/config.forced.php:/var/www/html/api/config.php:ro \
+            -v "$PWD/ci/fake-sendmail.sh:/usr/sbin/sendmail:ro" site
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            --retry-all-errors http://localhost:8783/
+          for pair in 'localhost:8783|[TEST] ' '192.0.2.10:8777|[TEST] ' \
+                      'alumoimpact.ca|' 'www.alumoimpact.ca:443|'; do
+            host=${pair%%|*}; prefix=${pair#*|}
+            status=$(curl -sS -o /tmp/body.json -w '%{http_code}' -H "Host: $host" \
+              -d name='Forced Test' \
+              -d email='forced-test@example.com' \
+              -d message="Sent as $host" \
+              http://localhost:8783/api/contact.php)
+            test "$status" = "200"
+            docker exec site-forced cat /tmp/mail.out > /tmp/mail.captured
+            grep -q "Sent as $host" /tmp/mail.captured
+            subject=$(sh ci/mail-subjects.sh /tmp/mail.captured)
+            echo "$host -> $subject"
+            test "$subject" = "${prefix}Contact form — Forced Test"
+          done
 
       - name: Create upload fixtures
         run: |
@@ -141,6 +197,57 @@ jobs:
           docker exec site cat "/var/www/_submissions/$id/submission.json" > /tmp/submission.json
           test "$(jq -r .fields.project_title /tmp/submission.json)" = "CI Smoke Project"
           test "$(jq -r '.files | length' /tmp/submission.json)" = "5"
+          # Sent to localhost: not a test submission, and the acknowledgement
+          # has no [TEST]. It goes out AFTER the response (respond_and_continue),
+          # so wait for it to reach the fake sendmail.
+          test "$(jq -r .test /tmp/submission.json)" = "false"
+          for i in $(seq 1 30); do
+            docker exec site cat /tmp/mail.out > /tmp/mail.captured 2>/dev/null || true
+            grep -q '^To: ada@example.com' /tmp/mail.captured && break
+            sleep 0.5
+          done
+          test "$(sh ci/mail-subjects.sh /tmp/mail.captured)" = "We received your application — Student Impact Fund"
+
+      - name: Apply — sent as staging, the submission is marked test and the acknowledgement says [TEST]
+        run: |
+          set -euo pipefail
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' -H 'Host: staging.alumoimpact.ca' \
+            -F primary_first_name='Test' \
+            -F primary_last_name='Staging' \
+            -F primary_email='staging-test@example.com' \
+            -F primary_role='President' \
+            -F organization_name='CI Test Org' \
+            -F province='ON' \
+            -F institution='Test University' \
+            -F project_title='CI Staging Project' \
+            -F category='Sustainability' \
+            -F funding_requested='1000' \
+            -F total_cost='1500' \
+            -F fund_acknowledgement='yes' \
+            -F project_summary='A smoke-test submission sent as staging.' \
+            -F students_in_org='12' \
+            -F students_reached='300' \
+            -F consent='yes' \
+            -F file_project_overview=@/tmp/fixtures/project-overview.pdf \
+            -F file_budget=@/tmp/fixtures/budget.pdf \
+            -F file_team_members=@/tmp/fixtures/team-members.pdf \
+            -F file_action_plan=@/tmp/fixtures/action-plan.pdf \
+            -F file_support_letter=@/tmp/fixtures/support-letter.pdf \
+            http://localhost:8777/api/apply.php)
+          cat /tmp/body.json; echo
+          test "$status" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          docker exec site cat "/var/www/_submissions/$id/submission.json" > /tmp/submission.json
+          test "$(jq -r .test /tmp/submission.json)" = "true"
+          test "$(jq -r .fields.project_title /tmp/submission.json)" = "CI Staging Project"   # the archive keeps the real title
+          for i in $(seq 1 30); do
+            docker exec site cat /tmp/mail.out > /tmp/mail.captured 2>/dev/null || true
+            grep -q '^To: staging-test@example.com' /tmp/mail.captured && break
+            sleep 0.5
+          done
+          subject=$(sh ci/mail-subjects.sh /tmp/mail.captured)
+          echo "acknowledgement: $subject"
+          test "$subject" = "[TEST] We received your application — Student Impact Fund"
 
       - name: Apply — honeypot pretends success but archives nothing
         run: |
@@ -178,6 +285,175 @@ jobs:
             *)   echo "unexpected status: $status"; exit 1 ;;
           esac
 
+      - name: Apply — email relay sent as a test host says [TEST] on both emails, as production on neither
+        run: |
+          set -euo pipefail
+          # Its own container with delivery_mode 'email', so the team relay is
+          # sent too (to relay_to, with the five attachments). The fake
+          # sendmail keeps every message in /tmp/mail.all.
+          sed "s/'delivery_mode' => 'off'/'delivery_mode' => 'email'/" api/config.ci.php > /tmp/config.email.php
+          grep -q "'delivery_mode' => 'email'" /tmp/config.email.php
+          docker run -d --name site-email -p 8782:8777 \
+            -v /tmp/config.email.php:/var/www/html/api/config.php:ro \
+            -v "$PWD/ci/fake-sendmail.sh:/usr/sbin/sendmail:ro" site
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            --retry-all-errors http://localhost:8782/
+          # $1 = Host header ('' = curl's own, localhost:8782), $2 = project title
+          apply() {
+            hdr=()
+            if [ -n "$1" ]; then hdr=(-H "Host: $1"); fi
+            curl -sS -o /tmp/body.json -w '%{http_code}' "${hdr[@]}" \
+              -F primary_first_name='Relay' -F primary_last_name='Test' \
+              -F primary_email='relay-test@example.com' -F primary_role='President' \
+              -F province='ON' -F institution='Test University' \
+              -F project_title="$2" -F category='Sustainability' \
+              -F funding_requested='1000' -F total_cost='1500' \
+              -F fund_acknowledgement='yes' -F project_summary='Relay smoke test.' \
+              -F students_in_org='12' -F students_reached='300' -F consent='yes' \
+              -F file_project_overview=@/tmp/fixtures/project-overview.pdf \
+              -F file_budget=@/tmp/fixtures/budget.pdf \
+              -F file_team_members=@/tmp/fixtures/team-members.pdf \
+              -F file_action_plan=@/tmp/fixtures/action-plan.pdf \
+              -F file_support_letter=@/tmp/fixtures/support-letter.pdf \
+              http://localhost:8782/api/apply.php
+          }
+          # Both emails go out after the response, so wait for each pair
+          # before the next request (two senders at once would interleave).
+          wait_for() {
+            for i in $(seq 1 30); do
+              docker exec site-email sh -c 'cat /tmp/mail.all 2>/dev/null' > /tmp/mail.all || true
+              [ "$(grep -c '^Subject: ' /tmp/mail.all || true)" -ge "$1" ] && return 0
+              sleep 0.5
+            done
+            echo "expected $1 messages"; return 1
+          }
+          test "$(apply open.alumoimpact.ca 'CI Relay Test Host')" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          wait_for 2
+          test "$(apply '' 'CI Relay Production')" = "200"
+          wait_for 4
+          sh ci/mail-subjects.sh /tmp/mail.all > /tmp/subjects.txt
+          cat /tmp/subjects.txt
+          test "$(sed -n 1p /tmp/subjects.txt)" = "[TEST] Application — CI Relay Test Host ($id)"
+          test "$(sed -n 2p /tmp/subjects.txt)" = "[TEST] We received your application — Student Impact Fund"
+          sed -n 3p /tmp/subjects.txt | grep -Eq '^Application — CI Relay Production \([0-9]{8}-[0-9]{6}-[0-9a-f]{8}\)$'
+          test "$(sed -n 4p /tmp/subjects.txt)" = "We received your application — Student Impact Fund"
+          test "$(wc -l < /tmp/subjects.txt)" = "4"
+          docker exec site-email cat "/var/www/_submissions/$id/submission.json" > /tmp/submission.json
+          test "$(jq -r .test /tmp/submission.json)" = "true"
+          test "$(jq -r .delivery.status /tmp/submission.json)" = "delivered"
+
+      # ---- Schedule gates (Oct 2026). Each case runs its own container from
+      # the same image, with a copy of config.ci.php whose closes_at line is
+      # rewritten by sed (grep -q proves each sed really matched). Separate
+      # containers also mean separate rate-limit stores.
+      - name: Apply — after closes_at + grace the endpoint answers 403 (preview params ignored, nothing stored)
+        run: |
+          set -euo pipefail
+          sed "s/'closes_at' => ''/'closes_at' => '2020-01-01T00:00:00-05:00'/" api/config.ci.php > /tmp/config.closed.php
+          grep -q "'closes_at' => '2020-01-01T00:00:00-05:00'" /tmp/config.closed.php
+          docker run -d --name site-closed -p 8778:8777 \
+            -v /tmp/config.closed.php:/var/www/html/api/config.php:ro site
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            --retry-all-errors http://localhost:8778/
+          # A COMPLETE, valid submission — it would be accepted (200) and
+          # archived if the gate let it through. The page-preview parameters
+          # on the URL claim a moment inside the window; the server must not
+          # care (it never reads the query string).
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' \
+            -F primary_first_name='Late' \
+            -F primary_last_name='Applicant' \
+            -F primary_email='late@example.com' \
+            -F primary_role='President' \
+            -F organization_name='CI Test Org' \
+            -F province='ON' \
+            -F institution='Test University' \
+            -F project_title='CI Late Project' \
+            -F category='Sustainability' \
+            -F funding_requested='1000' \
+            -F total_cost='1500' \
+            -F fund_acknowledgement='yes' \
+            -F project_summary='Sent after the close.' \
+            -F students_in_org='12' \
+            -F students_reached='300' \
+            -F consent='yes' \
+            -F file_project_overview=@/tmp/fixtures/project-overview.pdf \
+            -F file_budget=@/tmp/fixtures/budget.pdf \
+            -F file_team_members=@/tmp/fixtures/team-members.pdf \
+            -F file_action_plan=@/tmp/fixtures/action-plan.pdf \
+            -F file_support_letter=@/tmp/fixtures/support-letter.pdf \
+            'http://localhost:8778/api/apply.php?preview-form=1&preview-at=2019-06-01T12:00:00Z')
+          cat /tmp/body.json; echo
+          test "$status" = "403"
+          test "$(jq -r .error /tmp/body.json)" = "Submissions are now closed."
+          test "$(docker exec site-closed sh -c 'find /var/www/_submissions -mindepth 1 -maxdepth 1 | wc -l')" = "0"
+
+      - name: Apply — inside the grace window the gate stays open (422)
+        run: |
+          set -euo pipefail
+          past=$(date -u -d '5 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          sed "s/'closes_at' => ''/'closes_at' => '$past'/" api/config.ci.php > /tmp/config.grace.php
+          grep -q "'closes_at' => '$past'" /tmp/config.grace.php
+          grep -q "'close_grace_minutes' => 15," /tmp/config.grace.php   # the window this case relies on
+          docker run -d --name site-grace -p 8779:8777 \
+            -v /tmp/config.grace.php:/var/www/html/api/config.php:ro site
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            --retry-all-errors http://localhost:8779/
+          # Fields omitted on purpose: a 422 proves the request got PAST the
+          # gate (closed 5 minutes ago, 15 minutes' grace) and stores nothing.
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' -F primary_first_name='In flight' \
+            http://localhost:8779/api/apply.php)
+          cat /tmp/body.json; echo
+          test "$status" = "422"
+
+      - name: Apply — a closes_at that does not parse fails CLOSED (403, logged)
+        run: |
+          set -euo pipefail
+          sed "s/'closes_at' => ''/'closes_at' => 'not-a-date'/" api/config.ci.php > /tmp/config.garbage.php
+          grep -q "'closes_at' => 'not-a-date'" /tmp/config.garbage.php
+          docker run -d --name site-garbage -p 8780:8777 \
+            -v /tmp/config.garbage.php:/var/www/html/api/config.php:ro site
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            --retry-all-errors http://localhost:8780/
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' -F primary_first_name='Probe' \
+            http://localhost:8780/api/apply.php)
+          cat /tmp/body.json; echo
+          test "$status" = "403"
+          test "$(jq -r .error /tmp/body.json)" = "Submissions are now closed."
+          # error_log() lands in Apache's error log, which the image sends to
+          # stderr. Written to a file first: grep -q under pipefail could
+          # SIGPIPE docker logs and fail the step on a match.
+          for i in 1 2 3 4 5; do
+            docker logs site-garbage > /tmp/garbage.log 2>&1 || true
+            grep -q "is not an ISO date with an offset" /tmp/garbage.log && break
+            sleep 1
+          done
+          grep -q "is not an ISO date with an offset" /tmp/garbage.log
+
+      - name: Apply — with no closes_at key the committed default applies
+        run: |
+          set -euo pipefail
+          sed "/'closes_at' => ''/d" api/config.ci.php > /tmp/config.default.php
+          if grep -q "'closes_at'" /tmp/config.default.php; then echo "sed did not remove closes_at"; exit 1; fi
+          default=$(sed -n "s/^const DEFAULT_CLOSES_AT = '\(.*\)';$/\1/p" api/apply.php)
+          test -n "$default"
+          # Expected answer from the clock: 422 (past the gate) until
+          # DEFAULT_CLOSES_AT + 15 minutes' grace, 403 after.
+          if [ "$(date -u +%s)" -lt "$(( $(date -d "$default" +%s) + 15 * 60 ))" ]; then want=422; else want=403; fi
+          docker run -d --name site-default -p 8781:8777 \
+            -v /tmp/config.default.php:/var/www/html/api/config.php:ro site
+          curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+            --retry-all-errors http://localhost:8781/
+          status=$(curl -sS -o /tmp/body.json -w '%{http_code}' -F primary_first_name='Probe' \
+            http://localhost:8781/api/apply.php)
+          cat /tmp/body.json; echo
+          echo "DEFAULT_CLOSES_AT=$default, expected $want"
+          test "$status" = "$want"
+
       - name: Container logs (on failure)
         if: failure()
-        run: docker logs site || true
+        run: |
+          for c in site site-forced site-email site-closed site-grace site-garbage site-default; do
+            echo "===== $c"
+            docker logs "$c" || true
+          done

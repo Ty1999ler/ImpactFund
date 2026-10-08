@@ -9,6 +9,11 @@ stubs + 5 French-slug redirect stubs):
   3. Internal href/src/action targets exist (with an expected-missing allowlist).
   4. Forbidden strings on the 12 live pages.
   5. Identical css/style.css?v= and js/main.js?v= across all live pages.
+  6. One submission window on the live pages: every tag with data-opens-at or
+     data-closes-at carries both, each an ISO date WITH an explicit offset,
+     opens before closes, and all live pages share one value of each; the
+     server's close date (DEFAULT_CLOSES_AT in api/apply.php, and the
+     closes_at example in api/config.example.php) equals that close.
 
 Exit code 0 = clean, 1 = findings.
 """
@@ -16,6 +21,7 @@ import io
 import os
 import re
 import sys
+from datetime import datetime
 from html.parser import HTMLParser
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -235,6 +241,97 @@ def check_asset_versions(texts):
                 "%s ?v= differs across live pages: %s" % (label, detail))
 
 
+# ---------------------------------------------------------------- check 6
+# The submission window (data-opens-at / data-closes-at, read by /js/main.js).
+# Checked per TAG, not per page: the About card was missed the first time the
+# dates were wired up, and a page-level count would not notice one element
+# with only an opening date next to another with only a closing date.
+# The offset is required because without one every browser reads the date in
+# its own local time zone (and api/apply.php refuses such a closes_at).
+# Scoped to LIVE_PAGES on purpose: a page with its own deadline (e.g. a
+# future winners page) keeps it out of this one site-wide window.
+COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
+SCHED_TAG_RE = re.compile(r"<[a-zA-Z][^>]*\bdata-(?:opens|closes)-at\s*=[^>]*>")
+OPENS_RE = re.compile(r'\bdata-opens-at\s*=\s*"([^"]*)"')
+CLOSES_RE = re.compile(r'\bdata-closes-at\s*=\s*"([^"]*)"')
+# Same pattern as /js/main.js and api/_lib.php schedule_time().
+ISO_OFFSET_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$")
+# Server-side copies of the close date: (file, pattern, must be present).
+# The committed default the release gates on, and the documented example a
+# new api/config.php is copied from (an explicit '' there is skipped).
+SERVER_CLOSES = [
+    ("api/apply.php", re.compile(r"^const DEFAULT_CLOSES_AT = '([^']*)';", re.M), True),
+    ("api/config.example.php", re.compile(r"'closes_at'\s*=>\s*'([^']+)'"), False),
+]
+
+
+def parse_schedule_date(value):
+    """datetime for an ISO date with an explicit offset, else None."""
+    if not ISO_OFFSET_RE.match(value):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def check_schedule(texts):
+    opens, closes = set(), set()
+    for page in LIVE_PAGES:
+        text = texts.get(page)
+        if text is None:
+            continue
+        # Blank out comments (keeping line numbers) so prose about the
+        # attributes is never mistaken for a scheduled element.
+        code = COMMENT_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+        for m in SCHED_TAG_RE.finditer(code):
+            tag = m.group(0)
+            line = line_of(code, m.start())
+            o, c = OPENS_RE.findall(tag), CLOSES_RE.findall(tag)
+            if len(o) != 1 or len(c) != 1:
+                add(page, "schedule", "line %d: a scheduled tag needs exactly one "
+                    "data-opens-at and one data-closes-at (has %d and %d)"
+                    % (line, len(o), len(c)))
+                continue
+            od, cd = parse_schedule_date(o[0]), parse_schedule_date(c[0])
+            for label, raw, parsed in (("data-opens-at", o[0], od),
+                                       ("data-closes-at", c[0], cd)):
+                if parsed is None:
+                    add(page, "schedule", "line %d: %s=%r is not an ISO date with "
+                        "an explicit offset (e.g. 2026-10-15T23:59:59-04:00)"
+                        % (line, label, raw))
+            if od is not None and cd is not None and od >= cd:
+                add(page, "schedule", "line %d: data-opens-at %s is not before "
+                    "data-closes-at %s" % (line, o[0], c[0]))
+            opens.add(o[0])
+            closes.add(c[0])
+    for label, vals in (("data-opens-at", opens), ("data-closes-at", closes)):
+        if len(vals) > 1:
+            add("(site-wide)", "schedule", "%s differs across live pages: %s"
+                % (label, sorted(vals)))
+    # The server's own close date has to move with the pages: if it drifts,
+    # api/apply.php refuses applications the pages invite (or keeps taking
+    # them after the advertised deadline). forms-smoke only reads it back.
+    for path, regex, required in SERVER_CLOSES:
+        try:
+            src = io.open(os.path.join(ROOT, *path.split("/")), encoding="utf-8").read()
+        except (IOError, OSError) as e:
+            add(path, "schedule", "cannot read: %s" % e)
+            continue
+        found = regex.findall(src)
+        if not found:
+            if required:
+                add(path, "schedule", "no line matching %s" % regex.pattern)
+            continue
+        for value in found:
+            if parse_schedule_date(value) is None:
+                add(path, "schedule", "closes_at %r is not an ISO date with an "
+                    "explicit offset" % value)
+            elif len(closes) == 1 and value not in closes:
+                add(path, "schedule", "closes_at %s differs from data-closes-at %s "
+                    "on the live pages" % (value, next(iter(closes))))
+
+
 # ---------------------------------------------------------------- driver
 def main():
     texts = {}
@@ -275,6 +372,9 @@ def main():
 
     # 5. asset version consistency (live pages only)
     check_asset_versions(texts)
+
+    # 6. one submission window (live pages only)
+    check_schedule(texts)
 
     out = io.StringIO()
     if expected_missing:

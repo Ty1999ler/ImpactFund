@@ -17,6 +17,7 @@ assets/img|fonts|docs      all images, self-hosted Inter + Source Serif Pro, PDF
 BUILD_NOTES.md             EN build conventions   BUILD_NOTES_FR.md  FR conventions
 PLANS.md                   forms + i18n forward plans
 _tools/mirror.py           re-downloads the live-site reference mirror into _source/
+_tools/submit_test.py      one-command [TEST] application to staging (never production)
 ```
 
 `_source/` (git-ignored) is a mirror of the live WordPress site used as the
@@ -67,7 +68,50 @@ or `caddy file-server --listen :8777`.
 - The nginx image does NOT run PHP: once the forms go live, build with
   `Dockerfile.php` instead — or serve from GoDaddy, where PHP just works.
 - Front-end wiring: `js/main.js` (contact) and `js/apply-form.js` (application;
-  3-step, scheduled reveal on Sept 1, preview early with `?preview-form=1`).
+  3-step).
+- Submission window: `data-opens-at` / `data-closes-at` (ISO dates WITH an
+  offset) on the scheduled elements swap the open/closed cards and notes
+  (`js/main.js`, once per page load); the server enforces the same window
+  with `opens_at` / `closes_at` (+ `close_grace_minutes`) in api/config.php,
+  and the default close date is committed in `api/apply.php`. Preview with
+  `?preview-form=1` (forces the open state) or
+  `?preview-at=<ISO date WITH offset, e.g. 2026-10-16T09:00:00-04:00>` (the
+  whole site as of that moment; sticks for the tab, `?preview-at=off` ends
+  it; a date without an offset is ignored, and it works only on the
+  `PREVIEW_HOSTS` in `js/main.js` — staging and its before./open./closed.
+  copies, the NAS, localhost — never on production) — both are visual only.
+  Checks: `python _tools/verify_integrity.py` (check 6, which also compares
+  `DEFAULT_CLOSES_AT` with the pages) and
+  `python _tools/test_schedule_preview.py` (headless Edge).
+- Preview hosts: `staging.alumoimpact.ca` plus three pinned copies,
+  `before.alumoimpact.ca`, `open.alumoimpact.ca` and
+  `closed.alumoimpact.ca`, all serving the same files — the three are cPanel
+  subdomains whose document root is staging's folder (`~/staging`), each
+  with its own AutoSSL certificate, so every deploy to staging updates all
+  four. Staging follows the real clock; `before.` shows the site as it
+  looks just before the submission window opens, `open.` always shows the
+  window open and `closed.` shows the site as from the close moment (all
+  worked out by `js/main.js` from the pages' own dates, with a banner
+  linking to the same page on staging). Once the opening is past, and
+  until the pages carry the next window's dates, `before.` shows the same
+  closed site as `closed.` (next round's text included) under its own
+  banner, so it is not a review link then. `?preview-at=` still wins on all
+  of them. A leading `www.` (cPanel's alias) is ignored, so `www.closed.`
+  behaves like `closed.`. Visual only: their forms post to staging's
+  `api/`.
+- Test submissions: anything sent from staging, its three copies or the NAS
+  is marked automatically by the server (`site_is_test()` in
+  `api/_lib.php`, by host name; `'test_mode'` in `api/config.php` forces it
+  on or off, except on production): `[TEST] ` in front of every email
+  subject and of the SharePoint list item's Title, the documents under a
+  top-level `TEST` folder, `"test": true` in `submission.json`. Production
+  (alumoimpact.ca, www.) is never marked, whatever `test_mode` says.
+  To send one: `python _tools/submit_test.py --email you@example.com`
+  (`--site staging|before|open|closed|https://<test host>`, `--locale fr`,
+  `--contact`, `--dry-run`) — a complete valid application with five tiny
+  PDFs, checked against `api/apply.php`'s own rules first; it refuses
+  alumoimpact.ca and the retired september. copy. Counts toward the
+  5-applications-per-hour limit.
 
 ## Data
 

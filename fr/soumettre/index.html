@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=8">
-  <link rel="stylesheet" href="/css/pages/apply-now.css?v=8">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <!-- Comment soumettre merged into this page (Sept 2026), so it needs that
        page's stylesheet too. The two files share no selectors — checked — so
        loading both is additive, not a conflict. -->
@@ -90,6 +90,11 @@
     <section class="apply-hero">
       <div class="container">
         <h1 class="apply-title text-size-72-72-tight">Comment soumettre un projet</h1>
+        <!-- Post-close note (client, Oct 2026): shown only OUTSIDE the
+             submission window (data-show-when="closed", /js/main.js) — up here
+             because the closed card is at the very bottom, below the four
+             steps. Keep its two dates identical to the form section's. -->
+        <p class="apply-closed-notice text-size-20-31-9-tightpx" data-opens-at="2026-08-31T18:30:00-04:00" data-closes-at="2026-10-15T23:59:59-04:00" data-show-when="closed" hidden>Les soumissions sont fermées pour le moment. Revenez consulter cette page le 4 janvier 2027, date à laquelle elles rouvriront pour l'hiver 2027&#8239;!</p>
       </div>
     </section>
 
@@ -186,8 +191,10 @@
     <!-- ============ APPLICATION FORM (green card) ============ -->
     <!-- On the live site this card holds a Gravity Forms application form that
          currently renders only the message below (submissions closed). -->
-    <!-- Scheduled reveal — see /js/main.js; preview early with ?preview-form=1 -->
-    <section class="apply-form-section" data-opens-at="2026-08-31T18:30:00-04:00">
+    <!-- Scheduled swap — submission window from data-opens-at to
+         data-closes-at, see /js/main.js; preview with ?preview-form=1 (open)
+         or ?preview-at=<ISO date with offset>. -->
+    <section class="apply-form-section" data-opens-at="2026-08-31T18:30:00-04:00" data-closes-at="2026-10-15T23:59:59-04:00">
       <div class="container">
         <!-- Closed state (client, Sept 2026) — see the EN page for the reasoning.
              The old line read like a fault rather than a season. -->
@@ -529,7 +536,6 @@
             <li class="menu-item"><a href="/fr/">Accueil</a></li>
             <li class="menu-item"><a href="/fr/a-propos/">À propos</a></li>
             <li class="menu-item"><a href="/fr/soumettre/">Soumettre votre idée</a></li>
-            <!-- Revealed automatically on Sept 1, in step with the header tab. -->
             <li class="menu-item"><a href="/fr/ecoles-partenaires/">Partenaires</a></li>
             <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
@@ -549,11 +555,11 @@
     </div>
   </footer>
 
-  <script src="/js/main.js?v=5"></script>
+  <script src="/js/main.js?v=8"></script>
   <!-- Analytics + consent banner. Inert unless the hostname is listed in
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>
   <script src="/js/schools-data.js?v=10"></script>
-  <script src="/js/apply-form.js?v=10"></script>
+  <script src="/js/apply-form.js?v=11"></script>
 </body>
 </html>

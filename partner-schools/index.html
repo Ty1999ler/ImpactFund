@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Partner Schools &#8211; Alumo Fund</title>
-  <meta name="description" content="Students at Alumo partner schools are eligible to apply for the Student Impact Fund. The list will be updated before applications open in September.">
+  <meta name="description" content="Students at Alumo partner schools are eligible to apply for the Student Impact Fund.">
   <link rel="alternate" hreflang="en" href="https://alumoimpact.ca/partner-schools/">
   <link rel="alternate" hreflang="fr" href="https://alumoimpact.ca/fr/ecoles-partenaires/">
   <link rel="canonical" href="https://alumoimpact.ca/partner-schools/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Student Impact Fund by Alumo">
   <meta property="og:title" content="Partner Schools – Alumo Fund">
-  <meta property="og:description" content="Students at Alumo partner schools are eligible to apply for the Student Impact Fund. The list will be updated before applications open in September.">
+  <meta property="og:description" content="Students at Alumo partner schools are eligible to apply for the Student Impact Fund.">
   <meta property="og:url" content="https://alumoimpact.ca/partner-schools/">
   <meta property="og:locale" content="en_CA">
   <meta property="og:image" content="https://alumoimpact.ca/assets/img/og-card.png">
@@ -79,7 +79,12 @@
         <h1 class="partners-title text-size-72-72-tight">Participating Partner Schools</h1>
         <div class="partners-card">
           <div class="partners-card-text">
-            <p class="text-size-16-24-tightpx">Students at participating Alumo partner schools are eligible to apply for the Student Impact Fund. Not sure if your school is participating? <a href="#partner-list"><strong>Browse the list below</strong></a> to see if your institution is included.</p>
+            <!-- The span at the end of this paragraph is the post-close note
+                 (client, Oct 2026): shown only OUTSIDE the submission window
+                 (data-show-when="closed", /js/main.js), in the spot where the
+                 original site put its "Please note" (after <br><br>, which is
+                 inside the span so it hides with it). The list stays visible. -->
+            <p class="text-size-16-24-tightpx">Students at participating Alumo partner schools are eligible to apply for the Student Impact Fund. Not sure if your school is participating? <a href="#partner-list"><strong>Browse the list below</strong></a> to see if your institution is included.<span class="partners-update-note" data-opens-at="2026-08-31T18:30:00-04:00" data-closes-at="2026-10-15T23:59:59-04:00" data-show-when="closed" hidden><br><br>We're updating the list of participating schools for Winter 2027. Please check back on January 4, 2027 for the new list!</span></p>
             <!-- Source has "Support letter" / "Lettre de soutien" download buttons here,
                  hidden at every breakpoint (list update pending). Skipped until re-enabled. -->
           </div>
@@ -260,7 +265,6 @@
             <li class="menu-item"><a href="/">Home</a></li>
             <li class="menu-item"><a href="/about-the-fund/">About</a></li>
             <li class="menu-item"><a href="/apply-now/">Submit your Idea</a></li>
-            <!-- Revealed automatically on Sept 1, in step with the header tab. -->
             <li class="menu-item"><a href="/partner-schools/">Partners</a></li>
             <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/#contact-form">Contact</a></li>
@@ -277,7 +281,7 @@
       </div>
     </div>
   </footer>
-  <script src="/js/main.js?v=5"></script>
+  <script src="/js/main.js?v=8"></script>
   <!-- Analytics + consent banner. Inert unless the hostname is listed in
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>

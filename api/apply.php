@@ -4,9 +4,21 @@
    2. answers the applicant, then delivers per delivery_mode: 'email' | 'graph' | 'off'
    3. a failed delivery leaves a DELIVERY-PENDING marker, emails the team once,
       and is retried by api/redeliver.php (cron, every 30 minutes)
+   Sent from a test copy of the site (staging and its preview copies), every
+   email and the SharePoint item say "[TEST]" (site_is_test in _lib.php).
    See api/config.example.php. */
 
 require __DIR__ . '/_lib.php';
+
+/* Close of the CURRENT submission window, committed so the release itself
+   carries the gate and production doesn't depend on a hand edit. Used when
+   api/config.php has no 'closes_at' key; a config value overrides it (only
+   an explicit '' = never closes, which is what api/config.ci.php does). Must
+   equal data-closes-at in the HTML pages: _tools/verify_integrity.py check 6
+   compares this line (and config.example.php's closes_at) with them, so
+   keep it in exactly this one-line form. */
+const DEFAULT_CLOSES_AT = '2026-10-15T23:59:59-04:00';
+const DEFAULT_CLOSE_GRACE_MINUTES = 15;
 
 require_post();
 $cfg = load_config();
@@ -18,14 +30,46 @@ if (empty($_POST) && empty($_FILES) && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 
 }
 
 honeypot_check();
-rate_limit('apply', 5, 3600);
 
-/* Server-side open date — the client-side reveal (?preview-form=1) only
-   changes what is VISIBLE; actual submissions are gated here. */
+/* ---------- schedule gates ----------
+   Both run BEFORE rate_limit(): a refusal does no work, so it shouldn't use
+   up the 5-per-hour budget, and a late applicant who retries keeps getting
+   the (localized) closed message instead of "Too many requests".
+   The client-side swap (data-opens-at / data-closes-at in the pages,
+   ?preview-form=1, ?preview-at=) only changes what is VISIBLE; actual
+   submissions are gated here, and nothing here reads the query string. */
+
+/* Server-side open date. */
 $opensAt = strtotime((string)($cfg['opens_at'] ?? ''));
 if ($opensAt && time() < $opensAt) {
     respond(403, ['ok' => false, 'error' => 'Submissions are not open yet.']);
 }
+
+/* Server-side close date (Oct 2026): closes_at from api/config.php when the
+   key is there, else DEFAULT_CLOSES_AT above.
+   close_grace_minutes: PHP runs this script only after the WHOLE upload has
+   arrived (post_max_size 60M, api/.user.ini), so someone who pressed Submit
+   at 11:59 pm on a slow connection reaches this line minutes later.
+   A closes_at that is set but isn't an ISO date with an explicit offset
+   fails CLOSED (and is logged): a typo must never leave the form open, and a
+   date without an offset would be read in the server's own time zone.
+   Only the exact string '' means "never closes"; false, a number or a
+   whitespace-only string is a typo like any other (null = key absent). */
+$closesRaw = (array_key_exists('closes_at', $cfg) && $cfg['closes_at'] !== null)
+    ? $cfg['closes_at'] : DEFAULT_CLOSES_AT;
+if ($closesRaw !== '') {
+    $closesAt = is_string($closesRaw) ? schedule_time(trim($closesRaw)) : false;
+    $graceMinutes = array_key_exists('close_grace_minutes', $cfg)
+        ? (int)$cfg['close_grace_minutes'] : DEFAULT_CLOSE_GRACE_MINUTES;
+    if ($closesAt === false) {
+        error_log('apply.php: closes_at ' . var_export($closesRaw, true) . ' is not an ISO date with an offset; refusing submissions until it is fixed');
+    }
+    if ($closesAt === false || time() >= $closesAt + 60 * max(0, $graceMinutes)) {
+        respond(403, ['ok' => false, 'error' => 'Submissions are now closed.']);
+    }
+}
+
+rate_limit('apply', 5, 3600);
 
 /* ---------- fields ---------- */
 
@@ -171,6 +215,11 @@ if ($errors) {
 
 /* ---------- archive on the server ---------- */
 
+/* Sent from a test copy of the site (see site_is_test in _lib.php)? Worked
+   out once, stored in submission.json — api/redeliver.php has no host and
+   reads it back — and used for every email, list item and folder below. */
+$isTest = site_is_test($cfg);
+
 $submissionId = gmdate('Ymd-His') . '-' . bin2hex(random_bytes(4));
 $dir = rtrim($cfg['submissions_dir'], '/\\') . '/' . $submissionId;
 if (!is_dir($dir) && !mkdir($dir, 0750, true)) {
@@ -191,6 +240,7 @@ foreach ($files as $f) {
 $record = [
     'id' => $submissionId,
     'received_utc' => gmdate('c'),
+    'test' => $isTest,
     'fields' => $data,
     'files' => array_map(fn($s) => $s['name'], $stored),
 ];
@@ -213,14 +263,14 @@ if ($mode === 'email') {
     $atts = array_map(fn($s) => ['path' => $s['path'], 'name' => $s['name']], $stored);
     $sent = send_mail(
         $cfg, $cfg['relay_to'],
-        "Application — {$data['project_title']} ($submissionId)",
+        test_prefix($isTest, "Application — {$data['project_title']} ($submissionId)"),
         apply_summary_text($data, array_map(fn($s) => $s['name'], $stored), $submissionId),
         $data['primary_email'], $atts
     );
     if (!$sent) $deliveryError = 'send_mail returned false (transport details are in the server error log)';
 } elseif ($mode === 'graph') {
     try {
-        graph_deliver(apply_graph_config($cfg), $submissionId, apply_graph_fields($data, $submissionId), $stored);
+        graph_deliver(apply_graph_config($cfg), $submissionId, apply_graph_fields($data, $submissionId), $stored, $isTest);
     } catch (Throwable $e) {
         $deliveryError = $e->getMessage();
     }
@@ -235,7 +285,7 @@ if ($mode === 'email' || $mode === 'graph') {
         delivery_update_record($dir, ['status' => 'delivered', 'at' => gmdate('c')]);
     } else {
         error_log("apply.php: delivery ($mode) failed for $submissionId — archived, queued for retry: $deliveryError");
-        delivery_record_failure($cfg, $dir, $submissionId, $mode, $deliveryError, $data);
+        delivery_record_failure($cfg, $dir, $submissionId, $mode, $deliveryError, $data, $isTest);
     }
 }
 
@@ -262,7 +312,7 @@ try {
               . "Applications will be reviewed after the submission window closes and you can "
               . "expect to receive an update on your application within two months of the "
               . "closing date.\n";
-        @send_mail($cfg, $data['primary_email'], $ackSubject, $ackBody);
+        @send_mail($cfg, $data['primary_email'], test_prefix($isTest, $ackSubject), $ackBody);
     }
 } catch (Throwable $e) {
     error_log("apply.php: applicant acknowledgement failed for $submissionId (submission is delivered and safe): " . $e->getMessage());

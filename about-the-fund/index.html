@@ -265,13 +265,14 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
     </section>
 
     <!-- ============ SUBMISSION PERIOD (orange card) ============ -->
-    <!-- Scheduled swap — before the date in data-opens-at the "closed" card
-         shows; from that date the "open" card shows automatically (handled in
-         /js/main.js), same mechanism as the period cards on / and
-         /how-to-apply/. Preview the open state early with ?preview-form=1.
+    <!-- Scheduled swap — inside the submission window (data-opens-at to
+         data-closes-at) the "open" card shows; outside it the "closed" card
+         does, automatically (handled in /js/main.js), same window as the
+         period card on /. Preview with ?preview-form=1 (open) or
+         ?preview-at=<ISO date with offset>.
          This card was missed when the other two were wired up and was still
          reading "will open soon" after submissions had opened. -->
-    <section class="period" data-opens-at="2026-08-31T18:30:00-04:00">
+    <section class="period" data-opens-at="2026-08-31T18:30:00-04:00" data-closes-at="2026-10-15T23:59:59-04:00">
       <div class="container">
         <div class="period-card apply-form-closed">
           <div class="period-content">
@@ -279,8 +280,8 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
               <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
             </div>
             <h2 class="period-kicker text-size-28-70-tight">The next submission period:</h2>
-            <h3 class="period-date text-size-72-70-tight">September 1 to October 15</h3>
-            <p class="period-status text-size-20-31-9-tightpx">Stay tuned: the submission period will open soon!</p>
+            <h3 class="period-date text-size-72-70-tight">January 4 to March 1, 2027</h3>
+            <p class="period-status text-size-20-31-9-tightpx">Submissions are currently closed.</p>
             <p class="period-note text-size-16-24-tightpx">Have a cool project in mind but need money to make it happen? The Student Impact Fund is here to help!</p>
             <div class="btn btn-white btn-icon btn-icon-primary period-btn">
               <a href="/apply-now/"><span>Learn more</span></a>
@@ -302,7 +303,7 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
               <img src="/assets/img/logo-alumo.svg" alt="Alumo logo" width="117">
             </div>
             <h2 class="period-kicker text-size-28-70-tight">The Fall submission period is now open!</h2>
-            <h3 class="period-date text-size-72-70-tight">From: September 1st to October 15th</h3>
+            <h3 class="period-date text-size-72-70-tight">From: September 1st to October 15th, 11:59 pm ET</h3>
             <div class="btn btn-primary period-cta">
               <a href="/apply-now/"><span>Apply Now</span></a>
             </div>
@@ -388,7 +389,6 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
             <li class="menu-item"><a href="/">Home</a></li>
             <li class="menu-item"><a href="/about-the-fund/">About</a></li>
             <li class="menu-item"><a href="/apply-now/">Submit your Idea</a></li>
-            <!-- Revealed automatically on Sept 1, in step with the header tab. -->
             <li class="menu-item"><a href="/partner-schools/">Partners</a></li>
             <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/#contact-form">Contact</a></li>
@@ -408,7 +408,7 @@ The annual $250,000 fund is dedicated entirely to bringing your meaningful campu
     </div>
   </footer>
 
-  <script src="/js/main.js?v=5"></script>
+  <script src="/js/main.js?v=8"></script>
   <!-- Analytics + consent banner. Inert unless the hostname is listed in
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>

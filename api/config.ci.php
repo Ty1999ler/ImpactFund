@@ -18,7 +18,20 @@ return [
     /* Empty = submissions always open, so CI can exercise apply.php. */
     'opens_at' => '',
 
+    /* Empty = never closes (an explicit '' also overrides the default close
+       date committed in api/apply.php). forms-smoke.yml derives closed copies
+       of this file with sed, so keep this line exactly as written. */
+    'closes_at' => '',
+    'close_grace_minutes' => 15,
+
     'trust_cloudflare_header' => false,
+
+    /* No 'test_mode' key on purpose: automatic, and localhost is not a test
+       host, so CI submissions stay unmarked unless the request names one
+       (forms-smoke.yml sends some with curl -H 'Host: staging.alumoimpact.ca').
+       For one container forms-smoke.yml inserts test_mode true after the
+       delivery_mode line below with sed, so keep that line exactly as
+       written. */
 
     /* Archive on disk only — no email relay, no Graph calls from CI.
        (contact.php still uses PHP mail(); the workflow fakes sendmail.) */

@@ -26,7 +26,8 @@ $body = "New contact form message — alumoimpact.ca\n\n"
       . "Email: $email\n\n"
       . "Message:\n$message\n";
 
-$sent = send_mail($cfg, $cfg['contact_to'], "Contact form — $name", $body, $email);
+/* "[TEST] " in front when sent from a test copy of the site (_lib.php). */
+$sent = send_mail($cfg, $cfg['contact_to'], test_prefix(site_is_test($cfg), "Contact form — $name"), $body, $email);
 
 if (!$sent) {
     respond(500, ['ok' => false, 'error' => 'The message could not be sent. Please try again later.']);

@@ -22,7 +22,7 @@
   <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
   <link rel="stylesheet" href="/css/style.css?v=8">
-  <link rel="stylesheet" href="/css/pages/apply-now.css?v=8">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <!-- How to Submit merged into this page (Sept 2026), so it needs that page's
        stylesheet too. The two files share no selectors — checked — so loading
        both is additive, not a conflict. -->
@@ -86,6 +86,11 @@
     <section class="apply-hero">
       <div class="container">
         <h1 class="apply-title text-size-72-72-tight">How to Submit a Project</h1>
+        <!-- Post-close note (client, Oct 2026): shown only OUTSIDE the
+             submission window (data-show-when="closed", /js/main.js) — up here
+             because the closed card is at the very bottom, below the four
+             steps. Keep its two dates identical to the form section's. -->
+        <p class="apply-closed-notice text-size-20-31-9-tightpx" data-opens-at="2026-08-31T18:30:00-04:00" data-closes-at="2026-10-15T23:59:59-04:00" data-show-when="closed" hidden>Submissions are closed for now. Please check back on January 4, 2027, when they reopen for Winter 2027!</p>
       </div>
     </section>
 
@@ -174,10 +179,12 @@
     </section>
 
     <!-- ============ APPLICATION FORM (green card) ============ -->
-    <!-- Scheduled reveal: before the date in data-opens-at, the "closed" card
-         shows; from that date the "open" card shows automatically (handled in
-         /js/main.js). Preview the open state early with ?preview-form=1. -->
-    <section class="apply-form-section" data-opens-at="2026-08-31T18:30:00-04:00">
+    <!-- Scheduled swap: inside the submission window (data-opens-at to
+         data-closes-at) the "open" card (the form) shows; outside it the
+         "closed" card does, automatically (handled in /js/main.js). Preview
+         with ?preview-form=1 (open) or ?preview-at=<ISO date with offset>.
+         Visual only: api/apply.php enforces the same dates from its config. -->
+    <section class="apply-form-section" data-opens-at="2026-08-31T18:30:00-04:00" data-closes-at="2026-10-15T23:59:59-04:00">
       <div class="container">
         <!-- Closed state (client, Sept 2026). The old text was a bare "This form
              is not yet available.", which read like a fault rather than a
@@ -514,7 +521,6 @@
             <li class="menu-item"><a href="/">Home</a></li>
             <li class="menu-item"><a href="/about-the-fund/">About</a></li>
             <li class="menu-item"><a href="/apply-now/">Submit your Idea</a></li>
-            <!-- Revealed automatically on Sept 1, in step with the header tab. -->
             <li class="menu-item"><a href="/partner-schools/">Partners</a></li>
             <li class="menu-item"><a href="/#faq-section">FAQ</a></li>
             <li class="menu-item"><a href="/#contact-form">Contact</a></li>
@@ -533,11 +539,11 @@
       </div>
     </div>
   </footer>
-  <script src="/js/main.js?v=5"></script>
+  <script src="/js/main.js?v=8"></script>
   <!-- Analytics + consent banner. Inert unless the hostname is listed in
        ENABLED_HOSTS inside the file. -->
   <script src="/js/analytics.js?v=4" defer></script>
   <script src="/js/schools-data.js?v=10"></script>
-  <script src="/js/apply-form.js?v=10"></script>
+  <script src="/js/apply-form.js?v=11"></script>
 </body>
 </html>

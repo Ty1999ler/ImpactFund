@@ -3,7 +3,8 @@
 
    Live on alumoimpact.ca since 2026-08-31 (client approved). It is inert on
    any host not listed in ENABLED_HOSTS, which is how the same file can ship to
-   the September preview without reporting anything from there.
+   staging and its before./open./closed. preview copies without reporting
+   anything from there.
 
    HOW IT BEHAVES
      - On a host with no ID configured: does nothing at all. No banner, no
@@ -42,9 +43,11 @@
 
   /* Hosts where analytics is offered at all. Anywhere else this file loads and
      does nothing: no banner, no request, no storage.
-     september.alumoimpact.ca is deliberately NOT listed — the preview exists to
-     be poked at, and that traffic would be indistinguishable from real visitors
-     in the reports. The file still ships there; it just stays inert. */
+     staging.alumoimpact.ca and the before./open./closed.alumoimpact.ca
+     preview copies (www. aliases included) are deliberately NOT listed —
+     they exist to be poked at, and that traffic would be indistinguishable
+     from real visitors in the reports. The file still ships there; it just
+     stays inert. */
   var ENABLED_HOSTS = [
     "alumoimpact.ca",
     "www.alumoimpact.ca",

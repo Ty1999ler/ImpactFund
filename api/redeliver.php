@@ -1,6 +1,7 @@
 <?php
 // Retry application deliveries that failed. CLI ONLY — cron, every 30 minutes:
-//   */30 * * * * /usr/local/bin/php /home/aseqhosting/public_html/api/redeliver.php >/dev/null 2>&1
+//   */30 * * * * /usr/local/bin/php /home/<cpanel-user>/public_html/api/redeliver.php >/dev/null 2>&1
+// <cpanel-user> = the account's CURRENT username (it changed on 2026-08-28).
 
 /* The recovery half of apply.php's "archive first, deliver after" design.
    When SharePoint or the relay mailbox refuses a submission, apply.php leaves
@@ -64,6 +65,9 @@ function redeliver_one(array $cfg, string $dir, string $id): string {
         return "$id: left pending — submission.json missing or unreadable";
     }
     $data = $record['fields'];
+    /* Sent from a test copy of the site? A cron run has no host to tell, so
+       it is what apply.php recorded (absent, as in older archives = no). */
+    $test = ($record['test'] ?? false) === true;
 
     /* Deliver with today's configured mode, not the marker's: if the mode was
        switched because the old transport is what broke, the retry should use
@@ -102,7 +106,7 @@ function redeliver_one(array $cfg, string $dir, string $id): string {
         if ($mode === 'email') {
             $sent = send_mail(
                 $cfg, $cfg['relay_to'],
-                'Application — ' . (string)($data['project_title'] ?? '') . " ($id)",
+                test_prefix($test, 'Application — ' . (string)($data['project_title'] ?? '') . " ($id)"),
                 apply_summary_text($data, array_map(fn($s) => $s['name'], $stored), $id),
                 (string)($data['primary_email'] ?? ''),
                 array_map(fn($s) => ['path' => $s['path'], 'name' => $s['name']], $stored)
@@ -110,7 +114,7 @@ function redeliver_one(array $cfg, string $dir, string $id): string {
             if (!$sent) $error = 'send_mail returned false (transport details are in the server error log)';
         } else {
             try {
-                graph_deliver(apply_graph_config($cfg), $id, apply_graph_fields($data, $id), $stored);
+                graph_deliver(apply_graph_config($cfg), $id, apply_graph_fields($data, $id), $stored, $test);
             } catch (Throwable $e) {
                 $error = $e->getMessage();
             }
@@ -127,7 +131,7 @@ function redeliver_one(array $cfg, string $dir, string $id): string {
             if ($to === '') $to = (string)($cfg['relay_to'] ?? '');
             if ($to !== '') {
                 @send_mail($cfg, $to,
-                    "Submission delivered after retry ($id)",
+                    test_prefix($test, "Submission delivered after retry ($id)"),
                     "The application below failed to deliver earlier and has now gone through.\n\n"
                     . "Submission id: $id\n"
                     . 'Project title: ' . (string)($data['project_title'] ?? '') . "\n"
