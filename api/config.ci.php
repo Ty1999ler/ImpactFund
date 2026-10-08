@@ -57,9 +57,12 @@ return [
        marker line below — keep that marker the only one in the file) and its
        "email mode" variant (the delivery_mode line above); it fails loudly if
        either pattern stops matching.
-       Deliberately NO closes_at key in this block: the application smoke test
-       of the Oct 15 close build deletes the top-level closes_at line and then
-       fails if any closes_at key is left anywhere in this file. */
+       Deliberately NO closes_at key in this block: the "after the deadline"
+       variant inserts the only one, and the application smoke test's
+       closes_at seds match the top-level line by its text, so an empty
+       winners closes_at would be rewritten with it (its "no closes_at key"
+       step deletes and checks only the top-level line, by its 4-space
+       indent). */
     'winners' => [
         'round'       => 'CI Round',
         'root_folder' => 'Winners (CI)',

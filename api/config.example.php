@@ -165,8 +165,8 @@ return [
            'none' for no deadline at all. Left empty or out, the page stays
            closed — a page that takes banking documents must never stay open
            for good because a key was forgotten. (It stays '' in THIS file on
-           purpose: the integrity check reads any dated closes_at here as the
-           application deadline.);
+           purpose, so a config copied from here keeps the page closed. The
+           integrity check reads only the top-level closes_at above.);
          - opens_at is '' or such a date. -04:00 is EDT, -05:00 is EST: a
            deadline after Nov 1, 2026 needs -05:00. A value without an
            offset, or one that isn't a real date (2026-11-31), closes the page
@@ -205,7 +205,9 @@ return [
            out, and until it exists deliveries queue for retry (one notice to
            the team). A folder the site created would inherit the library's
            permissions, i.e. everyone who reviews applications. Set true only
-           where that doesn't matter (e.g. a staging library). */
+           where that doesn't matter (e.g. a separate staging library) —
+           never while the drive is Alumo's applications library, as it is
+           on staging when drive_id is ''. */
         'create_root' => false,
         /* NEVER set on a server. config.ci.php only: lets CI exercise the
            endpoint without SharePoint (archive-only, still never emailed). */

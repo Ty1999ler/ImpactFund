@@ -112,7 +112,10 @@ or `caddy file-server --listen :8777`.
   banner, so it is not a review link then. `?preview-at=` still wins on all
   of them. A leading `www.` (cPanel's alias) is ignored, so `www.closed.`
   behaves like `closed.`. Visual only: their forms post to staging's
-  `api/`.
+  `api/`. Neither the copies nor `?preview-at=` apply to the Winners page:
+  its open/closed card follows `api/winners.php?state=1` (staging's own
+  `winners` config) under whatever banner the copy shows, so test it on
+  `staging.alumoimpact.ca`.
 - Test submissions: anything sent from staging, its three copies or the NAS
   is marked automatically by the server (`site_is_test()` in
   `api/_lib.php`, by host name; `'test_mode'` in `api/config.php` forces it

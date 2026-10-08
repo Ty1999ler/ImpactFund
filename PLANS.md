@@ -238,7 +238,7 @@ opening — AFTER/AFTER_TEXT, LAST_SECOND_TEXT and OPENS_TEXT — the closed-/be
 banner checks use them — and the boundary URLs in build_plan), so move those to the
 Winter window with the new dates or many checks fail.
 
-## Winners page (Fall 2026) — PLAN 2026-10-06, not built yet
+## Winners page (Fall 2026) — PLAN 2026-10-06 (superseded: built — see "Winners page — BUILT" below)
 From Hafsa's mock (OneDrive: Documents/Alumo/Winners page.html) — used for content and
 order only; built in the site's own style. Decided: payee is the INDIVIDUAL winner;
 the finance form downloads at the top; Alumo owns the tax wording (used verbatim,
@@ -270,7 +270,8 @@ French; access is a plain unlisted link Alumo emails (secret-key layer PARKED �
   "Funding agreement - <Name>.pdf", "Finance form - …", "Void cheque - …". A second
   submission NEVER goes into the existing folder: it gets a suffixed sibling folder and
   the team email says "SECOND SUBMISSION — confirm banking details with the winner before
-  paying". Staging uses "Winners (TEST)".
+  paying". Staging uses the same root_folder; test copies file under TEST / <root_folder>
+  automatically.
 - Never by email: delivery is Graph only. If delivery_mode isn't 'graph' the endpoint
   answers "not ready" rather than storing banking/SIN files on the server indefinitely.
   Winner gets a confirmation email and the team a notice — both without attachments.
@@ -283,7 +284,6 @@ French; access is a plain unlisted link Alumo emails (secret-key layer PARKED �
   agreement also downloadable on the page or already in the winner email; the winners'
   deadline; which inbox gets "documents received" notices.
 - Effort: about 3–4 dev-days (page EN+FR, JS, backend, CI, staging tests).
-- Sequencing: after the Oct 13 close release.
 
 PARKED (user, 2026-10-06 — "later"): secret key in the winners link and making the
 GitHub repo private. Findings to pick up then: the key must live only in server
@@ -447,11 +447,25 @@ apply-now.css v9); verify_integrity.py check P fails if they drift apart again.
 - [TEST] marking (2026-10-08, the close build's site_is_test / test_prefix): from a test
   host every winners subject gets "[TEST] " (team notice, EN/FR confirmation, failure
   notice, filed-after-retry), documents go under TEST / <root_folder> / <round> / … (with
-  create_root false, TEST / <root_folder> must exist — create it on staging's drive, or
-  set create_root true there), and submission.json stores "test" (the retry reads it
-  back). Test and real archives are never each other's earlier submission. The 30-a-day
-  confirmation cap counts test confirmations separately. Live hosts unchanged apart from
-  "test": false.
+  create_root false, TEST / <root_folder> must exist — create it by hand in the same
+  drive, restricted like <root_folder>. Keep create_root false while the winners drive is
+  Alumo's library, as it is on staging (winners.drive_id empty = graph.drive_id): a
+  folder the site creates inherits the library's open permissions, and an unmarked
+  staging submission would create the real <root_folder> that way. Set it true only with
+  a separate staging winners.drive_id, plus 'test_mode' => true), and submission.json
+  stores "test" (the retry reads it back). Test and real archives are never each other's
+  earlier submission. The 30-a-day confirmation cap counts test confirmations
+  separately. Live hosts unchanged apart from "test": false.
+- BEFORE this reaches staging: `ls <submissions_dir>/winners/*/DELIVERY-PENDING` there
+  should list nothing (the pre-[TEST] build 0017fbc was never deployed). An archive
+  without "test" retries as REAL, into <root_folder> / … — delete the marker of any that
+  is only a test.
+- Preview copies: the pinned before./open./closed. copies and ?preview-at= do NOT apply
+  to the winners page. Its open/closed card follows the server (api/winners.php?state=1,
+  i.e. staging's own winners config), but main.js still shows the copy's site-wide
+  banner over it (e.g. "after submissions close" on closed.). Test it on
+  staging.alumoimpact.ca. (Optional, at the next main.js bump: skip the banner when the
+  page has [data-winners-open].)
 - One-command test: `python _tools/submit_test.py --winners --email you@example.com`
   (staging by default; refuses production and september.; --dry-run).
 - CI: forms-smoke.yml job "winners" (3 containers on 8791-8793, clear of the smoke
@@ -461,13 +475,13 @@ apply-now.css v9); verify_integrity.py check P fails if they drift apart again.
   AWAITING_CLIENT (finance form PDFs) + shared-asset ?v= check against the live pages,
   alongside the close build's check 6.
 - Integration notes (rebase onto the close build, 2026-10-08):
-  - api/config.ci.php: the winners block deliberately has NO closes_at key (the close
-    build's "no closes_at key" smoke step deletes the top-level line, then fails if any
-    'closes_at' is left); CI inserts its deadline after the winners-ci-closes-at marker.
-    The close build's grace step now greps the TOP-LEVEL close_grace_minutes (4-space
-    indent), since the winners block has one too.
-  - api/config.example.php: keep the winners closes_at '' (check 6 reads any dated
-    closes_at there as the application deadline).
+  - api/config.ci.php: the winners block deliberately has NO closes_at key; CI inserts
+    its deadline after the winners-ci-closes-at marker. The close build's grace step
+    and "no closes_at key" step now match only the TOP-LEVEL key (4-space indent:
+    ^    'close_grace_minutes', ^    'closes_at'), since the winners block has its own.
+  - api/config.example.php: keep the winners closes_at '' (a config copied from it
+    keeps the page closed). Check 6 reads only the top-level closes_at there (4-space
+    indent), so a winners example date can't be taken for the application deadline.
   - ci/fake-sendmail-all.sh is gone: the winners job uses the close build's
     ci/fake-sendmail.sh (+ /tmp/mail.all) and ci/mail-subjects.sh.
   - Release gate: `python _tools/verify_integrity.py --release` must pass before main

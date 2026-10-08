@@ -15,8 +15,8 @@ Checks, for the 27 tracked page files (12 live + 2 private + 4 policy stubs +
      data-closes-at carries both, each an ISO date WITH an explicit offset,
      opens before closes, and all live pages share one value of each; the
      server's close date (DEFAULT_CLOSES_AT in api/apply.php, and the
-     closes_at example in api/config.example.php) equals that close. The
-     private pages are outside this window.
+     top-level closes_at example in api/config.example.php) equals that
+     close. The private pages are outside this window.
   P. Private (unlisted) pages: carry noindex,nofollow, are absent from
      sitemap.xml and robots.txt, and are linked from no live page. They are deliberately NOT
      required to be in the nav or the sitemap — the opposite. Every shared
@@ -357,10 +357,11 @@ CLOSES_RE = re.compile(r'\bdata-closes-at\s*=\s*"([^"]*)"')
 ISO_OFFSET_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$")
 # Server-side copies of the close date: (file, pattern, must be present).
 # The committed default the release gates on, and the documented example a
-# new api/config.php is copied from (an explicit '' there is skipped).
+# new api/config.php is copied from (an explicit '' there is skipped). Only
+# the TOP-LEVEL closes_at (4-space indent): the winners block has its own.
 SERVER_CLOSES = [
     ("api/apply.php", re.compile(r"^const DEFAULT_CLOSES_AT = '([^']*)';", re.M), True),
-    ("api/config.example.php", re.compile(r"'closes_at'\s*=>\s*'([^']+)'"), False),
+    ("api/config.example.php", re.compile(r"^    'closes_at'\s*=>\s*'([^']+)'", re.M), False),
 ]
 
 

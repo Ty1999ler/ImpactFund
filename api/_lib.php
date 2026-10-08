@@ -1386,9 +1386,13 @@ function winners_make_folder(array $auth, string $driveId, array $segments, stri
             winners_graph_get($auth, "https://graph.microsoft.com/v1.0/drives/$driveId/root:/"
                 . sp_encode_path($path), [404], $rootStatus);
             if ($rootStatus === 404) {
-                throw new RuntimeException("SharePoint folder '$path' does not exist. Alumo creates it "
-                    . '(with restricted permissions) before winners get the link; or set '
-                    . "winners.create_root => true to let the site create it.");
+                /* A test copy's TEST / <root_folder> usually sits in Alumo's
+                   own library, so never suggest create_root for it. */
+                throw new RuntimeException("SharePoint folder '$path' does not exist. " . ($rootIndex > 0
+                    ? "Create it by hand in the same drive, restricted like '$segment' (keep "
+                      . 'create_root false while this drive also holds the real winners\' folders).'
+                    : 'Alumo creates it (with restricted permissions) before winners get the link; or set '
+                      . 'winners.create_root => true to let the site create it.'));
             }
         } else {
             graph_create_folder($auth, $driveId, $parentPath, $segment, 'fail');

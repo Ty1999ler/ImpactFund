@@ -12,6 +12,7 @@ on:
       - 'Dockerfile.php'
       - '.dockerignore'
       - 'ci/**'
+      - 'js/winners-schools-fall-2026.js'   # api/winners.php reads it (school_listed)
       - '.github/workflows/forms-smoke.yml'
   workflow_dispatch:
 
@@ -435,8 +436,9 @@ jobs:
       - name: Apply — with no closes_at key the committed default applies
         run: |
           set -euo pipefail
-          sed "/'closes_at' => ''/d" api/config.ci.php > /tmp/config.default.php
-          if grep -q "'closes_at'" /tmp/config.default.php; then echo "sed did not remove closes_at"; exit 1; fi
+          # The TOP-LEVEL key (4-space indent), not one in the winners block.
+          sed "/^    'closes_at' => ''/d" api/config.ci.php > /tmp/config.default.php
+          if grep -q "^    'closes_at'" /tmp/config.default.php; then echo "sed did not remove closes_at"; exit 1; fi
           default=$(sed -n "s/^const DEFAULT_CLOSES_AT = '\(.*\)';$/\1/p" api/apply.php)
           test -n "$default"
           # Expected answer from the clock: 422 (past the gate) until
@@ -495,7 +497,7 @@ jobs:
           test "$(grep -c 'winners-ci-closes-at' api/config.ci.php)" = "1"
           # The deadline is INSERTED after the marker: the CI winners block
           # has no closes_at key of its own (see the comment in config.ci.php
-          # — the application smoke test fails if one is there).
+          # — a second one would be a duplicate key, and the later one wins).
           # 2020-01-01T00:00:00-05:00 = epoch 1577854800
           sed "/winners-ci-closes-at/a\\        'closes_at' => '2020-01-01T00:00:00-05:00'," \
             api/config.ci.php > /tmp/wcfg/closed.php
@@ -668,8 +670,9 @@ jobs:
       # site (curl -H 'Host: staging.alumoimpact.ca', as in the application
       # smoke), every winners subject starts "[TEST] " and submission.json says
       # "test": true; localhost stays unmarked. CI has no SharePoint, so the
-      # team email here is the failure notice (the "filed" notices and the
-      # TEST / <root_folder> / … folder are covered by the php CLI step below).
+      # team email here is the failure notice (the php CLI step below checks
+      # the TEST / <root_folder> / … folder path, and sends the "received" and
+      # "filed after retry" notices directly to check their subjects).
       - name: Winners — sent as staging, every subject says [TEST]; test and real never count as each other's second submission
         run: |
           set -euo pipefail
@@ -956,6 +959,21 @@ jobs:
           $rec['test'] = true;
           $expect('test folder: TEST / Winners / round / leaf, root at 1',
               winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P'], 1]);
+          // The "filed" notices: CI has no SharePoint, so no request sends them.
+          // mail() goes to ci/fake-sendmail.sh, which leaves the message in /tmp/mail.out.
+          $notice = function (bool $test, bool $afterRetry) use ($base): string {
+              file_put_contents('/tmp/mail.out', '');
+              winners_notify_delivered($base, ['id' => 'x', 'round' => 'R', 'test' => $test,
+                  'fields' => ['full_name' => 'Jane Doe']], ['path' => 'W/R/Jane Doe - P'], $afterRetry, true);
+              $m = (string)file_get_contents('/tmp/mail.out');
+              return preg_match('/^Subject: =\?UTF-8\?B\?(.*)\?=\r?$/m', $m, $s) === 1 ? (string)base64_decode($s[1]) : '';
+          };
+          $expect('test record: received notice says [TEST]',
+              $notice(true, false) === '[TEST] Winner documents received — Jane Doe (R)');
+          $expect('test record: filed-after-retry notice says [TEST]',
+              $notice(true, true) === '[TEST] Winner documents filed after retry — Jane Doe (R)');
+          $expect('real record: filed-after-retry notice unmarked',
+              $notice(false, true) === 'Winner documents filed after retry — Jane Doe (R)');
           $tmp = sys_get_temp_dir() . '/winners-sep-' . getmypid();
           foreach (['real-a' => false, 'test-b' => true] as $sid => $t) {
               @mkdir("$tmp/$sid", 0700, true);
