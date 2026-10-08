@@ -878,7 +878,9 @@ jobs:
       - name: Winners — config rules and helpers (php CLI)
         run: |
           set -euo pipefail
-          docker exec -i winners-open php <<'PHP'
+          # As www-data: /tmp/mail.out belongs to Apache's user, and the runner's
+          # fs.protected_regular stops even root reopening it in sticky /tmp.
+          docker exec -i -u www-data winners-open php <<'PHP'
           <?php
           require '/var/www/html/api/_lib.php';
           $base = require '/var/www/html/api/config.php';
