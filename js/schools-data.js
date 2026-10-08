@@ -235,7 +235,7 @@ window.ALUMO_SCHOOLS = [
   "school": "University of Manitoba",
   "association": "University of Manitoba Students' Union (UMSU)",
   "province": "MB",
-  "email": "vpfo@umsu.ca"
+  "email": "pres@umsu.ca"
  },
  {
   "school": "University of Manitoba",
