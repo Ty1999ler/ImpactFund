@@ -63,6 +63,15 @@ or `caddy file-server --listen :8777`.
 - `api/apply.php` — application form (fields + 5 uploads) → archived on the
   server under `_submissions/`, then delivered per `delivery_mode` in the
   config: `email` relay / `graph` (Microsoft Graph → SharePoint) / `off`.
+- `api/winners.php` — the unlisted Winners page (`/winners-fall-2026/`,
+  `/fr/gagnants-automne-2026/`; front end `js/winners-form.js`): three documents
+  → archived under `_submissions/winners/<id>/`, then filed in SharePoint ONLY
+  (`<root_folder>/<round>/<Full name> - <Project title>/`), never emailed, server
+  copy deleted once filed. Configured by the `winners` block in the config —
+  `round`, `root_folder`, `opens_at` (ISO with offset, or ''), `closes_at`
+  (REQUIRED: ISO with offset, or 'none'), `close_grace_minutes`, `notify_to`,
+  `drive_id`, `create_root` — and stays closed ("not ready", 503) unless
+  `delivery_mode` is `graph` with credentials.
 - Setup: copy `api/config.example.php` to `api/config.php` and fill it in
   (config.php is git-ignored — this repo is public; never commit it).
 - The nginx image does NOT run PHP: once the forms go live, build with

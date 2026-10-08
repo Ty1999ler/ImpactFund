@@ -47,4 +47,27 @@ return [
         'list_id'       => '',
         'drive_id'      => '',
     ],
+
+    /* Winners page (api/winners.php). CI has no SharePoint, so
+       allow_without_graph lets the endpoint open anyway: submissions are
+       archived and queued (DELIVERY-PENDING), and still never emailed. That
+       key must exist in THIS file only; it is also what lets this block go
+       without a deadline. The forms-smoke workflow seds copies of this file
+       for its "after the deadline" variant (it inserts a deadline after the
+       marker line below — keep that marker the only one in the file) and its
+       "email mode" variant (the delivery_mode line above); it fails loudly if
+       either pattern stops matching.
+       Deliberately NO closes_at key in this block: the application smoke test
+       of the Oct 15 close build deletes the top-level closes_at line and then
+       fails if any closes_at key is left anywhere in this file. */
+    'winners' => [
+        'round'       => 'CI Round',
+        'root_folder' => 'Winners (CI)',
+        'opens_at'    => '',
+        // winners-ci-closes-at (the "after the deadline" variant inserts its deadline after this line)
+        'close_grace_minutes' => 15,
+        'notify_to'   => 'winners-ci@example.invalid',
+        'drive_id'    => '',
+        'allow_without_graph' => true,
+    ],
 ];

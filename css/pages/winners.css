@@ -1,0 +1,231 @@
+/* ============================================================
+   Winners page — /winners-fall-2026/ and /fr/gagnants-automne-2026/
+   Loaded AFTER apply-now.css and how-to-apply.css, which already supply the
+   hero and intro (.apply-hero / .apply-intro), the green form card and the
+   orange state card (.apply-form-card / .apply-form-closed), and every field,
+   file, error, status, fine-print and honeypot style (all scoped to
+   .apply-form, which sits on the wrapper around the winners form). This file
+   only adds what the winners page has and those pages don't. Site tokens only.
+   ============================================================ */
+
+/* ------------------------------
+   [hidden] guards. /js/winners-form.js swaps these blocks with the hidden
+   attribute, and a class that sets `display` beats the attribute's UA rule —
+   the trap apply-now.css documents for .apply-form-card. Every block below
+   that sets a display gets its guard here, deliberately, rather than relying
+   on the default. (Inside .apply-form, apply-now.css's
+   `.apply-form [hidden] { display: none !important }` already covers the form,
+   the success panel and the "not listed" box.)
+   ------------------------------ */
+.winners-states[hidden],
+.winners-open[hidden],
+.winners-intro .intro-text[hidden],
+.winners-success[hidden] { display: none; }
+
+/* ------------------------------
+   HERO — kicker pill + H1. The H1 is outside every state block, so it shows
+   in every state (open, closed, not ready, no JavaScript). The top clearance
+   under the fixed header is .apply-hero's own (170 / 130 / 120px), the same
+   as /apply-now/.
+   ------------------------------ */
+.winners-hero .winners-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 8px 16px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  font-weight: 500;
+  line-height: var(--lh-26-5);
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  background-color: var(--primary);
+  border-radius: var(--radius-pill);
+}
+.winners-hero .winners-kicker img { flex-shrink: 0; }
+.winners-hero .apply-title { max-width: 1040px; }
+
+/* The intro sits right under the H1 here: .apply-intro's 71px (50px top and
+   bottom at <=992px, in how-to-apply.css) spaces the long /apply-now/ page.
+   Same specificity, later file, so this wins at every width. */
+.winners-intro { padding: 0; }
+.winners-intro .winners-deadline {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+/* ------------------------------
+   STATE CARDS (closed / not open yet / not ready / no JavaScript).
+   Same orange card as the closed application form; less top padding than
+   .apply-form-section's 120px because only the intro sits above it.
+   ------------------------------ */
+.winners-states { padding-top: 64px; }
+.winners-states .apply-form-card:focus { outline: none; }
+@media (max-width: 992px) {
+  .winners-states { padding-top: 48px; }
+}
+@media (max-width: 576px) {
+  .winners-states { padding-top: 32px; }
+}
+
+/* ------------------------------
+   STEP 1 — finance form download card
+   ------------------------------ */
+.winners-step { padding-top: 80px; }
+.winners-download {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 860px;
+  padding: 40px;
+  border: 1px solid var(--text);
+  border-radius: var(--radius-card);
+}
+.winners-download p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+/* The step every winner must take, so it must be readable: btn-primary's
+   cream text on its orange fill is about 1.5:1, and its hover (orange text on
+   the cream page) no better. Dark text here only — about 10:1 on the fill and
+   15:1 on the page — leaving btn-primary alone elsewhere. */
+.winners-download .btn.btn-primary > a,
+.winners-download .btn.btn-primary > a:hover { color: var(--text); }
+
+/* ------------------------------
+   TAX BLOCK — Alumo's own wording (see the HTML comment); the tinted
+   "Good to know" box is the orange of the site's informational cards.
+   ------------------------------ */
+.winners-tax { padding-top: 64px; }
+.winners-tax-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 860px;
+}
+.winners-tax-block p {
+  font-family: var(--font-source-serif);
+  color: var(--text);
+}
+.winners-tax-note {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 28px;
+  border-radius: var(--radius-card);
+  background-color: var(--primary);
+}
+
+@media (max-width: 992px) {
+  .winners-step { padding-top: 56px; }
+  .winners-download { padding: 32px; }
+  .winners-tax { padding-top: 48px; }
+}
+@media (max-width: 576px) {
+  .winners-step { padding-top: 40px; }
+  .winners-download { padding: 24px 20px; gap: 16px; }
+  .winners-tax { padding-top: 40px; }
+  .winners-tax-note { padding: 20px; }
+}
+
+/* ------------------------------
+   FORM (inside the green .apply-form-card)
+   ------------------------------ */
+.winners-form .winners-form-title { margin-bottom: 40px; }
+.winners-form .winners-fieldset {
+  margin: 0 0 40px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.winners-form .winners-fieldset > legend {
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+/* Hint under a text input — same voice as the accepted-file-types line. */
+.winners-form .field-hint {
+  margin: 8px 0 0;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  opacity: 0.8;
+}
+
+/* "We only use your void cheque to set up your payment." */
+.winners-form .winners-cheque-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  background-color: var(--primary-light-1);
+  border-radius: 10px;
+}
+.winners-form .winners-cheque-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Status line while sending. style.css's .form-status.is-error red loses to
+   apply-now.css's `.apply-form .form-status` colour (same specificity, later
+   file), so errors are re-coloured here with the field-error red. */
+.winners-form .form-status.is-error { color: #8f1d00; }
+.winners-form .winners-status-sub {
+  display: block;
+  font-weight: 400;
+}
+.winners-form .apply-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* ------------------------------
+   KEYBOARD FOCUS. style.css takes the outline off every link and button, and
+   apply-now.css off every field inside .apply-form, so nothing on this page
+   would show where the keyboard is (WCAG 2.4.7). :focus-visible only — a
+   mouse click still shows nothing, as on the rest of the site — and scoped
+   to this page's own blocks, so /apply-now/ is untouched. Same specificity
+   as apply-now.css's `.apply-form input:focus`, later file, so it wins; the
+   ring sits outside pills, file inputs and the 26px checkbox alike.
+   ------------------------------ */
+.winners-download .btn > a:focus-visible,
+.winners-form-wrap a:focus-visible,
+.winners-form-wrap input:focus-visible,
+.winners-form-wrap select:focus-visible,
+.winners-form-wrap button:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* ------------------------------
+   SUCCESS panel (replaces the form in the green card)
+   ------------------------------ */
+.winners-success {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.winners-success:focus { outline: none; }
+.winners-success p {
+  font-family: var(--font-source-serif);
+  font-size: var(--fs-20);
+  line-height: var(--lh-31-9);
+  color: var(--text);
+}
+
+@media (max-width: 992px) {
+  .winners-form .winners-form-title { margin-bottom: 32px; }
+}
+@media (max-width: 768px) {
+  .winners-form .winners-fieldset { margin-bottom: 32px; }
+}

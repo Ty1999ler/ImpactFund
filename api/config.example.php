@@ -149,4 +149,55 @@ return [
             // 'file_support_letter'   => 'SupportLetter',  // "Partner Sign-off Form" on the site
         ],
     ],
+
+    /* ---- Winners page (api/winners.php; /winners-fall-2026/ and
+       /fr/gagnants-automne-2026/) ----
+       Winners upload a signed funding agreement, a finance form and a void
+       cheque. They are filed in SharePoint ONLY — never emailed, never kept on
+       the server once SharePoint has them. The page stays CLOSED ("not ready",
+       503) unless all of this holds:
+         - delivery_mode above is 'graph', with graph tenant_id, client_id,
+           client_secret, and a drive id (drive_id here, else graph.drive_id);
+         - round and root_folder are set;
+         - closes_at is set: a real ISO date WITH an explicit offset, or
+           'none' for no deadline at all. Left empty or out, the page stays
+           closed — a page that takes banking documents must never stay open
+           for good because a key was forgotten. (It stays '' in THIS file on
+           purpose: the integrity check reads any dated closes_at here as the
+           application deadline.);
+         - opens_at is '' or such a date. -04:00 is EDT, -05:00 is EST: a
+           deadline after Nov 1, 2026 needs -05:00. A value without an
+           offset, or one that isn't a real date (2026-11-31), closes the page
+           (logged) rather than guessing.
+       Documents land in  <root_folder>/<round>/<Full name> - <Project title>/
+       as "Funding agreement - <Name>.pdf", "Finance form - …", "Void cheque - …".
+       A second submission for the same name never goes into the existing
+       folder: it gets a sibling "… (2 - <id>)" folder, and the team notice
+       starts "SECOND SUBMISSION — confirm banking details with the winner
+       before paying". No SharePoint list item is created.
+       Each submission emails notify_to (else failure_notify_to, else
+       relay_to) a notice WITHOUT attachments, and the winner a confirmation
+       whose replies go to notify_to. */
+    'winners' => [
+        'round'       => 'Fall 2026',   // SharePoint level 2; next round: 'Winter 2027'
+        'root_folder' => 'Winners',     // SharePoint level 1; staging: 'Winners (TEST)'
+        'opens_at'    => '',            // '' = open as soon as configured
+        'closes_at'   => '',            // REQUIRED, e.g. '2026-10-30T23:59:59-04:00'; 'none' = no deadline; '' = page stays closed
+        /* Submissions only: an upload already on its way at closes_at is
+           still accepted for this many minutes. The page shows "closed" from
+           closes_at exactly. */
+        'close_grace_minutes' => 15,
+        'notify_to'   => '',            // "documents received" notices; '' = failure_notify_to, then relay_to
+        'drive_id'    => '',            // '' = the applications library (graph.drive_id)
+        /* false (default): root_folder must ALREADY exist in the drive —
+           Alumo creates it with restricted permissions before the link goes
+           out, and until it exists deliveries queue for retry (one notice to
+           the team). A folder the site created would inherit the library's
+           permissions, i.e. everyone who reviews applications. Set true only
+           where that doesn't matter (e.g. a staging library). */
+        'create_root' => false,
+        /* NEVER set on a server. config.ci.php only: lets CI exercise the
+           endpoint without SharePoint (archive-only, still never emailed). */
+        // 'allow_without_graph' => true,
+    ],
 ];

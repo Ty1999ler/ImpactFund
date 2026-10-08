@@ -2,18 +2,31 @@
 """
 Whole-site integrity regression net for the Alumo website.
 
-Checks, for the 25 tracked page files (12 live + 4 policy stubs + 4 past-winners
-stubs + 5 French-slug redirect stubs):
+Checks, for the 27 tracked page files (12 live + 2 private + 4 policy stubs +
+4 past-winners stubs + 5 French-slug redirect stubs):
   1. Strict UTF-8 decodability + no mojibake markers.
   2. Structural tag balance (html.parser based).
-  3. Internal href/src/action targets exist (with an expected-missing allowlist).
-  4. Forbidden strings on the 12 live pages.
-  5. Identical css/style.css?v= and js/main.js?v= across all live pages.
+  3. Internal href/src/action targets exist (with an expected-missing allowlist,
+     and a separate AWAITING_CLIENT list for files the client still owes).
+  4. Forbidden strings on the 12 live pages and the private pages.
+  5. Identical css/style.css?v= and js/main.js?v= across all live pages and the
+     private pages.
   6. One submission window on the live pages: every tag with data-opens-at or
      data-closes-at carries both, each an ISO date WITH an explicit offset,
      opens before closes, and all live pages share one value of each; the
      server's close date (DEFAULT_CLOSES_AT in api/apply.php, and the
-     closes_at example in api/config.example.php) equals that close.
+     closes_at example in api/config.example.php) equals that close. The
+     private pages are outside this window.
+  P. Private (unlisted) pages: carry noindex,nofollow, are absent from
+     sitemap.xml and robots.txt, and are linked from no live page. They are deliberately NOT
+     required to be in the nav or the sitemap — the opposite. Every shared
+     css/js file they load carries the same ?v= as the live pages that load it
+     (they reuse /apply-now/'s stylesheets), and they never load js/analytics.js.
+
+Usage: python _tools/verify_integrity.py [--release]
+  --release  files still AWAITING_CLIENT count as failures. Run with it
+             before merging main -> release: a release must never ship a
+             link to a file the client hasn't sent.
 
 Exit code 0 = clean, 1 = findings.
 """
@@ -72,7 +85,15 @@ MERGED_STUBS = [
     "how-to-apply/index.html",
     "fr/comment-soumettre/index.html",
 ]
-ALL_PAGES = LIVE_PAGES + POLICY_STUBS + PW_STUBS + FR_SLUG_STUBS + MERGED_STUBS
+# Unlisted pages (Oct 2026): real pages with the live site's CSS/JS, reached only
+# through a link Alumo emails. They get the live-page checks (forbidden strings,
+# asset versions) but the opposite of the listing rules — see check P.
+PRIVATE_PAGES = [
+    "winners-fall-2026/index.html",
+    "fr/gagnants-automne-2026/index.html",
+]
+ALL_PAGES = (LIVE_PAGES + PRIVATE_PAGES + POLICY_STUBS + PW_STUBS + FR_SLUG_STUBS
+             + MERGED_STUBS)
 
 MOJIBAKE_MARKERS = ["Ã©", "â€™", "�"]  # "Ã©", "â€™", "�"
 
@@ -88,6 +109,17 @@ EXPECTED_MISSING_RE = re.compile(
     r"^/assets/docs/(application-guide-[a-z]{2}\.pdf"
     r"|template-(project-overview|team-members|action-plan)-[a-z]{2}\.pdf)$"
 )
+
+# AWAITING_CLIENT: files a page links to that the client has not supplied yet.
+# Reported (so they are not forgotten) but not failures — except under
+# --release, where each one fails. Remove each entry the moment its file lands
+# in the repo — after that a missing file is a real break.
+AWAITING_CLIENT = {
+    # Winners page finance form, EN + FR — from Alumo (requested Oct 2026).
+    "/assets/docs/winners-finance-form-en.pdf",
+    "/assets/docs/winners-finance-form-fr.pdf",
+}
+awaiting_client = []  # (page, line, url)
 
 FORBIDDEN_STRINGS = [
     "Consent preferences",
@@ -180,6 +212,9 @@ def check_links(page, text):
         if EXPECTED_MISSING_RE.match(path):
             expected_missing.append((page, line, url))
             continue
+        if path in AWAITING_CLIENT:
+            awaiting_client.append((page, line, url))
+            continue
         add(page, "broken-link",
             "line %d: %s -> missing target %s" % (line, url, rel))
 
@@ -214,7 +249,9 @@ JS_V_RE = re.compile(r"""/?js/main\.js\?v=([^"'&\s]+)""")
 
 def check_asset_versions(texts):
     css_v, js_v = {}, {}
-    for page in LIVE_PAGES:
+    # Private pages reuse the live CSS/JS, so a version bump that misses them
+    # is the same stale-cache bug as one that misses a live page.
+    for page in LIVE_PAGES + PRIVATE_PAGES:
         text = texts.get(page)
         if text is None:
             continue
@@ -238,7 +275,69 @@ def check_asset_versions(texts):
         if len(distinct) > 1:
             detail = ", ".join("%s=%s" % (p, "/".join(v)) for p, v in sorted(seen.items()))
             add("(site-wide)", "asset-version",
-                "%s ?v= differs across live pages: %s" % (label, detail))
+                "%s ?v= differs across live/private pages: %s" % (label, detail))
+
+
+# ---------------------------------------------------------------- check P
+ROBOTS_META_RE = re.compile(r"""<meta\s+name=["']robots["']\s+content=["']([^"']*)["']""",
+                            re.IGNORECASE)
+HREF_RE = re.compile(r"""\bhref\s*=\s*["']([^"'#?]*)""", re.IGNORECASE)
+# Any versioned site stylesheet or script: (path, version).
+ASSET_V_RE = re.compile(r"""\b(?:href|src)\s*=\s*["']/?((?:css|js)/[^"'?#]+)\?v=([^"'&#\s]+)""",
+                        re.IGNORECASE)
+ANALYTICS_RE = re.compile(r"""\bsrc\s*=\s*["']/?js/analytics\.js""", re.IGNORECASE)
+
+
+def check_private_assets(texts, page, text):
+    """A shared file loaded at a different ?v= than on the live pages (check 5
+    covers only style.css and main.js; the private pages also reuse
+    /apply-now/'s stylesheets, which carry their field styles)."""
+    live_v = {}
+    for live in LIVE_PAGES:
+        for path, v in ASSET_V_RE.findall(texts.get(live) or ""):
+            live_v.setdefault(path, set()).add(v)
+    for path, v in sorted(set(ASSET_V_RE.findall(text))):
+        if path in live_v and live_v[path] != {v}:
+            add(page, "private-page", "%s?v=%s, but the live pages load it at ?v=%s"
+                % (path, v, "/".join(sorted(live_v[path]))))
+    # No consent banner over a private form, and nothing recorded about it.
+    if ANALYTICS_RE.search(text):
+        add(page, "private-page", "loads js/analytics.js — private pages must not")
+
+
+def private_url_path(page):
+    """'winners-fall-2026/index.html' -> '/winners-fall-2026/'."""
+    return "/" + page[:-len("index.html")]
+
+
+def check_private_pages(texts):
+    sitemap_path = os.path.join(ROOT, "sitemap.xml")
+    sitemap = (open(sitemap_path, encoding="utf-8").read()
+               if os.path.isfile(sitemap_path) else "")
+    robots_path = os.path.join(ROOT, "robots.txt")
+    robots = (open(robots_path, encoding="utf-8").read()
+              if os.path.isfile(robots_path) else "")
+    for page in PRIVATE_PAGES:
+        text = texts.get(page)
+        if text is None:
+            continue
+        m = ROBOTS_META_RE.search(text)
+        content = m.group(1).replace(" ", "").lower() if m else ""
+        if "noindex" not in content.split(",") or "nofollow" not in content.split(","):
+            add(page, "private-page", "missing <meta name=\"robots\" content=\"noindex, nofollow\">")
+        url = private_url_path(page)
+        if re.search(r"<loc>[^<]*" + re.escape(url) + r"</loc>", sitemap):
+            add(page, "private-page", "listed in sitemap.xml (%s) — unlisted pages must not be" % url)
+        # A Disallow line would publish the URL to anyone reading robots.txt
+        # and stop crawlers from ever seeing the noindex.
+        if url.rstrip("/") in robots:
+            add(page, "private-page", "named in robots.txt (%s) — the noindex meta is the control" % url)
+        # Only the other private pages (the language switcher) may link here.
+        for other in LIVE_PAGES:
+            other_text = texts.get(other) or ""
+            if any(h.rstrip("/") + "/" == url for h in HREF_RE.findall(other_text) if h):
+                add(other, "private-page", "links to the unlisted page %s" % url)
+        check_private_assets(texts, page, text)
 
 
 # ---------------------------------------------------------------- check 6
@@ -248,8 +347,8 @@ def check_asset_versions(texts):
 # with only an opening date next to another with only a closing date.
 # The offset is required because without one every browser reads the date in
 # its own local time zone (and api/apply.php refuses such a closes_at).
-# Scoped to LIVE_PAGES on purpose: a page with its own deadline (e.g. a
-# future winners page) keeps it out of this one site-wide window.
+# Scoped to LIVE_PAGES on purpose: a page with its own deadline (e.g. the
+# winners pages in PRIVATE_PAGES) keeps it out of this one site-wide window.
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 SCHED_TAG_RE = re.compile(r"<[a-zA-Z][^>]*\bdata-(?:opens|closes)-at\s*=[^>]*>")
 OPENS_RE = re.compile(r'\bdata-opens-at\s*=\s*"([^"]*)"')
@@ -366,20 +465,36 @@ def main():
         # 3. internal links
         check_links(page, text)
 
-        # 4. forbidden strings (live pages only)
-        if page in LIVE_PAGES:
+        # 4. forbidden strings (live + private pages)
+        if page in LIVE_PAGES or page in PRIVATE_PAGES:
             check_forbidden(page, text)
 
-    # 5. asset version consistency (live pages only)
+    # 5. asset version consistency (live + private pages)
     check_asset_versions(texts)
 
     # 6. one submission window (live pages only)
     check_schedule(texts)
 
+    # P. private pages stay unlisted
+    check_private_pages(texts)
+
+    # --release: nothing the client still owes may ship.
+    release = "--release" in sys.argv[1:]
+    if release:
+        for page, line, url in awaiting_client:
+            add(page, "awaiting-client",
+                "line %d: %s is still owed by the client — it would 404 in this release"
+                % (line, url))
+
     out = io.StringIO()
     if expected_missing:
         out.write("EXPECTED-known-missing (allowed, not failures):\n")
         for page, line, url in expected_missing:
+            out.write("  %s line %d: %s\n" % (page, line, url))
+        out.write("\n")
+    if awaiting_client and not release:
+        out.write("AWAITING_CLIENT (files the client still owes; not failures):\n")
+        for page, line, url in awaiting_client:
             out.write("  %s line %d: %s\n" % (page, line, url))
         out.write("\n")
     if findings:

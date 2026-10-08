@@ -394,7 +394,9 @@ jobs:
           past=$(date -u -d '5 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
           sed "s/'closes_at' => ''/'closes_at' => '$past'/" api/config.ci.php > /tmp/config.grace.php
           grep -q "'closes_at' => '$past'" /tmp/config.grace.php
-          grep -q "'close_grace_minutes' => 15," /tmp/config.grace.php   # the window this case relies on
+          # The window this case relies on: the TOP-LEVEL key (4-space indent),
+          # not the winners block's own close_grace_minutes.
+          grep -q "^    'close_grace_minutes' => 15," /tmp/config.grace.php
           docker run -d --name site-grace -p 8779:8777 \
             -v /tmp/config.grace.php:/var/www/html/api/config.php:ro site
           curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
@@ -456,4 +458,423 @@ jobs:
           for c in site site-forced site-email site-closed site-grace site-garbage site-default; do
             echo "===== $c"
             docker logs "$c" || true
+          done
+
+  # ------------------------------------------------------------------
+  # Winners page (api/winners.php) — its own job, so it can neither disturb
+  # nor be disturbed by the application smoke above. Three containers from
+  # the same image, each with its own copy of the CI config:
+  #   winners-open   :8791  api/config.ci.php as committed (open, archive-only)
+  #   winners-closed :8792  closes_at sed'd into the past
+  #   winners-email  :8793  delivery_mode sed'd to 'email' — the mode in which
+  #                         APPLICATIONS are mailed with attachments; winner
+  #                         documents must still never be
+  # (Ports 8791-8793 stay clear of the smoke job's 8777-8783, so the two jobs
+  # could share a host.) All three mount ci/fake-sendmail.sh, which keeps the
+  # last message in /tmp/mail.out and EVERY message in /tmp/mail.all; the
+  # steps below read /tmp/mail.all, since the "no message ever carries an
+  # attachment" checks have to see the team notice AND the confirmation.
+  # ------------------------------------------------------------------
+  winners:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the PHP site image
+        run: docker build -f Dockerfile.php -t site .
+
+      - name: Winners — config variants (each sed must match)
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wcfg
+          cp api/config.ci.php /tmp/wcfg/open.php
+          # Exactly one marker line, or the variant would silently be the
+          # open config.
+          test "$(grep -c 'winners-ci-closes-at' api/config.ci.php)" = "1"
+          # The deadline is INSERTED after the marker: the CI winners block
+          # has no closes_at key of its own (see the comment in config.ci.php
+          # — the application smoke test fails if one is there).
+          # 2020-01-01T00:00:00-05:00 = epoch 1577854800
+          sed "/winners-ci-closes-at/a\\        'closes_at' => '2020-01-01T00:00:00-05:00'," \
+            api/config.ci.php > /tmp/wcfg/closed.php
+          test "$(grep -c "'closes_at' => '2020-01-01T00:00:00-05:00'," /tmp/wcfg/closed.php)" = "1"
+          grep -A1 'winners-ci-closes-at' /tmp/wcfg/closed.php | grep -q "'closes_at' => '2020-01-01T00:00:00-05:00',"
+          sed "s|'delivery_mode' *=> *'off'|'delivery_mode' => 'email'|" api/config.ci.php > /tmp/wcfg/email.php
+          grep -q "'delivery_mode' => 'email'" /tmp/wcfg/email.php
+          if grep -q "'delivery_mode' *=> *'off'" /tmp/wcfg/email.php; then
+            echo "email variant still has delivery_mode 'off'"; exit 1
+          fi
+
+      - name: Winners — run the three containers
+        run: |
+          set -euo pipefail
+          sed -i 's/\r$//' ci/fake-sendmail.sh ci/mail-subjects.sh   # guard against a CRLF checkout breaking the shebang
+          chmod +x ci/fake-sendmail.sh           # exec bit may not survive a Windows-side commit
+          for variant in open:8791 closed:8792 email:8793; do
+            name="${variant%%:*}"; port="${variant##*:}"
+            docker run -d --name "winners-$name" -p "$port:8777" \
+              -v "/tmp/wcfg/$name.php:/var/www/html/api/config.php:ro" \
+              -v "$PWD/ci/fake-sendmail.sh:/usr/sbin/sendmail:ro" \
+              site
+          done
+          for port in 8791 8792 8793; do
+            curl -fsS -o /dev/null --retry 30 --retry-delay 1 --retry-connrefused \
+              --retry-all-errors "http://localhost:$port/"
+          done
+
+      - name: Winners — fixtures
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wfix
+          # Valid documents: content checks are real (getimagesize, %PDF-, a
+          # ZIP holding [Content_Types].xml), so these must be the real thing.
+          printf '%s\n%s\n' '%PDF-1.4' '%%EOF' > /tmp/wfix/finance-form.pdf
+          echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==' \
+            | base64 -d > /tmp/wfix/cheque.png
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('/tmp/wfix/agreement.docx', 'w', zipfile.ZIP_DEFLATED) as z:
+              z.writestr('[Content_Types].xml',
+                         '<?xml version="1.0" encoding="UTF-8"?>'
+                         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+                         '<Default Extension="xml" ContentType="application/xml"/></Types>')
+              z.writestr('word/document.xml',
+                         '<?xml version="1.0" encoding="UTF-8"?>'
+                         '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                         '<w:body/></w:document>')
+          PY
+          # Wrong ones
+          printf 'GIF89a\001\000\001\000\000\000\000;' > /tmp/wfix/agreement.gif
+          cp /tmp/wfix/agreement.docx /tmp/wfix/cheque.docx          # docx: fine for the agreement, not the cheque
+          printf '<!DOCTYPE html><html><body><script>alert(1)</script></body></html>\n' > /tmp/wfix/fake.pdf
+          printf '\000\000\000\030ftypheic\000\000\000\000mif1heic' > /tmp/wfix/cheque.heic
+          { printf '%s\n' '%PDF-1.4'; head -c 11534336 /dev/zero; } > /tmp/wfix/too-big.pdf   # 11 MB
+          # Shared by the steps below: a valid set of text fields, and post(),
+          # which POSTs to winners.php on <port>, leaves the body in
+          # /tmp/body.json (also shown in the log) and prints the HTTP status.
+          # University of Regina left the partner list mid-window (4200fd5) but
+          # is on the frozen Fall 2026 list, which the server checks.
+          cat > /tmp/wfix/common.sh <<'SH'
+          FIELDS=(-F school='University of Regina' -F full_name='CI Winner'
+                  -F project_title='CI Winning Project' -F email='ci-winner@example.com'
+                  -F confirm='I confirm' -F locale=en)
+          post() {
+            local port=$1; shift
+            local code
+            code=$(curl -sS -o /tmp/body.json -w '%{http_code}' "$@" "http://localhost:$port/api/winners.php")
+            cat /tmp/body.json >&2; echo >&2
+            printf '%s' "$code"
+          }
+          archives() {  # number of winner archives in container $1
+            docker exec "$1" sh -c 'find /var/www/_submissions/winners -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l'
+          }
+          no_attachments() {  # fail if any captured message in container $1 carries one
+            docker exec "$1" sh -c 'cat /tmp/mail.all 2>/dev/null || true' > /tmp/mail.captured
+            if grep -qi 'Content-Disposition: attachment' /tmp/mail.captured; then
+              echo "a captured email in $1 carries an ATTACHMENT"; exit 1
+            fi
+          }
+          SH
+
+      - name: Winners — state check (open) and GET without ?state=1
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/body.json -w '%{http_code}' 'http://localhost:8791/api/winners.php?state=1')
+          cat /tmp/body.json; echo
+          test "$code" = "200"
+          test "$(jq -r .state /tmp/body.json)" = "open"
+          test "$(jq -r .closes_at_ts /tmp/body.json)" = "null"
+          code=$(curl -sS -o /dev/null -w '%{http_code}' 'http://localhost:8791/api/winners.php')
+          test "$code" = "405"
+
+      - name: Winners — valid submission is archived (renamed, kind winners), queued, never attached
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          code=$(post 8791 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          test "$code" = "200"
+          test "$(jq -r .ok /tmp/body.json)" = "true"
+          id=$(jq -r .id /tmp/body.json)
+          echo "$id" | grep -Eq '^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$'
+          dir="/var/www/_submissions/winners/$id"
+          for f in 'Funding agreement - CI Winner.docx' 'Finance form - CI Winner.pdf' 'Void cheque - CI Winner.png'; do
+            docker exec winners-open test -f "$dir/$f"
+          done
+          # One level deeper than applications, so the application retry glob
+          # (submissions_dir/*/DELIVERY-PENDING) can never see it.
+          docker exec winners-open test ! -e "/var/www/_submissions/$id"
+          docker exec winners-open cat "$dir/submission.json" > /tmp/wsub.json
+          test "$(jq -r .kind /tmp/wsub.json)" = "winners"
+          test "$(jq -r '.documents | length' /tmp/wsub.json)" = "3"
+          test "$(jq -r '.files' /tmp/wsub.json)" = "null"          # never the application key
+          test "$(jq -r .fields.school /tmp/wsub.json)" = "University of Regina"
+          test "$(jq -r .fields.school_listed /tmp/wsub.json)" = "yes"
+          test "$(jq -r '.earlier_submissions | length' /tmp/wsub.json)" = "0"
+          echo "$id" > /tmp/wfirst.id
+          # Delivery runs after the response: wait for the queue marker, then
+          # for the winner's confirmation (sent last).
+          for i in $(seq 1 20); do docker exec winners-open test -f "$dir/DELIVERY-PENDING" && break; sleep 0.5; done
+          docker exec winners-open cat "$dir/DELIVERY-PENDING" > /tmp/wmarker.json
+          test "$(jq -r .kind /tmp/wmarker.json)" = "winners"
+          test "$(jq -r .mode /tmp/wmarker.json)" = "awaiting-graph"
+          for i in $(seq 1 20); do docker exec winners-open grep -q 'To: ci-winner@example.com' /tmp/mail.all && break; sleep 0.5; done
+          no_attachments winners-open
+          grep -q 'To: ci-winner@example.com' /tmp/mail.captured        # the confirmation
+          grep -q 'Hi CI Winner' /tmp/mail.captured
+          grep -q 'To: winners-ci@example.invalid' /tmp/mail.captured   # the one team notice
+          # Documents stay on the server until SharePoint has them.
+          docker exec winners-open test -f "$dir/Void cheque - CI Winner.png"
+
+      - name: Winners — same name again is a SECOND SUBMISSION; school checked on the server; confirmation drops links
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          first=$(cat /tmp/wfirst.id)
+          # The same winner's name reordered and re-cased, a different project
+          # title (so no folder-name clash), a school posted directly that is
+          # not on the frozen list, and a title carrying a link — the kind of
+          # text that would turn the confirmation into someone else's message.
+          code=$(post 8791 -F school='Anything At All' -F full_name='Winner,  ci' \
+            -F project_title='Claim your prize at https://evil.example/x' -F email='ci-relay@example.com' \
+            -F confirm='I confirm' -F locale=en \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          test "$code" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          docker exec winners-open cat "/var/www/_submissions/winners/$id/submission.json" > /tmp/wsub2.json
+          test "$(jq -r .fields.school_listed /tmp/wsub2.json)" = "no"
+          test "$(jq -r '.earlier_submissions | length' /tmp/wsub2.json)" = "1"
+          test "$(jq -r '.earlier_submissions[0].id' /tmp/wsub2.json)" = "$first"
+          for i in $(seq 1 20); do docker exec winners-open grep -q 'To: ci-relay@example.com' /tmp/mail.all && break; sleep 0.5; done
+          no_attachments winners-open
+          # The team notice leads with the warning and names the first one.
+          grep -q 'SECOND SUBMISSION for this name' /tmp/mail.captured
+          grep -q "  $first  CI Winner <ci-winner@example.com>" /tmp/mail.captured
+          grep -q 'School:        Anything At All   (NOT on the Fall 2026 list)' /tmp/mail.captured
+          # The confirmation (messages start at their "To:" line): generic
+          # wording for the title, and no trace of the link.
+          awk '/^To: /{keep = /ci-relay@example\.com/} keep' /tmp/mail.captured > /tmp/wack.txt
+          grep -q 'Hi Winner, ci,' /tmp/wack.txt
+          grep -q 'We received your documents for your project:' /tmp/wack.txt
+          if grep -qi 'evil' /tmp/wack.txt; then echo "the confirmation carries the link"; exit 1; fi
+
+      - name: Winners — missing file and field errors are 422 and store nothing
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          before=$(archives winners-open)
+          code=$(post 8791 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf)
+          test "$code" = "422"
+          test "$(jq -r .error /tmp/body.json)" = "fields"
+          test "$(jq -r .fields.file_void_cheque /tmp/body.json)" = "required"
+          # "not listed" needs its name box; email must be an email
+          code=$(post 8791 -F school='__other' -F full_name='CI Winner' -F project_title='P' \
+            -F email='not-an-email' -F confirm='I confirm' \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          test "$code" = "422"
+          test "$(jq -r .fields.school_other /tmp/body.json)" = "required"
+          test "$(jq -r .fields.email /tmp/body.json)" = "invalid_email"
+          test "$(archives winners-open)" = "$before"
+
+      - name: Winners — wrong types (by name and by content) are 422
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          before=$(archives winners-open)
+          code=$(post 8791 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/agreement.gif \
+            -F file_finance_form=@/tmp/wfix/fake.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.docx)
+          test "$code" = "422"
+          test "$(jq -r .fields.file_agreement /tmp/body.json)" = "file_type"      # .gif
+          test "$(jq -r .fields.file_finance_form /tmp/body.json)" = "file_type"   # HTML named .pdf
+          test "$(jq -r .fields.file_void_cheque /tmp/body.json)" = "file_type"    # docx: not for the cheque
+          test "$(archives winners-open)" = "$before"
+
+      - name: Winners — HEIC gets its own error
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          code=$(post 8791 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.heic)
+          test "$code" = "422"
+          test "$(jq -r .fields.file_void_cheque /tmp/body.json)" = "file_heic"
+
+      - name: Winners — 11 MB file is rejected
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          # As in the application test: the image's PHP limits sit above 11 MB,
+          # so winners.php's own 10 MB check answers 422; 413 is also a correct
+          # rejection if post_max_size ever trips first.
+          code=$(post 8791 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/too-big.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          case "$code" in
+            422) test "$(jq -r .fields.file_finance_form /tmp/body.json)" = "file_size" ;;
+            413) ;;
+            *)   echo "unexpected status: $code"; exit 1 ;;
+          esac
+
+      - name: Winners — honeypot pretends success but archives nothing
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          before=$(archives winners-open)
+          code=$(post 8791 -F website='https://spam.example.com' -F full_name='Bot')
+          test "$code" = "200"
+          test "$(jq -r .ok /tmp/body.json)" = "true"
+          test "$(jq -r .id /tmp/body.json)" = "null"
+          test "$(archives winners-open)" = "$before"
+
+      - name: Winners — after the deadline the page says closed and submissions get 403
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          code=$(curl -sS -o /tmp/body.json -w '%{http_code}' 'http://localhost:8792/api/winners.php?state=1')
+          cat /tmp/body.json; echo
+          test "$code" = "200"
+          test "$(jq -r .state /tmp/body.json)" = "closed"
+          test "$(jq -r .closes_at_ts /tmp/body.json)" = "1577854800"
+          code=$(post 8792 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          test "$code" = "403"
+          test "$(jq -r .error /tmp/body.json)" = "closed"
+          test "$(jq -r .closes_at_ts /tmp/body.json)" = "1577854800"
+          test "$(archives winners-closed)" = "0"
+
+      - name: Winners — email delivery mode still never attaches; redeliver leaves it pending
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          code=$(post 8793 -F school='__other' -F school_other='École CI' -F full_name='CI Gagnante' \
+            -F project_title='Projet CI' -F email='ci-gagnante@example.com' -F confirm='I confirm' -F locale=fr \
+            -F file_agreement=@/tmp/wfix/agreement.docx \
+            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          test "$code" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          dir="/var/www/_submissions/winners/$id"
+          for i in $(seq 1 20); do docker exec winners-email grep -q 'To: ci-gagnante@example.com' /tmp/mail.all && break; sleep 0.5; done
+          no_attachments winners-email
+          grep -q 'To: ci-gagnante@example.com' /tmp/mail.captured
+          grep -q 'Bonjour CI Gagnante' /tmp/mail.captured                # French confirmation
+          docker exec winners-email cat "$dir/submission.json" > /tmp/wsub.json
+          test "$(jq -r .fields.school /tmp/wsub.json)" = "École CI"
+          test "$(jq -r .fields.school_listed /tmp/wsub.json)" = "no"
+          # The retry job must leave a winner archive pending in email mode —
+          # never mail it the way it mails applications.
+          docker exec winners-email php /var/www/html/api/redeliver.php | tee /tmp/redeliver.out
+          grep -q "winners/$id: left pending — winner documents go to SharePoint only (delivery_mode is 'email')" /tmp/redeliver.out
+          no_attachments winners-email
+          docker exec winners-email test -f "$dir/DELIVERY-PENDING"
+          for f in 'Funding agreement - CI Gagnante.docx' 'Finance form - CI Gagnante.pdf' 'Void cheque - CI Gagnante.png'; do
+            docker exec winners-email test -f "$dir/$f"
+          done
+
+      - name: Winners — config rules and helpers (php CLI)
+        run: |
+          set -euo pipefail
+          docker exec -i winners-open php <<'PHP'
+          <?php
+          require '/var/www/html/api/_lib.php';
+          $base = require '/var/www/html/api/config.php';
+          $failed = false;
+          $expect = function ($label, $ok) use (&$failed) {
+              echo ($ok ? 'ok    ' : 'FAIL  ') . $label . "\n";
+              if (!$ok) $failed = true;
+          };
+          // A deadline is set in these two so it is the Graph rule that closes them.
+          $c = $base; unset($c['winners']['allow_without_graph']); $c['winners']['closes_at'] = '2099-01-01T00:00:00-05:00';
+          $expect('no Graph, no allow_without_graph -> closed', winners_config($c) === null);
+          $c = $base; $c['winners']['allow_without_graph'] = 1; $c['winners']['closes_at'] = '2099-01-01T00:00:00-05:00';
+          $expect('allow_without_graph must be exactly true', winners_config($c) === null);
+          $c = $base; $c['winners']['closes_at'] = '2026-10-30 23:59';
+          $expect('date without an offset -> closed', winners_config($c) === null);
+          $c = $base; $c['winners']['closes_at'] = '2026-10-30T23:59:59';
+          $expect('ISO date without an offset -> closed', winners_config($c) === null);
+          $c = $base; $c['winners']['closes_at'] = 'next friday';
+          $expect('unparseable date -> closed', winners_config($c) === null);
+          $c = $base; $c['winners']['opens_at'] = '2026-11-01T00:00:00-04:00'; $c['winners']['closes_at'] = '2026-10-01T00:00:00-04:00';
+          $expect('opens_at after closes_at -> closed', winners_config($c) === null);
+          foreach (['2026-11-31T23:59:59-05:00', '2026-02-29T12:00:00-05:00', '2026-10-30T24:00:00-04:00',
+                    '2026-10-30T23:60:00-04:00', '2026-10-30T23:59:59-24:00'] as $bad) {
+              $c = $base; $c['winners']['closes_at'] = $bad;
+              $expect("impossible date $bad -> closed (never rolled forward)", winners_config($c) === null);
+          }
+          $c = $base; $c['winners']['closes_at'] = '2026-10-31T03:59:59Z';
+          $expect('Z offset is read as UTC', winners_config($c)['closes_at_ts'] === strtotime('2026-10-30T23:59:59-04:00'));
+          $c = $base; $c['winners']['round'] = '';
+          $expect('empty round -> closed', winners_config($c) === null);
+          $c = $base; unset($c['winners']['allow_without_graph']); $c['delivery_mode'] = 'graph';
+          $c['graph'] = ['tenant_id' => 't', 'client_id' => 'c', 'client_secret' => 's', 'drive_id' => 'apps-drive'];
+          $expect('graph mode, no closes_at key -> closed', winners_config($c) === null);
+          $c['winners']['closes_at'] = '';
+          $expect("graph mode, closes_at '' -> closed", winners_config($c) === null);
+          $c['winners']['closes_at'] = 'none';
+          $w = winners_config($c);
+          $expect("closes_at 'none' -> open with no deadline", is_array($w) && $w['closes_at_ts'] === null);
+          $c['winners']['closes_at'] = '2099-01-01T00:00:00-05:00';
+          $w = winners_config($c);
+          $expect('graph mode with credentials -> open', is_array($w) && $w['graph_ready'] === true
+              && $w['drive_id'] === 'apps-drive' && $w['create_root'] === false);
+          $c['winners']['drive_id'] = 'winners-drive';
+          $expect('winners.drive_id beats graph.drive_id', winners_config($c)['drive_id'] === 'winners-drive');
+          $c['graph']['client_secret'] = '';
+          $expect('graph mode without a secret -> closed', winners_config($c) === null);
+          $w = winners_config($base);
+          $w['opens_at_ts'] = 500; $w['closes_at_ts'] = 1000; $w['close_grace_minutes'] = 15;
+          $expect('not-open before opens_at', winners_window_state($w, 499, false) === 'not-open');
+          $expect('open inside the window', winners_window_state($w, 999, false) === 'open');
+          $expect('page closed from closes_at exactly', winners_window_state($w, 1000, false) === 'closed');
+          $expect('submissions open inside the grace', winners_window_state($w, 1000 + 14 * 60, true) === 'open');
+          $expect('submissions closed after the grace', winners_window_state($w, 1000 + 15 * 60, true) === 'closed');
+          $expect('doc name keeps its extension when long',
+              winners_doc_name('Void cheque', str_repeat('A', 150), 'jpg') === 'Void cheque - ' . str_repeat('A', 86) . '.jpg');
+          $expect('doc name loses path characters', winners_doc_name('Finance form', 'a/b:c', 'pdf') === 'Finance form - a-b-c.pdf');
+          $k = winners_name_keys('Jane Doe');
+          foreach (['jane  doe.', 'Doe, Jane', 'Jané Doe', "J\u{0430}ne Doe", 'JaneDoe'] as $variant) {
+              $expect("same name: '$variant'", (bool)array_intersect($k, winners_name_keys($variant)));
+          }
+          $expect('different name', !array_intersect($k, winners_name_keys('Jane Dow')));
+          $expect('confirmation keeps a plain name', winners_ack_value(' Jane   Doe ', 60) === 'Jane Doe');
+          $expect('confirmation drops a link', winners_ack_value('Prize at https://x.example/a', 80) === '');
+          $expect('confirmation drops a bare domain', winners_ack_value('see evil.example now', 80) === '');
+          $expect('confirmation drops an address', winners_ack_value('write me@x', 80) === '');
+          $expect('confirmation drops a long value', winners_ack_value(str_repeat('a', 61), 60) === '');
+          $list = '/var/www/html/js/winners-schools-fall-2026.js';
+          $expect('school on the frozen list (any case)', winners_school_listed($list, 'university of regina') === true);
+          $expect('school not on the list', winners_school_listed($list, 'Anything At All') === false);
+          $expect('unreadable list -> unchecked', winners_school_listed('/nonexistent.js', 'x') === null);
+          exit($failed ? 1 : 0);
+          PHP
+
+      - name: Winners — container logs, archives and mail (on failure)
+        if: failure()
+        run: |
+          for c in winners-open winners-closed winners-email; do
+            echo "=================== $c: docker logs"
+            docker logs "$c" || true
+            echo "=================== $c: archives"
+            docker exec "$c" sh -c 'find /var/www/_submissions -maxdepth 3 | sort;
+              for f in /var/www/_submissions/winners/*/submission.json /var/www/_submissions/winners/*/DELIVERY-PENDING; do
+                [ -f "$f" ] && { echo "--- $f"; cat "$f"; echo; }
+              done' || true
+            echo "=================== $c: captured mail"
+            docker exec "$c" cat /tmp/mail.all || true
           done

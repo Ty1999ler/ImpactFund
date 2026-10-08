@@ -30,7 +30,13 @@ $cfg = load_config();
    a broken submission is reported, never allowed to stop the loop. */
 $base = rtrim((string)$cfg['submissions_dir'], '/\\');
 $markers = glob($base . '/*/DELIVERY-PENDING') ?: [];
-if (!$markers) {
+/* Winner archives (api/winners.php) live one level deeper, in
+   submissions_dir/winners/<id>/, so the application glob above never sees
+   them. They get their own glob and their own retry, which files through
+   SharePoint ONLY and never emails a document (winners_redeliver_one in
+   _lib.php). The application loop below is unchanged. */
+$winnerMarkers = glob($base . '/winners/*/DELIVERY-PENDING') ?: [];
+if (!$markers && !$winnerMarkers) {
     echo "redeliver: nothing pending\n";
     exit(0);
 }
@@ -41,6 +47,15 @@ foreach ($markers as $markerPath) {
         echo redeliver_one($cfg, $dir, $id) . "\n";
     } catch (Throwable $e) {
         echo "$id: ERROR — " . $e->getMessage() . "\n";
+    }
+}
+foreach ($winnerMarkers as $markerPath) {
+    $dir = dirname($markerPath);
+    $id  = basename($dir);
+    try {
+        echo winners_redeliver_one($cfg, $dir, $id) . "\n";
+    } catch (Throwable $e) {
+        echo "winners/$id: ERROR — " . $e->getMessage() . "\n";
     }
 }
 exit(0);
