@@ -214,10 +214,15 @@ she can click around in: https://closed.alumoimpact.ca/ and
 https://closed.alumoimpact.ca/fr/ (plain links, nothing to expire; the banner says
 it's a preview copy; on a phone the banner covers the FR hero pill until she
 scrolls), plus https://open.alumoimpact.ca/fr/ for the open-card French of item 10,
-which the closed copy never shows → merge main→release Tue Oct 13 + delete the ~/september docroot
+which the closed copy never shows → release Tue Oct 13 + delete the ~/september docroot
 and subdomain by the same day (server checklist) → check production after 12:15 am
-Oct 16 and probe every backend. Keep winners work OFF main until the release is out (merging main→release
-publishes everything on main).
+Oct 16 and probe every backend.
+RELEASE RULE (2026-10-08): the winners page is ON main since 82d2ebb (so staging shows it), but
+Tuesday's release is the CLOSING WORK ONLY: release = 138e259 (close + UMSU hotfix, tag
+close-release-base) plus cherry-picks of any later close-only fixes (Hafsa's) — NOT main's tip,
+and never `git merge main` into release before the winners go-live. Build it on a branch from
+138e259, check it (verify_integrity, test_schedule_preview, CI), then fast-forward release to it.
+The winners code reaches release later, with its own go-live (Alumo's PDFs, deadline, folder).
 
 Rollback: wrong text → revert on main, staging, release. Deadline extended / closed too
 early → set closes_at in production config.php (overrides the committed default;
