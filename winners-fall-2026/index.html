@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/css/style.css?v=8">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=1">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=2">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -217,8 +217,7 @@
                     </div>
                     <div class="form-field">
                       <label for="wf-name">Full name<span aria-hidden="true">*</span></label>
-                      <input type="text" id="wf-name" name="full_name" placeholder="Type your full name" autocomplete="name" maxlength="200" required aria-required="true" aria-describedby="wf-name-hint">
-                      <p class="field-hint" id="wf-name-hint">As it appears on your void cheque.</p>
+                      <input type="text" id="wf-name" name="full_name" placeholder="Type your full name" autocomplete="name" maxlength="200" required aria-required="true">
                     </div>
                     <div class="form-field">
                       <label for="wf-title">Project title<span aria-hidden="true">*</span></label>
@@ -226,8 +225,12 @@
                     </div>
                     <div class="form-field">
                       <label for="wf-email">Email<span aria-hidden="true">*</span></label>
-                      <input type="email" id="wf-email" name="email" placeholder="Type your email" autocomplete="email" maxlength="254" required aria-required="true" aria-describedby="wf-email-hint">
-                      <p class="field-hint" id="wf-email-hint">We'll send a confirmation to this address.</p>
+                      <input type="email" id="wf-email" name="email" placeholder="Type your email" autocomplete="email" maxlength="254" required aria-required="true">
+                      <!-- data-winners-confirmation: shown (and tied to the field
+                           with aria-describedby) by /js/winners-form.js only
+                           when the server sends winners a confirmation email
+                           (winners.send_confirmation, off by default). -->
+                      <p class="field-hint" id="wf-email-hint" data-winners-confirmation hidden>We'll send a confirmation to this address.</p>
                     </div>
                   </div>
                 </fieldset>
@@ -261,13 +264,6 @@
                   </div>
                 </fieldset>
 
-                <div class="form-field form-field-check consent-field">
-                  <label class="check-option">
-                    <input type="checkbox" id="wf-confirm" name="confirm" value="I confirm" required aria-required="true">
-                    <span>I confirm that the information and documents I'm sending are accurate, and that the void cheque or direct deposit form is for a bank account in my name.</span>
-                  </label>
-                </div>
-
                 <p class="form-fineprint">Your information and documents will be used by Alumo only to process your funding and will be handled in accordance with our <a href="/privacy-policy/">privacy policy</a>.</p>
 
                 <!-- Honeypot — ignored by validation, checked on submit -->
@@ -287,7 +283,7 @@
               <div class="winners-success" data-winners-success tabindex="-1" hidden>
                 <h2 class="text-size-40-42-tight">Got it, thank you!</h2>
                 <p>We received your documents. We'll review them and be in touch about your payment.</p>
-                <p>A confirmation is on its way to your inbox.</p>
+                <p data-winners-confirmation hidden>A confirmation is on its way to your inbox.</p>
               </div>
             </div>
           </div>
@@ -335,6 +331,6 @@
        unlisted URL (_tools/verify_integrity.py checks this). -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=1"></script>
+  <script src="/js/winners-form.js?v=2"></script>
 </body>
 </html>

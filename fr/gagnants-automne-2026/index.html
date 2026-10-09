@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/css/style.css?v=8">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=1">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=2">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -203,8 +203,7 @@
                     </div>
                     <div class="form-field">
                       <label for="wf-name">Nom complet<span aria-hidden="true">*</span></label>
-                      <input type="text" id="wf-name" name="full_name" placeholder="Écrivez votre nom complet" autocomplete="name" maxlength="200" required aria-required="true" aria-describedby="wf-name-hint">
-                      <p class="field-hint" id="wf-name-hint">Tel qu'il figure sur votre spécimen de chèque.</p>
+                      <input type="text" id="wf-name" name="full_name" placeholder="Écrivez votre nom complet" autocomplete="name" maxlength="200" required aria-required="true">
                     </div>
                     <div class="form-field">
                       <label for="wf-title">Titre du projet<span aria-hidden="true">*</span></label>
@@ -212,8 +211,9 @@
                     </div>
                     <div class="form-field">
                       <label for="wf-email">Courriel<span aria-hidden="true">*</span></label>
-                      <input type="email" id="wf-email" name="email" placeholder="Écrivez votre courriel" autocomplete="email" maxlength="254" required aria-required="true" aria-describedby="wf-email-hint">
-                      <p class="field-hint" id="wf-email-hint">Nous vous enverrons une confirmation à cette adresse.</p>
+                      <input type="email" id="wf-email" name="email" placeholder="Écrivez votre courriel" autocomplete="email" maxlength="254" required aria-required="true">
+                      <!-- data-winners-confirmation: see the EN page. -->
+                      <p class="field-hint" id="wf-email-hint" data-winners-confirmation hidden>Nous vous enverrons une confirmation à cette adresse.</p>
                     </div>
                   </div>
                 </fieldset>
@@ -244,13 +244,6 @@
                   </div>
                 </fieldset>
 
-                <div class="form-field form-field-check consent-field">
-                  <label class="check-option">
-                    <input type="checkbox" id="wf-confirm" name="confirm" value="I confirm" required aria-required="true">
-                    <span>Je confirme que les informations et les documents que j'envoie sont exacts et que le spécimen de chèque ou le formulaire de dépôt direct correspond à un compte bancaire à mon nom.</span>
-                  </label>
-                </div>
-
                 <p class="form-fineprint">Vos renseignements et vos documents seront utilisés par Alumo uniquement pour le versement de votre financement et seront traités conformément à notre <a href="/fr/privacy-policy/">politique de confidentialité</a>.</p>
 
                 <!-- Honeypot — ignored by validation, checked on submit -->
@@ -270,7 +263,7 @@
               <div class="winners-success" data-winners-success tabindex="-1" hidden>
                 <h2 class="text-size-40-42-tight">Bien reçu, merci&#8239;!</h2>
                 <p>Nous avons bien reçu vos documents. Nous les examinerons et communiquerons avec vous au sujet de votre paiement.</p>
-                <p>Vous recevrez sous peu un courriel de confirmation dans votre boîte de réception.</p>
+                <p data-winners-confirmation hidden>Vous recevrez sous peu un courriel de confirmation dans votre boîte de réception.</p>
               </div>
             </div>
           </div>
@@ -317,6 +310,6 @@
        EN page. -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=1"></script>
+  <script src="/js/winners-form.js?v=2"></script>
 </body>
 </html>

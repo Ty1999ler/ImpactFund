@@ -82,12 +82,11 @@ it. That's for Alumo's finance team — the French mirrors the English exactly.)
 | Revealed field | Your school's name | Nom de votre école |
 | Name label | Full name | Nom complet |
 | Name placeholder | Type your full name | Écrivez votre nom complet |
-| Name hint | As it appears on your void cheque. | Tel qu'il figure sur votre spécimen de chèque. |
 | Project label | Project title | Titre du projet |
 | Project placeholder | Type your project's name | Écrivez le titre de votre projet |
 | Email label | Email | Courriel |
 | Email placeholder | Type your email | Écrivez votre courriel |
-| Email hint | We'll send a confirmation to this address. | Nous vous enverrons une confirmation à cette adresse. |
+| Email hint — only when send_confirmation is on — not shown for Fall 2026 | We'll send a confirmation to this address. | Nous vous enverrons une confirmation à cette adresse. |
 | Section | Upload your documents | Téléversez vos documents |
 | Upload 1 | Signed funding agreement | Entente de financement signée |
 | Upload 1 hint | Make sure it's signed by you and your second approver, if you have one. | Assurez-vous qu'elle est signée par vous et par votre deuxième signataire, s'il y a lieu. |
@@ -98,12 +97,10 @@ it. That's for Alumo's finance team — the French mirrors the English exactly.)
 | Cheque note | We only use your void cheque to set up your payment. | Nous utilisons votre spécimen de chèque uniquement pour préparer le versement de votre financement. |
 | File types (1–2) | Accepted file types: pdf, docx, jpg, jpeg, png. Max. file size: 10 MB. | Types de fichier acceptés&nbsp;: pdf, docx, jpg, jpeg, png. Taille maximum des fichiers&nbsp;: 10&nbsp;MB. |
 | File types (cheque) | Accepted file types: pdf, jpg, jpeg, png. Max. file size: 10 MB. | Types de fichier acceptés&nbsp;: pdf, jpg, jpeg, png. Taille maximum des fichiers&nbsp;: 10&nbsp;MB. |
-| Confirm box — FLAG (account-in-my-name clause is our proposal) | I confirm that the information and documents I'm sending are accurate, and that the void cheque or direct deposit form is for a bank account in my name. | Je confirme que les informations et les documents que j'envoie sont exacts et que le spécimen de chèque ou le formulaire de dépôt direct correspond à un compte bancaire à mon nom. |
 | Privacy line | Your information and documents will be used by Alumo only to process your funding and will be handled in accordance with our privacy policy. | Vos renseignements et vos documents seront utilisés par Alumo uniquement pour le versement de votre financement et seront traités conformément à notre politique de confidentialité. |
 | Hidden spam field | Leave this field empty | Laissez ce champ vide |
 | Button | Send my documents | Envoyer mes documents |
-| While sending | Sending your documents… {n}% | Envoi de vos documents en cours… {n} % |
-| While sending, line 2 | Please keep this page open until it's finished. | Veuillez garder cette page ouverte jusqu'à la fin de l'envoi. |
+| Button, while sending | Sending… | Envoi en cours… *(already the site's string: the contact form, js/main.js)* |
 
 ### Errors
 | English | French |
@@ -117,7 +114,6 @@ it. That's for Alumo's finance team — the French mirrors the English exactly.)
 | Upload your signed agreement. | Veuillez téléverser votre entente signée. |
 | Upload your completed finance form. | Veuillez téléverser votre formulaire financier rempli. |
 | Upload your void cheque. | Veuillez téléverser votre spécimen de chèque. |
-| Please tick this box to confirm. | Veuillez cocher cette case pour confirmer. |
 | That file type isn't supported. Try PDF, DOCX, JPG or PNG. | Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, DOCX, JPG ou PNG. |
 | That file type isn't supported. Try PDF, JPG or PNG. | Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, JPG ou PNG. |
 | HEIC photos aren't supported. Save the photo as a JPG or PNG (or take a screenshot of it) and try again. | Les photos HEIC ne sont pas acceptées. Veuillez enregistrer la photo en format JPG ou PNG (ou en faire une capture d'écran), puis réessayer. |
@@ -138,9 +134,9 @@ it. That's for Alumo's finance team — the French mirrors the English exactly.)
 | JavaScript off | This page needs JavaScript to send your documents. Please turn it on and refresh the page. | Cette page nécessite JavaScript pour envoyer vos documents. Veuillez l'activer, puis actualiser la page. |
 | Success heading | Got it, thank you! | Bien reçu, merci&#8239;! |
 | Success text | We received your documents. We'll review them and be in touch about your payment. | Nous avons bien reçu vos documents. Nous les examinerons et communiquerons avec vous au sujet de votre paiement. |
-| Success, line 2 | A confirmation is on its way to your inbox. | Vous recevrez sous peu un courriel de confirmation dans votre boîte de réception. |
+| Success, line 2 — only when send_confirmation is on — not shown for Fall 2026 | A confirmation is on its way to your inbox. | Vous recevrez sous peu un courriel de confirmation dans votre boîte de réception. |
 
-### Confirmation email to the winner
+### Confirmation email to the winner — only when send_confirmation is on — not sent for Fall 2026
 Subject — EN: We received your documents — Student Impact Fund
 FR: Nous avons bien reçu vos documents — Fonds d'impact étudiant
 
@@ -173,15 +169,15 @@ FR body:
 4. FLAG — the French titles of the finance form and funding agreement must match Alumo's own
    documents; if there's no French finance form, the French page needs a line saying the form
    is in English.
-5. FLAG — the tax block (above) and the account-in-my-name clause.
+5. FLAG — the tax block (above).
 
 ### Added during the build (2026-10-06)
 | Where | English | French |
 |---|---|---|
 | "Not open yet" card (shown only if an opening date is set for the page) | This page isn't open yet | Cette page n'est pas encore ouverte |
 | — its text | Please check back soon. If you have questions, reply to the email Alumo sent you. | Revenez bientôt. Si vous avez des questions, répondez au courriel qu'Alumo vous a envoyé. |
-| Confirmation email, when the typed name is left out (it looks like a link or is too long — anti-abuse) | Hi, | Bonjour, |
-| Confirmation email, when the typed project title is left out (same reason) | …your documents for your project: … | …vos documents pour votre projet&nbsp;: … |
+| Confirmation email, when the typed name is left out (it looks like a link or is too long — anti-abuse) — only when send_confirmation is on — not sent for Fall 2026 | Hi, | Bonjour, |
+| Confirmation email, when the typed project title is left out (same reason) — only when send_confirmation is on — not sent for Fall 2026 | …your documents for your project: … | …vos documents pour votre projet&nbsp;: … |
 
 ## Parked with the private link (translated, not needed until the key is built)
 | English | French |

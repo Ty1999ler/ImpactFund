@@ -1,12 +1,15 @@
 <?php
 /* Winners page endpoint — /winners-fall-2026/ and /fr/gagnants-automne-2026/.
 
-   GET  ?state=1  -> {ok, state, closes_at_ts}. state is 'open' | 'closed' |
-                     'not-open', or 'unconfigured' with a 503. The page asks on
-                     load which card to show; closes_at_ts (epoch seconds or
-                     null) is the deadline it prints.
+   GET  ?state=1  -> {ok, state, closes_at_ts, confirmation}. state is 'open' |
+                     'closed' | 'not-open', or 'unconfigured' with a 503. The
+                     page asks on load which card to show; closes_at_ts (epoch
+                     seconds or null) is the deadline it prints; confirmation
+                     (winners.send_confirmation) says whether the winner is
+                     emailed a confirmation, so the page only promises one
+                     when it is sent.
    POST multipart -> school (+ school_other), full_name, project_title, email,
-                     confirm, locale, and three documents: file_agreement,
+                     locale, and three documents: file_agreement,
                      file_finance_form, file_void_cheque.
    1. checks the schedule, the fields and the files' real content, then
       archives under submissions_dir/winners/<id>/ with the documents renamed
@@ -15,9 +18,11 @@
       Graph) under <root_folder>/<round>/<Full name - Project title>/;
    3. on success deletes the server copies; on failure leaves a
       DELIVERY-PENDING marker for api/redeliver.php and emails the team once;
-   4. emails the team a notice and the winner a confirmation. Neither ever
-      carries an attachment: documents never travel by email (see the winners
-      block at the end of _lib.php for how that is enforced).
+   4. emails the team a notice — and the winner a confirmation, but only when
+      winners.send_confirmation is true (off by default: no email at all to
+      the winner's address). Neither ever carries an attachment: documents
+      never travel by email (see the winners block at the end of _lib.php for
+      how that is enforced).
    Sent from a test copy of the site (staging and its preview copies, the
    NAS — site_is_test in _lib.php), every email subject says "[TEST]", the
    documents are filed under TEST / <root_folder> / …, and test and real
@@ -48,7 +53,7 @@ if ($w === null) {
 
 if ($isStateCheck) {
     respond(200, ['ok' => true, 'state' => winners_window_state($w, time(), false),
-                  'closes_at_ts' => $w['closes_at_ts']]);
+                  'closes_at_ts' => $w['closes_at_ts'], 'confirmation' => $w['send_confirmation']]);
 }
 
 /* When the request body exceeds post_max_size PHP silently delivers EMPTY
@@ -89,7 +94,6 @@ $FIELDS = [
     'full_name'     => [true, 200],
     'project_title' => [true, 255],
     'email'         => [true, 254],
-    'confirm'       => [true, 50],
     /* Hidden input ("en" / "fr"); only picks the confirmation's language. */
     'locale'        => [false, 2],
 ];
@@ -146,7 +150,6 @@ $fields = [
     'full_name'     => $data['full_name'],
     'project_title' => $data['project_title'],
     'email'         => $data['email'],
-    'confirm'       => $data['confirm'],
     'locale'        => $data['locale'],
 ];
 
@@ -237,8 +240,9 @@ if ($deliveryError === '') {
 }
 
 /* ---------- confirm to the winner ----------
-   LAST and inside a catch-all, as in apply.php: delivery and its bookkeeping
-   above must never be skipped because a courtesy email threw. */
+   Only when winners.send_confirmation is true (winners_ack checks; off by
+   default). LAST and inside a catch-all, as in apply.php: delivery and its
+   bookkeeping above must never be skipped because a courtesy email threw. */
 try {
     winners_ack($cfg, $record);
 } catch (Throwable $e) {

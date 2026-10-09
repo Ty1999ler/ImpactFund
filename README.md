@@ -70,7 +70,9 @@ or `caddy file-server --listen :8777`.
   copy deleted once filed. Configured by the `winners` block in the config —
   `round`, `root_folder`, `opens_at` (ISO with offset, or ''), `closes_at`
   (REQUIRED: ISO with offset, or 'none'), `close_grace_minutes`, `notify_to`,
-  `drive_id`, `create_root` — and stays closed ("not ready", 503) unless
+  `drive_id`, `create_root`, `send_confirmation` (the winner's confirmation
+  email: OFF by default, only `true` turns it on; the page mentions it only
+  when on) — and stays closed ("not ready", 503) unless
   `delivery_mode` is `graph` with credentials. Sent from a test copy of the
   site it is marked like an application (below): `[TEST] ` on every winners
   email subject, the documents under `TEST/<root_folder>/<round>/…` (so with

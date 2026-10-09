@@ -6,15 +6,19 @@
       exactly one state card: closed (with the deadline), not open yet, or not
       ready. A check that fails for any reason shows "not ready"; without
       JavaScript the page's <noscript> card shows instead. The schedule lives
-      in the server's config — this file never decides it.
+      in the server's config — this file never decides it. So does the
+      confirmation email to the winner (winners.send_confirmation, off by
+      default): the copy that promises it ([data-winners-confirmation]) stays
+      hidden unless the check answers confirmation: true.
    2. Fills the school <select> from window.ALUMO_WINNERS_SCHOOLS (the frozen
       Fall 2026 list, /js/winners-schools-fall-2026.js): one <optgroup> per
       province, then "My school isn't listed", which reveals a required box.
    3. Validates exactly what api/winners.php validates, with inline errors,
-      then uploads with XMLHttpRequest rather than fetch so the status line can
-      show progress — up to three phone photos over mobile data. The server
-      answers error KEYS (fields: {name: key}); they are mapped onto the EN/FR
-      copy below, so the PHP never has to know the page's language.
+      then sends the form with XMLHttpRequest (a 15-minute timeout: up to
+      three phone photos over mobile data); meanwhile the button is disabled
+      and reads "Sending…". The server answers error KEYS (fields:
+      {name: key}); they are mapped onto the EN/FR copy below, so the PHP
+      never has to know the page's language.
    Strings: FR_DRAFTS.md (Oct 2026), French pending Hafsa's approval.
    ============================================================ */
 (function () {
@@ -33,8 +37,7 @@
     deadline: function (date) { return "Veuillez envoyer vos documents au plus tard le " + date + "."; },
     closedText: function (date) { return "La date limite pour envoyer vos documents était le " + date + "."; },
     closedHelp: "Si vous devez encore les envoyer, répondez au courriel qu'Alumo vous a envoyé.",
-    sending: function (n) { return "Envoi de vos documents en cours… " + n + " %"; },
-    keepOpen: "Veuillez garder cette page ouverte jusqu'à la fin de l'envoi.",
+    sending: "Envoi en cours…",
     errSchool: "Veuillez sélectionner votre école dans la liste.",
     errSchoolOther: "Veuillez indiquer le nom de votre école.",
     errName: "Veuillez indiquer votre nom complet.",
@@ -44,7 +47,6 @@
     errAgreement: "Veuillez téléverser votre entente signée.",
     errFinance: "Veuillez téléverser votre formulaire financier rempli.",
     errCheque: "Veuillez téléverser votre spécimen de chèque.",
-    errConfirm: "Veuillez cocher cette case pour confirmer.",
     errTypeDocs: "Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, DOCX, JPG ou PNG.",
     errTypeCheque: "Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, JPG ou PNG.",
     errHeic: "Les photos HEIC ne sont pas acceptées. Veuillez enregistrer la photo en format JPG ou PNG (ou en faire une capture d'écran), puis réessayer.",
@@ -59,8 +61,7 @@
     deadline: function (date) { return "Please send your documents by " + date + "."; },
     closedText: function (date) { return "The deadline to send your documents was " + date + "."; },
     closedHelp: "If you still need to send them, reply to the email Alumo sent you.",
-    sending: function (n) { return "Sending your documents… " + n + "%"; },
-    keepOpen: "Please keep this page open until it's finished.",
+    sending: "Sending…",
     errSchool: "Choose your school.",
     errSchoolOther: "Enter your school's name.",
     errName: "Enter your full name.",
@@ -70,7 +71,6 @@
     errAgreement: "Upload your signed agreement.",
     errFinance: "Upload your completed finance form.",
     errCheque: "Upload your void cheque.",
-    errConfirm: "Please tick this box to confirm.",
     errTypeDocs: "That file type isn't supported. Try PDF, DOCX, JPG or PNG.",
     errTypeCheque: "That file type isn't supported. Try PDF, JPG or PNG.",
     errHeic: "HEIC photos aren't supported. Save the photo as a JPG or PNG (or take a screenshot of it) and try again.",
@@ -116,8 +116,7 @@
     school_other: T.errSchoolOther,
     full_name: T.errName,
     project_title: T.errTitle,
-    email: T.errEmail,
-    confirm: T.errConfirm
+    email: T.errEmail
   };
   var SLOT_BY_NAME = {};
   SLOTS.forEach(function (slot) {
@@ -132,7 +131,7 @@
   };
   /* Page order, for "focus the first problem". */
   var FIELD_ORDER = ["school", "school_other", "full_name", "project_title", "email",
-    "file_agreement", "file_finance_form", "file_void_cheque", "confirm"];
+    "file_agreement", "file_finance_form", "file_void_cheque"];
 
   var statesSection = document.querySelector("[data-winners-states]");
   var openContent = document.querySelector("[data-winners-open]");
@@ -150,22 +149,10 @@
   var otherInput = form.querySelector('input[name="school_other"]');
   var submitBtn = form.querySelector('[type="submit"]');
   var honeypot = form.querySelector(".hp-field input");
-  /* Status line: statusMain is what everyone sees; while sending it is
-     aria-hidden, and screen readers hear statusSr instead, which only changes
-     at 0/25/50/75% (showProgress). aria-atomic="false" (role=status implies
-     true) so each change reads only itself, not the "keep this page open"
-     line again. */
   var statusEl = form.querySelector(".form-status");
-  var statusMain = document.createElement("span");
-  var statusSr = document.createElement("span");
-  var statusSub = document.createElement("span");
-  statusSr.className = "visually-hidden";
-  statusSub.className = "winners-status-sub";
-  statusSub.hidden = true;
-  statusEl.setAttribute("aria-atomic", "false");
-  statusEl.appendChild(statusMain);
-  statusEl.appendChild(statusSr);
-  statusEl.appendChild(statusSub);
+  /* The button's own words, swapped for T.sending while the form goes. */
+  var submitLabel = submitBtn.querySelector("span") || submitBtn;
+  var submitText = submitLabel.textContent;
 
   function field(name) { return form.querySelector('[name="' + name + '"]'); }
 
@@ -186,8 +173,8 @@
      page simply leaves the date out.
        EN  October 30, 2026 at 11:59 p.m. ET
        FR  30 octobre 2026 à 23 h 59 (heure de l'Est)   — day 1 is "1er";
-           no-break spaces around the "h" (and before "%" in T.sending),
-           as the French pages write 23&nbsp;h&nbsp;59 */
+           no-break spaces around the "h", as the French pages write
+           23&nbsp;h&nbsp;59 */
   function formatDeadline(ts) {
     if (typeof ts !== "number" || !(ts > 0) || !isFinite(ts)) return null;
     try {
@@ -259,11 +246,27 @@
     }
   }
 
+  /* The email hint and the success panel's "on its way" line promise a
+     confirmation email, which the server sends only when
+     winners.send_confirmation is on (off by default). Both are hidden in the
+     markup; this shows them — and ties the hint to the email field, since
+     aria-describedby would read it even while hidden. */
+  function showConfirmationCopy() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-winners-confirmation]"), function (el) {
+      el.hidden = false;
+    });
+    var hint = document.getElementById("wf-email-hint");
+    if (hint) describedBy(field("email"), hint.id, true);
+  }
+
   function checkState() {
     var settled = false;
-    function settle(state, ts) {
+    function settle(state, ts, confirmation) {
       if (settled) return;
       settled = true;
+      if (confirmation) {
+        try { showConfirmationCopy(); } catch (e) { /* the copy simply stays hidden */ }
+      }
       renderState(state, ts);
     }
     try {
@@ -275,7 +278,7 @@
         var j = parseJson(xhr.responseText);
         if (xhr.status === 200 && j && j.ok === true &&
             (j.state === "open" || j.state === "closed" || j.state === "not-open")) {
-          settle(j.state, j.closes_at_ts);
+          settle(j.state, j.closes_at_ts, j.confirmation === true);
         } else {
           settle("unconfigured", null); /* 503, a stray 200, or no PHP at all */
         }
@@ -450,8 +453,6 @@
       var input = field(slot.name);
       check(input, fileProblem(input));
     });
-    var confirm = field("confirm");
-    check(confirm, confirm.checked ? "" : T.errConfirm);
     return invalid;
   }
 
@@ -463,30 +464,8 @@
 
   /* ---- Status line ---- */
   function showStatus(message, isError) {
-    statusMain.removeAttribute("aria-hidden");
-    statusMain.textContent = message;
-    statusSr.textContent = "";
-    statusSub.textContent = "";
-    statusSub.hidden = true;
+    statusEl.textContent = message;
     statusEl.classList.toggle("is-error", !!isError);
-    statusEl.hidden = false;
-  }
-  /* The visible line counts every percent; screen readers hear 0, 25, 50 and
-     75 only — a polite live region would otherwise queue ~100 announcements
-     during one upload. The "keep this page open" line is set once, in send(). */
-  var lastPercent = -1;
-  var lastMilestone = -1;
-  function showProgress(percent) {
-    if (percent === lastPercent) return;
-    lastPercent = percent;
-    statusMain.setAttribute("aria-hidden", "true");
-    statusMain.textContent = T.sending(percent);
-    var milestone = Math.floor(percent / 25) * 25;
-    if (milestone !== lastMilestone) {
-      lastMilestone = milestone;
-      statusSr.textContent = T.sending(milestone);
-    }
-    statusEl.classList.remove("is-error");
     statusEl.hidden = false;
   }
 
@@ -496,6 +475,7 @@
   function finishSending() {
     sending = false;
     submitBtn.disabled = false;
+    submitLabel.textContent = submitText;
     form.removeAttribute("aria-busy");
   }
 
@@ -552,26 +532,14 @@
   function send() {
     sending = true;
     submitBtn.disabled = true;
+    submitLabel.textContent = T.sending;
     form.setAttribute("aria-busy", "true");
-    lastPercent = -1;
-    lastMilestone = -1;
-    statusSub.textContent = T.keepOpen;
-    statusSub.hidden = false;
-    showProgress(0);
+    statusEl.hidden = true;   /* an earlier attempt's error no longer applies */
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", ENDPOINT, true);
     xhr.timeout = 15 * 60 * 1000; /* three 10 MB files over a slow connection */
     xhr.setRequestHeader("Accept", "application/json");
-    if (xhr.upload) {
-      xhr.upload.onprogress = function (e) {
-        /* Capped at 99 until the server answers: "upload finished" is not
-           "received". */
-        if (e.lengthComputable && e.total > 0) {
-          showProgress(Math.min(99, Math.floor(e.loaded / e.total * 100)));
-        }
-      };
-    }
     xhr.onload = function () { handleResponse(xhr.status, parseJson(xhr.responseText)); };
     xhr.onerror = xhr.ontimeout = xhr.onabort = function () {
       showStatus(T.errNetwork, true);
@@ -612,7 +580,7 @@
     }
   });
 
-  /* Leaving mid-upload loses it; the status line already asks them to stay. */
+  /* Leaving mid-upload loses it: the browser asks first. */
   window.addEventListener("beforeunload", function (e) {
     if (!sending) return;
     e.preventDefault();

@@ -178,8 +178,9 @@ return [
        starts "SECOND SUBMISSION — confirm banking details with the winner
        before paying". No SharePoint list item is created.
        Each submission emails notify_to (else failure_notify_to, else
-       relay_to) a notice WITHOUT attachments, and the winner a confirmation
-       whose replies go to notify_to.
+       relay_to) a notice WITHOUT attachments — and the winner a confirmation
+       whose replies go to notify_to, but only with send_confirmation true
+       (below; off by default).
        Sent from a test copy of the site (test_mode above; automatic on
        staging and its preview copies and the NAS): "[TEST] " in front of
        every winners email subject (team notice, confirmation, failure and
@@ -199,6 +200,12 @@ return [
            closes_at exactly. */
         'close_grace_minutes' => 15,
         'notify_to'   => '',            // "documents received" notices; '' = failure_notify_to, then relay_to
+        /* false (default; anything but true counts as false): NO email at all
+           to the winner's address, and the page doesn't mention one. true:
+           the winner gets a confirmation (EN/FR, at most 30 a day) and the
+           page says one is on its way. The team notice goes either way.
+           Fall 2026: false (Alumo asked for a simple page, 2026-10-08). */
+        'send_confirmation' => false,
         'drive_id'    => '',            // '' = the applications library (graph.drive_id)
         /* false (default): root_folder must ALREADY exist in the drive —
            Alumo creates it with restricted permissions before the link goes

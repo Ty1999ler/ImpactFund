@@ -15,9 +15,11 @@ the honeypot left empty, and the locale. --contact sends a contact-form
 message to <site>/api/contact.php instead. --winners sends a complete Winners
 page submission to <site>/api/winners.php instead: a school from the frozen
 list the server checks (js/winners-schools-fall-2026.js), "TEST Winner",
-a "TEST winner documents <time>" title, the confirmation tick, and the three
-documents made in memory — a tiny .docx funding agreement, a tiny PDF finance
-form and a tiny PNG void cheque, each saying it is not a real document.
+a "TEST winner documents <time>" title, and the three documents made in
+memory — a tiny .docx funding agreement, a tiny PDF finance form and a tiny
+PNG void cheque, each saying it is not a real document. (No confirmation
+email to --email unless that server sets winners.send_confirmation true; it
+is off by default.)
 Running it twice shows the SECOND SUBMISSION warning (test submissions are
 only ever compared with other test submissions). --dry-run prints every field
 and file it would send, and sends nothing.
@@ -388,7 +390,6 @@ def build_winners(email, locale, rules, now):
         ("full_name", "TEST Winner"),
         ("project_title", "TEST winner documents " + stamp),
         ("email", email),
-        ("confirm", "I confirm"),     # the tick-box's value on both pages
         ("website", ""),              # the honeypot: must stay empty
     ]
     makers = {
@@ -505,7 +506,8 @@ def main(argv=None):
         description="Send a complete test application (or contact message, or Winners page "
                     "submission) to a TEST copy of the site. Never to alumoimpact.ca.")
     parser.add_argument("--email", required=True,
-                        help="your address: the acknowledgement (or reply-to) goes here")
+                        help="your address: the acknowledgement (or reply-to) goes here "
+                             "(--winners: only if that server's winners.send_confirmation is on)")
     parser.add_argument("--site", default="staging",
                         help="staging (default), before, open, closed, https://<test host> "
                              "or http://localhost:<port>")
@@ -604,9 +606,10 @@ def main(argv=None):
     elif accepted and args.winners:
         title = dict(fields)["project_title"]
         print("Accepted (id %s). Where to look:" % answer.get("id"))
-        print("  - Email to %s: \"%s%s\"" % (args.email, mark, (
-            "Nous avons bien reçu vos documents — Fonds d'impact étudiant"
-            if args.locale == "fr" else "We received your documents — Student Impact Fund")))
+        print("  - No email to %s unless that server sets winners.send_confirmation true "
+              "(off by default); if it does: \"%s%s\"" % (args.email, mark, (
+                  "Nous avons bien reçu vos documents — Fonds d'impact étudiant"
+                  if args.locale == "fr" else "We received your documents — Student Impact Fund")))
         print("  - Filed in SharePoint (winners.drive_id, else graph.drive_id) under")
         print("      %s<root_folder> / <round> / TEST Winner - %s /"
               % ("" if local else "TEST / ", title))
@@ -669,8 +672,9 @@ def main(argv=None):
         print("Note: localhost is not a test host, so nothing is marked [TEST] there unless "
               "its api/config.php sets 'test_mode' => true.")
     if args.winners:
-        print("Limits: %s (refusals and field errors don't count); at most 30 confirmation "
-              "emails a day (test ones counted apart from real ones)." % WINNERS_LIMIT)
+        print("Limits: %s (refusals and field errors don't count); with send_confirmation on, "
+              "at most 30 confirmation emails a day (test ones counted apart from real ones)."
+              % WINNERS_LIMIT)
     else:
         print("Limits: %s (refusals by the schedule gate don't count); the contact form %s."
               % (APPLY_LIMIT, CONTACT_LIMIT))

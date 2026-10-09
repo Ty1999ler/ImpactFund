@@ -994,7 +994,8 @@ function winners_parse_time(string $value): ?int {
      'allow_without_graph' => true skips this rule, and it exists for
      api/config.ci.php alone: CI has no SharePoint. Never set it on a server.
    Adds opens_at_ts / closes_at_ts (int|null), graph_ready, drive_id and
-   create_root. */
+   create_root, and makes send_confirmation a bool (true only when set to
+   exactly true — see winners_ack). */
 function winners_config(array $cfg): ?array {
     $w = $cfg['winners'] ?? null;
     if (!is_array($w)) return null;
@@ -1007,7 +1008,9 @@ function winners_config(array $cfg): ?array {
         'notify_to'           => '',
         'drive_id'            => '',
         'allow_without_graph' => false,
+        'send_confirmation'   => false,
     ];
+    $w['send_confirmation'] = $w['send_confirmation'] === true;
     $w['round'] = trim((string)$w['round']);
     $w['root_folder'] = trim((string)$w['root_folder']);
     if ($w['round'] === '' || $w['root_folder'] === '') {
@@ -1668,13 +1671,17 @@ function winners_ack_budget(int $max, int $windowSeconds, bool $test = false): b
     return true;
 }
 
-/* Confirmation to the winner, in the page's language. Names the document
-   TYPES only; nothing is attached. Replies go to winners.notify_to when set,
-   because the email invites them ("just reply to this email"). The name and
-   title go through winners_ack_value, and at most 30 confirmations a day go
-   out (winners_ack_budget). "[TEST] " in front of the subject for a test
-   record. */
+/* Confirmation to the winner, in the page's language — the ONLY email to the
+   winner's address, and sent only when winners.send_confirmation is exactly
+   true (off by default; then nothing is sent and no budget is used). Names
+   the document TYPES only; nothing is attached. Replies go to
+   winners.notify_to when set, because the email invites them ("just reply to
+   this email"). The name and title go through winners_ack_value, and at most
+   30 confirmations a day go out (winners_ack_budget). "[TEST] " in front of
+   the subject for a test record. */
 function winners_ack(array $cfg, array $record): void {
+    $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
+    if (($w['send_confirmation'] ?? false) !== true) return;
     $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
     $email = (string)($f['email'] ?? '');
     if ($email === '') return;
@@ -1705,7 +1712,6 @@ function winners_ack(array $cfg, array $record): void {
               . "needs to change, just reply to this email.\n\n"
               . "Student Impact Fund by Alumo\n";
     }
-    $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
     winners_send_mail($cfg, $email, test_prefix($test, $subject), $body, trim((string)($w['notify_to'] ?? '')));
 }
 

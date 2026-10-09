@@ -54,9 +54,10 @@ return [
        key must exist in THIS file only; it is also what lets this block go
        without a deadline. The forms-smoke workflow seds copies of this file
        for its "after the deadline" variant (it inserts a deadline after the
-       marker line below — keep that marker the only one in the file) and its
-       "email mode" variant (the delivery_mode line above); it fails loudly if
-       either pattern stops matching.
+       marker line below — keep that marker the only one in the file), its
+       "email mode" variant (the delivery_mode line above) and its "no
+       confirmation" variant (the send_confirmation line below); it fails
+       loudly if any of those patterns stops matching.
        Deliberately NO closes_at key in this block: the "after the deadline"
        variant inserts the only one, and the application smoke test's
        closes_at seds match the top-level line by its text, so an empty
@@ -70,6 +71,10 @@ return [
         // winners-ci-closes-at (the "after the deadline" variant inserts its deadline after this line)
         'close_grace_minutes' => 15,
         'notify_to'   => 'winners-ci@example.invalid',
+        /* ON here (the default is off) so CI checks the confirmation email.
+           forms-smoke.yml seds this line to false for its "no confirmation"
+           variant, so keep it exactly as written. */
+        'send_confirmation' => true,
         'drive_id'    => '',
         'allow_without_graph' => true,
     ],

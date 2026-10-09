@@ -176,14 +176,12 @@
   margin-top: 2px;
 }
 
-/* Status line while sending. style.css's .form-status.is-error red loses to
-   apply-now.css's `.apply-form .form-status` colour (same specificity, later
-   file), so errors are re-coloured here with the field-error red. */
+/* Status line (errors after a send). style.css's .form-status.is-error red
+   loses to apply-now.css's `.apply-form .form-status` colour (same
+   specificity, later file), so errors are re-coloured here with the
+   field-error red. While sending, the button is disabled and reads
+   "Sending…". */
 .winners-form .form-status.is-error { color: #8f1d00; }
-.winners-form .winners-status-sub {
-  display: block;
-  font-weight: 400;
-}
 .winners-form .apply-btn:disabled {
   opacity: 0.6;
   cursor: progress;
@@ -196,7 +194,7 @@
    mouse click still shows nothing, as on the rest of the site — and scoped
    to this page's own blocks, so /apply-now/ is untouched. Same specificity
    as apply-now.css's `.apply-form input:focus`, later file, so it wins; the
-   ring sits outside pills, file inputs and the 26px checkbox alike.
+   ring sits outside pills and file inputs alike.
    ------------------------------ */
 .winners-download .btn > a:focus-visible,
 .winners-form-wrap a:focus-visible,
