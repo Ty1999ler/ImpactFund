@@ -64,9 +64,9 @@ Built (one branch → main → staging → release):
 9. Cache-busting: main.js v8 (v6, then v7 for item 12, v8 for its before. copy) on all 12 live pages, apply-form.js v11 + apply-now.css v9
    on apply-now + fr/soumettre. Stale "Revealed automatically on Sept 1" footer comment
    deleted on all 12. Partners meta/og descriptions lost the stale September sentence.
-10. Open cards now say "From: September 1st to October 15th, 11:59 pm ET" / "Du 1er
-   septembre au 15 octobre à 23 h 59 (heure de l'Est)" (checked at 375px). NOTE: this
-   is the only new French that is visible BEFORE the close — Hafsa should see it first.
+10. (Reverted 2026-10-08 at Tyler's request: the open cards keep their original "From:
+   September 1st to October 15th" / "Du 1er septembre au 15 octobre" — no cutoff time added.
+   Nothing new is visible before the close.)
 11. Tests: `python _tools/verify_integrity.py` (passes) and
    `python _tools/test_schedule_preview.py` — headless Edge, EN+FR home/About/Submit/
    Partners at every boundary, stickiness walk, exit link, preview-at given twice,
