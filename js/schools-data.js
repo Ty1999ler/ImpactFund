@@ -241,7 +241,7 @@ window.ALUMO_SCHOOLS = [
   "school": "University of Manitoba",
   "association": "University of Manitoba Graduate & Postdoctoral Society (UMGPS)",
   "province": "MB",
-  "email": "governance@umgps.org"
+  "email": "execdirector@umgps.org"
  },
  {
   "school": "University of Winnipeg",
@@ -388,7 +388,7 @@ window.ALUMO_SCHOOLS = [
   "email": "joel.willett@flemingcollege.ca"
  },
  {
-  "school": "George Brown Polytechnic",
+  "school": "Student Association of George Brown",
   "association": "N/A",
   "province": "ON",
   "email": "memberservices@sagbc.ca"
