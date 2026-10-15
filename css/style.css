@@ -1065,3 +1065,15 @@ main a > strong { text-decoration: underline; }
   margin: 16px 0 0;
   opacity: 0.75;
 }
+
+/* Deadline-extension note under the dates (client, Oct 2026: Fall 2026 ran
+   to Oct 22 instead of Oct 15). Inter like .period-next, but larger and at
+   full strength: it changes what the reader should do (there is still time),
+   so it must not read as fine print. Remove with the note at the January
+   reopen. */
+.period .apply-form-open .period-extension {
+  font-family: var(--font-inter);
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 12px 0 24px;
+}

@@ -17,7 +17,7 @@ require __DIR__ . '/_lib.php';
    equal data-closes-at in the HTML pages: _tools/verify_integrity.py check 6
    compares this line (and config.example.php's closes_at) with them, so
    keep it in exactly this one-line form. */
-const DEFAULT_CLOSES_AT = '2026-10-15T23:59:59-04:00';
+const DEFAULT_CLOSES_AT = '2026-10-22T23:59:59-04:00';
 const DEFAULT_CLOSE_GRACE_MINUTES = 15;
 
 require_post();
