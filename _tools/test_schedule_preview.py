@@ -17,9 +17,9 @@ What it does:
 
 Cases, for EN + FR home / About / Submit / Partners (each with fresh storage):
   no parameter -> the state the real clock gives (open until the close)
-  ?preview-at=2026-10-15T23:59:58-04:00 -> open, banner
-  ?preview-at=2026-10-15T23:59:59-04:00 -> closed, notes shown, banner
-  ?preview-at=2026-10-16T09:00:00-04:00 -> closed, notes shown, banner + date
+  ?preview-at=2026-10-22T23:59:58-04:00 -> open, banner
+  ?preview-at=2026-10-22T23:59:59-04:00 -> closed, notes shown, banner
+  ?preview-at=2026-10-23T09:00:00-04:00 -> closed, notes shown, banner + date
   ?preview-at=2026-08-31T18:29:59-04:00 -> closed (before the window opens)
   ?preview-form=1 -> open, notes hidden, no banner
   ?preview-form=1&preview-at=<after close> -> open (forced), banner
@@ -104,14 +104,14 @@ BANNER_PREFIX = {
     "fr": "Aperçu\u00a0: le site tel qu'il apparaîtra le ",
 }
 BANNER_EXIT = {"en": "Exit preview", "fr": "Quitter l'aperçu"}
-AFTER = "2026-10-16T09:00:00-04:00"
+AFTER = "2026-10-23T09:00:00-04:00"
 AFTER_TEXT = {
-    "en": "October 16, 2026, 9:00 a.m. ET",
-    "fr": "16 octobre 2026 à 9\u00a0h\u00a000 (heure de l'Est)",
+    "en": "October 23, 2026, 9:00 a.m. ET",
+    "fr": "23 octobre 2026 à 9\u00a0h\u00a000 (heure de l'Est)",
 }
 LAST_SECOND_TEXT = {
-    "en": "October 15, 2026, 11:59 p.m. ET",
-    "fr": "15 octobre 2026 à 23\u00a0h\u00a059 (heure de l'Est)",
+    "en": "October 22, 2026, 11:59 p.m. ET",
+    "fr": "22 octobre 2026 à 23\u00a0h\u00a059 (heure de l'Est)",
 }
 # The opening moment (2026-08-31T18:30:00-04:00), as the before copy names it.
 OPENS_TEXT = {
@@ -152,12 +152,12 @@ PINNED_STATE = {"before": "closed", "open": "open", "closed": "closed"}
 STAGING_HOST = "staging.alumoimpact.ca"
 RETIRED_HOST = "september.alumoimpact.ca"
 # Fake clocks (cookie -> the page's Date pinned there) around the window
-# [2026-08-31T18:30:00-04:00, 2026-10-15T23:59:59-04:00).
+# [2026-08-31T18:30:00-04:00, 2026-10-22T23:59:59-04:00).
 CLOCK_BEFORE = "2026-08-15T12:00:00-04:00"
 CLOCK_OPENS = "2026-08-31T18:30:00-04:00"
 CLOCK_INSIDE = "2026-10-01T12:00:00-04:00"
-CLOCK_LAST_OPEN = "2026-10-15T23:59:58-04:00"
-CLOCK_CLOSES = "2026-10-15T23:59:59-04:00"
+CLOCK_LAST_OPEN = "2026-10-22T23:59:58-04:00"
+CLOCK_CLOSES = "2026-10-22T23:59:59-04:00"
 CLOCK_LONG_AFTER = "2026-11-20T12:00:00-05:00"
 FAKE_CLOCK_COOKIE = "sifFakeNow"
 # /__schedtest__/probe.html: an element opening here, after CLOCK_BEFORE and
@@ -219,9 +219,9 @@ def build_plan():
 
     for path, (lang, _count) in PAGES.items():
         step(path + " no parameter", path, real, banner=False, lang=lang)
-        step(path + " last second open", path + "?preview-at=2026-10-15T23:59:58-04:00",
+        step(path + " last second open", path + "?preview-at=2026-10-22T23:59:58-04:00",
              "open", banner=True, lang=lang)
-        step(path + " close moment", path + "?preview-at=2026-10-15T23:59:59-04:00",
+        step(path + " close moment", path + "?preview-at=2026-10-22T23:59:59-04:00",
              "closed", banner=True, lang=lang, date_text=LAST_SECOND_TEXT[lang])
         step(path + " morning after", path + "?preview-at=" + AFTER,
              "closed", banner=True, lang=lang, date_text=AFTER_TEXT[lang],
@@ -237,7 +237,7 @@ def build_plan():
              banner=False, lang=lang, stored=None)
         step(path + " bad escape", path + "?preview-at=%E0", real,
              banner=False, lang=lang, stored=None)
-        step(path + " no offset", path + "?preview-at=2026-10-16T09:00:00", real,
+        step(path + " no offset", path + "?preview-at=2026-10-23T09:00:00", real,
              banner=False, lang=lang, stored=None)
 
     # Stickiness: one tab, storage cleared only at the start.

@@ -19,7 +19,18 @@ Written 2026-10-06. Nothing here is on the site yet. Each line is what will be b
   société (not "corporation"), Agence du revenu du Canada (ARC), Revenu Québec.
 - Every draft went through a second, independent French review; its corrections are applied.
 
-## A. October 15 close (shows only after 11:59 pm ET, Oct 15)
+## A0. Deadline extended to Oct 22 (added 2026-10-15, LIVE before Hafsa's review)
+
+Fall 2026 window extended by one week at the client's request: closes 11:59 pm ET Oct 22
+instead of Oct 15. Shipped as a same-day hotfix, so this French went out unreviewed.
+
+| Where | English | French |
+|---|---|---|
+| Home + About open card, dates | From: September 1st to October 22nd | Du 1er septembre au 22 octobre *(was "… au 15 octobre")* |
+| Home + About open card, note under the dates | The original deadline was October 15th. Since this is our very first submission period, we've extended it by one week to give you time for last-minute submissions. | La date limite initiale était le 15 octobre. Comme il s'agit de notre toute première période de soumission, nous l'avons prolongée d'une semaine pour vous laisser le temps de soumettre vos projets de dernière minute. |
+| Home "submission period" paragraph | Fall: September 1 to October 22, 2026 | Automne&nbsp;: du 1er septembre au 22 octobre 2026 *(was "… au 15 octobre 2026")* |
+
+## A. Fall 2026 close (shows only after 11:59 pm ET, Oct 22 — was Oct 15, see A0)
 
 | Where | English | French |
 |---|---|---|

@@ -1,6 +1,15 @@
 # Alumo Impact static rebuild — forward plans
 
 ## Fall 2026 close (Thu Oct 15, 11:59 pm ET) — BUILT 2026-10-06 (uncommitted), not deployed
+EXTENDED (client, 2026-10-15): the window now closes Thu Oct 22, 11:59 pm ET
+(`2026-10-22T23:59:59-04:00`, still EDT). Same-day hotfix on the close release
+(claude/release-oct13) and main: all 12 data-closes-at, DEFAULT_CLOSES_AT, config.example.php,
+the open-card dates (EN + FR), the home Fall line, and a note under the open-card dates
+(.period-extension, style.css v9) saying the deadline was Oct 15 and was extended a week
+for this first round. FR in FR_DRAFTS.md A0 (shipped before Hafsa's review). Any explicit
+closes_at in a server api/config.php wins over the default: it must be removed or set to
+Oct 22 on staging AND production. Read "Oct 15" / "Oct 16" below as Oct 22 / Oct 23.
+
 Decided with Alumo (Hafsa, Oct 2026): automatic close at 11:59 pm Eastern Oct 15;
 ONE note on Partners; the "closed for now" note on Submit your Idea; next round is
 Winter 2027 (Jan 4 – Mar 1, 2027); we write the French, Hafsa approves it later
@@ -229,7 +238,8 @@ early → set closes_at in production config.php (overrides the committed defaul
 live within about a minute — host OPcache — so confirm with the probe), give applicants
 /apply-now/?preview-form=1, then fix the HTML dates and DEFAULT_CLOSES_AT and release.
 
-January 4, 2027 reopen (December job, do not build now): new dates on all 12 scheduled
+January 4, 2027 reopen (December job, do not build now): remove the Oct 22 extension note
+(.period-extension, 4 pages + its CSS rule); new dates on all 12 scheduled
 elements (-05:00) + DEFAULT_CLOSES_AT in api/apply.php and closes_at in
 config.example.php (check 6 fails until all three agree), Winter open-card copy (incl. the
 11:59 pm line), after-Mar-1 closed copy (pill, closed cards, both notes, errClosed),

@@ -63,7 +63,7 @@ return [
        422 = open, 403 = closed.
        close_grace_minutes keeps accepting briefly after closes_at for uploads
        already in flight (15 when the key is absent). */
-    'closes_at' => '2026-10-15T23:59:59-04:00',
+    'closes_at' => '2026-10-22T23:59:59-04:00',
     'close_grace_minutes' => 15,
 
     /* Test submissions. Leave the key OUT for automatic: a form sent from a
