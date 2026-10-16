@@ -29,6 +29,7 @@ instead of Oct 15. Shipped as a same-day hotfix, so this French went out unrevie
 | Home + About open card, dates | From: September 1st to October 22nd | Du 1er septembre au 22 octobre *(was "… au 15 octobre")* |
 | Home + About open card, note under the dates | The original deadline was October 15th. Since this is our very first submission period, we've extended it by one week to give you time for last-minute submissions. | La date limite initiale était le 15 octobre. Comme il s'agit de notre toute première période de soumission, nous l'avons prolongée d'une semaine pour vous laisser le temps de soumettre vos projets de dernière minute. |
 | Home "submission period" paragraph | Fall: September 1 to October 22, 2026 | Automne&nbsp;: du 1er septembre au 22 octobre 2026 *(was "… au 15 octobre 2026")* |
+| Home hero pill, open state (the orange link) | Submission period extended until October 22nd — apply now! | Période de soumission prolongée jusqu'au 22 octobre — soumettez votre projet&#8239;! *(was "Les soumissions sont ouvertes — soumettez votre projet !"; approved "soumettez votre projet" kept)* |
 
 ## A. Fall 2026 close (shows only after 11:59 pm ET, Oct 22 — was Oct 15, see A0)
 
