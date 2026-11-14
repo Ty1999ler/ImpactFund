@@ -1041,6 +1041,12 @@ jobs:
           $expect('completion_cfg twice is the same', completion_cfg(completion_cfg($base)) === completion_cfg($base));
           $c = $base; unset($c['completion']);
           $expect('no completion block -> closed', completion_config($c) === null);
+          [$rc, $rk] = winners_record_cfg($c, ['kind' => 'completion']);
+          $expect('no completion block: an archived report still resolves to the winners block (retry, notices)',
+              $rk === 'completion' && $rc['completion']['root_folder'] === 'Winners (CI)'
+              && $rc['completion']['subfolder'] === 'Project completion'
+              && winners_notify_address($rc, $rk) === 'winners-ci@example.invalid'
+              && !isset($c['completion']));
           $c = $base; unset($c['completion']['allow_without_graph']);
           $expect('allow_without_graph is not inherited -> closed', completion_config($c) === null);
           $c = $base; $c['completion']['round'] = '';

@@ -962,8 +962,12 @@ function winners_kind_words(string $kind): array {
    the block is resolved first (completion_cfg: it inherits the winners
    block's folder settings). */
 function winners_record_cfg(array $cfg, array $record): array {
+    /* true: resolve the completion block even when config no longer has one.
+       A report archived while the page was open must still retry into the
+       winners block's drive after the page's block is taken out — otherwise
+       it would look for its folder in the applications library. */
     return winners_kind($record) === 'completion'
-        ? [completion_cfg($cfg), 'completion']
+        ? [completion_cfg($cfg, true), 'completion']
         : [$cfg, 'winners'];
 }
 
@@ -1922,12 +1926,19 @@ function winners_redeliver_one(array $cfg, string $dir, string $id, string $kind
    completion block leaves the key OUT (a key that is present, even empty,
    is the block's own), and subfolder defaults to 'Project completion'.
    So the smallest working block is  'completion' => ['closes_at' => 'none'].
-   No 'completion' block at all = $cfg unchanged, and the page stays closed.
+   No 'completion' block at all = $cfg unchanged, and the page stays closed
+   — unless $evenWithoutBlock, which builds the block from the winners
+   block's values alone. That is for records already archived (the retry
+   job, team notices: winners_record_cfg), never for deciding whether the
+   page is open (completion_config).
    allow_without_graph is never inherited: it has to be written in the block
    it opens. Safe to call twice. */
-function completion_cfg(array $cfg): array {
+function completion_cfg(array $cfg, bool $evenWithoutBlock = false): array {
     $c = $cfg['completion'] ?? null;
-    if (!is_array($c)) return $cfg;
+    if (!is_array($c)) {
+        if (!$evenWithoutBlock) return $cfg;
+        $c = [];
+    }
     $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
     foreach (['round', 'root_folder', 'notify_to', 'drive_id', 'create_root'] as $key) {
         if (!array_key_exists($key, $c) && array_key_exists($key, $w)) $c[$key] = $w[$key];

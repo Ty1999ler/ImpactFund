@@ -475,9 +475,11 @@
     if (!files.length) {
       /* A file refused on pick was cleared from the input: keep saying why
          ("HEIC photos aren't supported…") rather than "Upload your…", or the
-         winner would just pick the same photo again. An optional box left
-         empty on purpose has nothing to say. */
-      return input.getAttribute("data-rejected") || (slot.min > 0 ? slot.missing : "");
+         winner would just pick the same photo again. Only where a file is
+         required, though: an optional box that is empty is fine however it
+         came to be empty — a refused photo must never stop someone sending
+         their report without photos. */
+      return slot.min > 0 ? (input.getAttribute("data-rejected") || slot.missing) : "";
     }
     if (files.length > slot.max) return slot.tooMany || slot.type;
     for (var i = 0; i < files.length; i++) {
