@@ -2,8 +2,8 @@
 """
 Whole-site integrity regression net for the Alumo website.
 
-Checks, for the 27 tracked page files (12 live + 2 private + 4 policy stubs +
-4 past-winners stubs + 5 French-slug redirect stubs):
+Checks, for the 29 tracked page files (12 live + 4 private + 2 policy stubs +
+4 past-winners stubs + 5 French-slug redirect stubs + 2 merged-page stubs):
   1. Strict UTF-8 decodability + no mojibake markers.
   2. Structural tag balance (html.parser based).
   3. Internal href/src/action targets exist (with an expected-missing allowlist,
@@ -91,6 +91,9 @@ MERGED_STUBS = [
 PRIVATE_PAGES = [
     "winners-fall-2026/index.html",
     "fr/gagnants-automne-2026/index.html",
+    # Project completion (Nov 2026): the winners page's sibling, same rules.
+    "project-completion-fall-2026/index.html",
+    "fr/fin-de-projet-automne-2026/index.html",
 ]
 ALL_PAGES = (LIVE_PAGES + PRIVATE_PAGES + POLICY_STUBS + PW_STUBS + FR_SLUG_STUBS
              + MERGED_STUBS)
@@ -115,9 +118,11 @@ EXPECTED_MISSING_RE = re.compile(
 # --release, where each one fails. Remove each entry the moment its file lands
 # in the repo — after that a missing file is a real break.
 AWAITING_CLIENT = {
-    # Winners page finance form, EN + FR — from Alumo (requested Oct 2026).
-    "/assets/docs/winners-finance-form-en.pdf",
-    "/assets/docs/winners-finance-form-fr.pdf",
+    # Project completion page: the report guidelines, EN + FR — from Alumo
+    # (requested Nov 2026). (The winners page's finance form, awaited here
+    # until Nov 2026, was dropped by Alumo and its links are gone.)
+    "/assets/docs/project-completion-report-guidelines-en.pdf",
+    "/assets/docs/project-completion-report-guidelines-fr.pdf",
 }
 awaiting_client = []  # (page, line, url)
 

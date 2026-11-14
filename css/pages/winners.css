@@ -1,5 +1,8 @@
 /* ============================================================
-   Winners page — /winners-fall-2026/ and /fr/gagnants-automne-2026/
+   Winners page — /winners-fall-2026/ and /fr/gagnants-automne-2026/ — and
+   the project completion page — /project-completion-fall-2026/ and
+   /fr/fin-de-projet-automne-2026/ — which shares its markup, its hooks and
+   /js/winners-form.js (Nov 2026).
    Loaded AFTER apply-now.css and how-to-apply.css, which already supply the
    hero and intro (.apply-hero / .apply-intro), the green form card and the
    orange state card (.apply-form-card / .apply-form-closed), and every field,
@@ -50,10 +53,10 @@
    bottom at <=992px, in how-to-apply.css) spaces the long /apply-now/ page.
    Same specificity, later file, so this wins at every width. */
 .winners-intro { padding: 0; }
-.winners-intro .winners-deadline {
-  margin-top: 12px;
-  font-weight: 600;
-}
+/* A second intro paragraph (the completion page has two) and the deadline
+   line each sit 12px under the one before. */
+.winners-intro .intro-text + .intro-text { margin-top: 12px; }
+.winners-intro .winners-deadline { font-weight: 600; }
 
 /* ------------------------------
    STATE CARDS (closed / not open yet / not ready / no JavaScript).
@@ -70,64 +73,74 @@
 }
 
 /* ------------------------------
-   STEP 1 — finance form download card
+   PAYMENT NOTE (winners page) — "When to expect your payment: …". The orange
+   of the site's informational cards, an icon and one sentence. (The finance
+   form download and the tax block that sat here until Nov 2026 are gone, and
+   their .winners-tax* rules with them.)
    ------------------------------ */
-.winners-step { padding-top: 80px; }
+.winners-note-section { padding-top: 32px; }
+.winners-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 760px;
+  margin: 0;
+  padding: 18px 22px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  background-color: var(--primary);
+  border-radius: 12px;
+}
+.winners-note svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* ------------------------------
+   DOWNLOAD CARD (completion page) — "Not sure what to include?" and the
+   guidelines button. Was the winners page's finance form card.
+   ------------------------------ */
+.winners-step { padding-top: 48px; }
 .winners-download {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
-  max-width: 860px;
-  padding: 40px;
+  gap: 16px;
+  max-width: 760px;
+  padding: 36px 40px;
   border: 1px solid var(--text);
   border-radius: var(--radius-card);
 }
 .winners-download p {
-  font-family: var(--font-source-serif);
+  font-family: var(--font-inter);
   color: var(--text);
 }
-/* The step every winner must take, so it must be readable: btn-primary's
-   cream text on its orange fill is about 1.5:1, and its hover (orange text on
-   the cream page) no better. Dark text here only — about 10:1 on the fill and
-   15:1 on the page — leaving btn-primary alone elsewhere. */
+/* The button must be readable: btn-primary's cream text on its orange fill
+   is about 1.5:1, and its hover (orange text on the cream page) no better.
+   Dark text here only — about 10:1 on the fill and 15:1 on the page —
+   leaving btn-primary alone elsewhere. */
 .winners-download .btn.btn-primary > a,
 .winners-download .btn.btn-primary > a:hover { color: var(--text); }
 
-/* ------------------------------
-   TAX BLOCK — Alumo's own wording (see the HTML comment); the tinted
-   "Good to know" box is the orange of the site's informational cards.
-   ------------------------------ */
-.winners-tax { padding-top: 64px; }
-.winners-tax-block {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 860px;
-}
-.winners-tax-block p {
-  font-family: var(--font-source-serif);
-  color: var(--text);
-}
-.winners-tax-note {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px 28px;
-  border-radius: var(--radius-card);
-  background-color: var(--primary);
-}
+/* The form card follows a short note or card here, not /apply-now/'s whole
+   steps block, so .apply-form-section's 120px (72 / 48) would read as a hole.
+   Same specificity as that rule, later file, so this wins at every width. */
+.winners-form-section { padding-top: 56px; }
 
 @media (max-width: 992px) {
-  .winners-step { padding-top: 56px; }
+  .winners-step { padding-top: 40px; }
   .winners-download { padding: 32px; }
-  .winners-tax { padding-top: 48px; }
+  .winners-form-section { padding-top: 48px; }
 }
 @media (max-width: 576px) {
-  .winners-step { padding-top: 40px; }
-  .winners-download { padding: 24px 20px; gap: 16px; }
-  .winners-tax { padding-top: 40px; }
-  .winners-tax-note { padding: 20px; }
+  .winners-note-section { padding-top: 24px; }
+  .winners-note { padding: 16px; }
+  .winners-step { padding-top: 32px; }
+  .winners-download { padding: 24px 20px; }
+  .winners-form-section { padding-top: 40px; }
 }
 
 /* ------------------------------
@@ -176,6 +189,77 @@
   margin-top: 2px;
 }
 
+/* "Can we share your photos?" (completion page) — a cream box under the
+   photos upload, like the cheque note, holding the question, "Totally up to
+   you." and the two answers stacked. apply-now.css's radios are sized for a
+   row of two short answers (28px, 47px tall row); these are a compact
+   column. */
+.winners-form .winners-consent {
+  padding: 16px 18px;
+  background-color: var(--primary-light-1);
+  border-radius: 10px;
+}
+.winners-form .winners-consent .field-label {
+  margin-bottom: 6px;
+  font-size: var(--fs-14);
+  line-height: 1.45;
+}
+.winners-form .winners-consent-hint {
+  margin: 0 0 12px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  opacity: 0.8;
+}
+.winners-form .winners-consent .radio-group {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 0;
+}
+.winners-form .winners-consent .radio-option {
+  font-size: var(--fs-14);
+  line-height: 1.45;
+}
+.winners-form .winners-consent input[type="radio"] {
+  width: 20px;
+  height: 20px;
+}
+.winners-form .winners-consent input[type="radio"]::before {
+  width: 10px;
+  height: 10px;
+}
+.winners-form .winners-consent .field-error { margin-top: 10px; }
+
+/* Foot of the form: a rule, then the fine print on the left and the send
+   button on the right, on one row (Alumo's Nov 2026 mock). The status line
+   sits above the rule. Stacked, button last, on a phone. */
+.winners-form .winners-form-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--secondary-dark-1);
+}
+.winners-form .winners-form-foot .form-fineprint {
+  margin: 0;
+  max-width: 600px;
+}
+.winners-form .winners-form-foot .form-nav {
+  margin: 0;
+  flex-shrink: 0;
+}
+.winners-form .form-status { margin: 0 0 24px; }
+@media (max-width: 768px) {
+  .winners-form .winners-form-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 /* Status line (errors after a send). style.css's .form-status.is-error red
    loses to apply-now.css's `.apply-form .form-status` colour (same
    specificity, later file), so errors are re-coloured here with the
@@ -197,6 +281,7 @@
    ring sits outside pills and file inputs alike.
    ------------------------------ */
 .winners-download .btn > a:focus-visible,
+.winners-questions a:focus-visible,
 .winners-form-wrap a:focus-visible,
 .winners-form-wrap input:focus-visible,
 .winners-form-wrap select:focus-visible,
@@ -221,8 +306,21 @@
   color: var(--text);
 }
 
+/* ------------------------------
+   QUESTIONS (completion page) — a heading and one line under the form card.
+   ------------------------------ */
+.winners-questions { padding-top: 56px; }
+.winners-questions h2 { margin: 0 0 8px; }
+.winners-questions p {
+  margin: 0;
+  font-family: var(--font-inter);
+  color: var(--text);
+}
+.winners-questions a { text-decoration: underline; }
+
 @media (max-width: 992px) {
   .winners-form .winners-form-title { margin-bottom: 32px; }
+  .winners-questions { padding-top: 48px; }
 }
 @media (max-width: 768px) {
   .winners-form .winners-fieldset { margin-bottom: 32px; }

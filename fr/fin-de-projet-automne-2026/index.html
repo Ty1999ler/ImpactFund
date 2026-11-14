@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fin de projet &#8211; Fonds Alumo</title>
+  <meta name="description" content="Envoyez votre rapport de fin de projet au Fonds d'impact étudiant par Alumo.">
+  <!-- UNLISTED page — French twin of /project-completion-fall-2026/; see
+       the comment there. noindex,nofollow, not in any nav, sitemap.xml or
+       robots.txt, no canonical / hreflang / og: tags. French copy from
+       FR_DRAFTS.md (section D, Nov 2026), pending Hafsa's approval. -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon-192.png" sizes="192x192">
+  <!-- asset versions: keep in step with /apply-now/ and
+       /fr/gagnants-automne-2026/ (this page reuses their stylesheets). -->
+  <link rel="stylesheet" href="/css/style.css?v=9">
+  <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
+  <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=3">
+</head>
+<body>
+  <a class="skip-link" href="#content">Aller au contenu</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header is-pinned">
+    <div class="container">
+      <div class="nav-bar">
+        <a class="brand-logo" href="/fr/" aria-label="Fonds d'impact étudiant par Alumo — accueil">
+          <img src="/assets/img/logo-fr.svg" alt="Fonds d'impact étudiant par Alumo" width="117" height="52">
+        </a>
+
+        <div class="hamburger-menu-toggle-btn-wrap">
+          <button class="hamburger-menu-toggle-btn" type="button" aria-label="Basculer le menu">
+            <span></span><span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <div class="nav-menu-container">
+          <nav class="nav-menu-wrap" aria-label="Menu principal">
+            <ul class="nav-menu">
+              <li class="menu-item"><a href="/fr/">Accueil</a></li>
+              <li class="menu-item"><a href="/fr/a-propos/">À propos</a></li>
+              <li class="menu-item"><a href="/fr/soumettre/">Soumettre votre idée</a></li>
+              <li class="menu-item"><a href="/fr/ecoles-partenaires/">Partenaires</a></li>
+              <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
+              <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
+            </ul>
+          </nav>
+
+          <div class="header-button-wrap">
+            <!-- "Soumettre" button exists in the source but is hidden at every
+                 breakpoint while submissions are closed. Kept for re-enabling. -->
+            <div class="btn btn-primary" hidden>
+              <a href="/fr/soumettre/"><span>Soumettre</span></a>
+            </div>
+
+            <div class="lang-switcher">
+              <button class="lang-current" type="button" aria-haspopup="true" aria-expanded="false">
+                FR
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1L5 5L9 1" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <div class="lang-dropdown">
+                <!-- The English completion page, not the English home. -->
+                <a href="/project-completion-fall-2026/">EN</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ============ HERO ============ -->
+    <!-- Outside every state block, so the H1 shows whatever the page state — see the EN page. -->
+    <section class="apply-hero winners-hero">
+      <div class="container">
+        <p class="winners-kicker"><img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13"><span>Fin de projet</span></p>
+        <h1 class="apply-title text-size-72-72-tight">Racontez-nous comment votre projet a pris vie.</h1>
+      </div>
+    </section>
+
+    <!-- ============ INTRO ============ -->
+    <section class="apply-intro winners-intro">
+      <div class="container">
+        <!-- Intro + deadline line: shown by /js/winners-form.js in the OPEN
+             state only. The deadline comes from the server's closes_at and
+             stays hidden when the page has none (completion.closes_at 'none'). -->
+        <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Félicitations pour la réalisation de votre projet&#8239;! Envoyez-nous votre rapport de fin de projet, vos reçus et les photos que vous aimeriez partager.</p>
+        <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Une fois votre rapport reçu et examiné, nous vous verserons le reste de votre financement.</p>
+        <p class="intro-text text-size-16-31-9-tightpx winners-deadline" data-winners-deadline hidden></p>
+      </div>
+    </section>
+
+    <!-- ============ PAGE STATES ============ -->
+    <!-- /js/winners-form.js asks /api/completion.php?state=1 on load and shows
+         EITHER the open content further down OR exactly one of these cards —
+         as on the winners page. The schedule lives in the server's config
+         (api/config.example.php, 'completion'). -->
+    <section class="apply-form-section winners-states" data-winners-states hidden>
+      <div class="container">
+        <div class="apply-form-card apply-form-closed" data-winners-state="closed" tabindex="-1" hidden>
+          <div class="apply-closed-logo">
+            <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
+          </div>
+          <h2 class="apply-closed-kicker">La date limite est passée</h2>
+          <!-- Text set by /js/winners-form.js so it can carry the date. -->
+          <p class="apply-closed-date" data-winners-closed-text>Si vous devez encore l'envoyer, répondez au courriel qu'Alumo vous a envoyé.</p>
+        </div>
+        <div class="apply-form-card apply-form-closed" data-winners-state="not-open" tabindex="-1" hidden>
+          <div class="apply-closed-logo">
+            <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
+          </div>
+          <h2 class="apply-closed-kicker">Cette page n'est pas encore ouverte</h2>
+          <p class="apply-closed-date">Revenez bientôt. Si vous avez des questions, répondez au courriel qu'Alumo vous a envoyé.</p>
+        </div>
+        <div class="apply-form-card apply-form-closed" data-winners-state="unconfigured" tabindex="-1" hidden>
+          <div class="apply-closed-logo">
+            <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
+          </div>
+          <h2 class="apply-closed-kicker">Cette page n'est pas encore prête.</h2>
+          <p class="apply-closed-date">Veuillez réessayer plus tard.</p>
+        </div>
+      </div>
+    </section>
+    <noscript>
+      <section class="apply-form-section winners-states">
+        <div class="container">
+          <div class="apply-form-card apply-form-closed">
+            <div class="apply-closed-logo">
+              <img src="/assets/img/logo-alumo.svg" alt="Logo Alumo" width="117">
+            </div>
+            <p class="apply-closed-date">Cette page nécessite JavaScript pour envoyer votre rapport. Veuillez l'activer, puis actualiser la page.</p>
+          </div>
+        </div>
+      </section>
+    </noscript>
+
+    <!-- ============ OPEN CONTENT (shown only when the server says open) ============ -->
+    <div class="winners-open" data-winners-open hidden>
+
+      <!-- ============ GUIDELINES download ============ -->
+      <section class="winners-step">
+        <div class="container">
+          <div class="winners-download">
+            <h2 class="text-size-32-42-tight">Vous ne savez pas quoi inclure&#8239;?</h2>
+            <p class="text-size-16-24-tight">Nos lignes directrices pour le rapport de fin de projet vous guident pas à pas&nbsp;: vous y trouverez ce que votre rapport doit contenir et un exemple de présentation de votre budget.</p>
+            <!-- AWAITING_CLIENT: Alumo supplies this file — see the EN page; until it
+                 lands in /assets/docs/ the link 404s, and
+                 _tools/verify_integrity.py lists it as awaiting the client
+                 rather than failing. Keep the file name when it arrives. -->
+            <div class="btn btn-primary">
+              <a href="/assets/docs/project-completion-report-guidelines-fr.pdf" target="_blank" rel="noopener"><span>Télécharger les lignes directrices</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ THE FORM (green card) ============ -->
+      <section class="apply-form-section winners-form-section">
+        <div class="container">
+          <div class="apply-form-card apply-form-open">
+            <!-- Same markup and hooks as the winners page, so the same
+                 stylesheets and /js/winners-form.js drive it;
+                 data-handler="completion" is what makes that script post to
+                 /api/completion.php with this page's fields and copy. -->
+            <div class="apply-form winners-form-wrap">
+              <form class="winners-form" action="#" method="post" enctype="multipart/form-data" data-handler="completion" novalidate>
+                <input type="hidden" name="locale" value="fr">
+
+                <h2 class="winners-form-title text-size-40-42-tight">Envoyez-nous vos documents</h2>
+
+                <fieldset class="winners-fieldset">
+                  <legend class="block-title">Vous et votre projet</legend>
+                  <div class="form-grid-3">
+                    <div class="form-col">
+                      <div class="form-field">
+                        <label for="wf-school">École<span aria-hidden="true">*</span></label>
+                        <!-- Options from the frozen Fall 2026 list
+                             (/js/winners-schools-fall-2026.js), as on the
+                             winners page. -->
+                        <select id="wf-school" name="school" required aria-required="true">
+                          <option value="">Sélectionnez votre école</option>
+                          <option value="__other">Mon école ne figure pas dans la liste</option>
+                        </select>
+                      </div>
+                      <div class="form-field" id="wf-school-other-wrap" hidden>
+                        <label for="wf-school-other">Nom de votre école<span aria-hidden="true">*</span></label>
+                        <input type="text" id="wf-school-other" name="school_other" maxlength="255" autocomplete="organization">
+                      </div>
+                    </div>
+                    <div class="form-field">
+                      <label for="wf-name">Nom complet<span aria-hidden="true">*</span></label>
+                      <input type="text" id="wf-name" name="full_name" placeholder="Écrivez votre nom complet" autocomplete="name" maxlength="200" required aria-required="true">
+                    </div>
+                    <div class="form-field">
+                      <label for="wf-title">Titre du projet<span aria-hidden="true">*</span></label>
+                      <input type="text" id="wf-title" name="project_title" placeholder="Écrivez le titre de votre projet" maxlength="255" required aria-required="true">
+                    </div>
+                    <div class="form-field">
+                      <label for="wf-email">Courriel<span aria-hidden="true">*</span></label>
+                      <input type="email" id="wf-email" name="email" placeholder="Écrivez votre courriel" autocomplete="email" maxlength="254" required aria-required="true">
+                    </div>
+                  </div>
+                </fieldset>
+
+                <!-- No visible heading over the uploads (Alumo's mock): the
+                     group is named for screen readers instead. -->
+                <fieldset class="winners-fieldset" aria-label="Téléversez vos documents">
+                  <!-- Accepted types and file counts must match
+                       completion_upload_slots() in api/_lib.php and the
+                       "completion" SLOTS in /js/winners-form.js: one report,
+                       1 to 10 receipts, 0 to 8 photos, 10 MB each, 50 MB in
+                       all. The two boxes that take several files are named
+                       x[] so PHP receives a list. -->
+                  <div class="form-grid-3 file-grid">
+                    <div class="form-field form-field-file">
+                      <label for="wf-file-report">Rapport de fin de projet<span aria-hidden="true">*</span></label>
+                      <p class="field-desc" id="wf-file-report-desc">Votre rapport, y compris votre budget avec les coûts réels.</p>
+                      <input type="file" id="wf-file-report" name="file_report" accept=".pdf,.docx,.jpg,.jpeg,.png" required aria-required="true" aria-describedby="wf-file-report-desc wf-file-report-types">
+                      <p class="field-filetypes" id="wf-file-report-types">Types de fichier acceptés&nbsp;: pdf, docx, jpg, jpeg, png. Taille maximum des fichiers&nbsp;: 10&nbsp;MB.</p>
+                    </div>
+                    <div class="form-field form-field-file">
+                      <label for="wf-file-receipts">Reçus<span aria-hidden="true">*</span></label>
+                      <p class="field-desc" id="wf-file-receipts-desc">Vous pouvez téléverser plusieurs fichiers.</p>
+                      <input type="file" id="wf-file-receipts" name="file_receipts[]" multiple accept=".pdf,.docx,.jpg,.jpeg,.png" required aria-required="true" aria-describedby="wf-file-receipts-desc wf-file-receipts-types">
+                      <p class="field-filetypes" id="wf-file-receipts-types">Types de fichier acceptés&nbsp;: pdf, docx, jpg, jpeg, png. Taille maximum des fichiers&nbsp;: 10&nbsp;MB.</p>
+                    </div>
+                    <div class="form-col">
+                      <div class="form-field form-field-file">
+                        <label for="wf-file-photos">Photos (facultatif)</label>
+                        <p class="field-desc" id="wf-file-photos-desc">Nous aimerions beaucoup voir votre projet en action&#8239;! Partagez quelques photos pour nous montrer votre impact et célébrer ce que vous avez accompli.</p>
+                        <input type="file" id="wf-file-photos" name="file_photos[]" multiple accept=".pdf,.docx,.jpg,.jpeg,.png" aria-describedby="wf-file-photos-desc wf-file-photos-types">
+                        <p class="field-filetypes" id="wf-file-photos-types">Types de fichier acceptés&nbsp;: pdf, docx, jpg, jpeg, png. Taille maximum des fichiers&nbsp;: 10&nbsp;MB.</p>
+                      </div>
+                      <!-- Needs an answer only when photos are attached
+                           (/js/winners-form.js and api/completion.php agree).
+                           The answer is filed with the photos: in their file
+                           names and in the "Submission details" text file. -->
+                      <div class="form-field form-field-radio winners-consent">
+                        <span class="field-label" id="wf-consent-label">Pouvons-nous partager vos photos&#8239;? Nous aimerions montrer votre impact et inspirer d'autres étudiant·es.</span>
+                        <p class="winners-consent-hint" id="wf-consent-hint">C'est entièrement à vous de décider.</p>
+                        <div class="radio-group" role="radiogroup" aria-labelledby="wf-consent-label" aria-describedby="wf-consent-hint">
+                          <label class="radio-option"><input type="radio" id="wf-consent-yes" name="photo_consent" value="yes"><span>Oui, vous pouvez utiliser mes photos</span></label>
+                          <label class="radio-option"><input type="radio" id="wf-consent-no" name="photo_consent" value="no"><span>Non, veuillez ne pas les utiliser</span></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <!-- Honeypot — ignored by validation, checked on submit -->
+                <div class="hp-field" aria-hidden="true">
+                  <label for="af-website">Laissez ce champ vide</label>
+                  <input type="text" id="af-website" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                <p class="form-status" role="status" aria-live="polite" hidden></p>
+
+                <!-- Fine print and button share one row under a rule, as in
+                     Alumo's mock; they stack on a phone (winners.css). -->
+                <div class="winners-form-foot">
+                  <p class="form-fineprint">Vos renseignements et vos documents seront utilisés par Alumo uniquement pour le versement de votre financement et seront traités conformément à notre <a href="/fr/privacy-policy/">politique de confidentialité</a>.</p>
+                  <div class="form-nav">
+                    <button type="submit" class="apply-btn apply-btn-submit"><span>Envoyer mon rapport</span></button>
+                  </div>
+                </div>
+              </form>
+
+              <!-- Replaces the form once the server has the documents. -->
+              <div class="winners-success" data-winners-success tabindex="-1" hidden>
+                <h2 class="text-size-40-42-tight">Bien reçu, merci&#8239;!</h2>
+                <p>Nous avons bien reçu votre rapport. Nous l'examinerons et communiquerons avec vous au sujet du reste de votre financement.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ QUESTIONS ============ -->
+      <section class="winners-questions">
+        <div class="container">
+          <h2 class="text-size-32-42-tight">Des questions&#8239;?</h2>
+          <p class="text-size-16-24-tight">Répondez simplement au courriel concernant votre financement ou écrivez-nous à <a href="mailto:impact@alumo.ca">impact@alumo.ca</a>. Il nous fera plaisir de vous aider&#8239;!</p>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main">
+        <a class="brand-logo" href="/fr/" aria-label="Fonds d'impact étudiant par Alumo — accueil">
+          <img src="/assets/img/logo-fr.svg" alt="Fonds d'impact étudiant par Alumo" width="117" height="52">
+        </a>
+        <nav aria-label="Menu de pied de page">
+          <ul class="footer-menu">
+            <li class="menu-item"><a href="/fr/">Accueil</a></li>
+            <li class="menu-item"><a href="/fr/a-propos/">À propos</a></li>
+            <li class="menu-item"><a href="/fr/soumettre/">Soumettre votre idée</a></li>
+            <li class="menu-item"><a href="/fr/ecoles-partenaires/">Partenaires</a></li>
+            <li class="menu-item"><a href="/fr/#faq-section">FAQ</a></li>
+            <li class="menu-item"><a href="/fr/#contact-form">Nous joindre</a></li>
+          </ul>
+        </nav>
+        <div class="btn btn-primary btn-lg">
+          <a href="/fr/a-propos/"><span>En savoir plus</span></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Alumo 2026 - Tous droits réservés</p>
+        <div class="footer-legal">
+          <a href="/fr/conditions-utilisation/">Conditions d'utilisation</a>
+          <a href="/fr/privacy-policy/">Politique de confidentialité</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- asset versions: keep main.js in step with /apply-now/. The two
+       winners-* files are this page's own. NO js/analytics.js here — see the
+       EN page. -->
+  <script src="/js/main.js?v=8"></script>
+  <script src="/js/winners-schools-fall-2026.js?v=1"></script>
+  <script src="/js/winners-form.js?v=3"></script>
+</body>
+</html>

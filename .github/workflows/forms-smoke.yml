@@ -12,7 +12,7 @@ on:
       - 'Dockerfile.php'
       - '.dockerignore'
       - 'ci/**'
-      - 'js/winners-schools-fall-2026.js'   # api/winners.php reads it (school_listed)
+      - 'js/winners-schools-fall-2026.js'   # api/winners.php and api/completion.php read it (school_listed)
       - '.github/workflows/forms-smoke.yml'
   workflow_dispatch:
 
@@ -463,7 +463,9 @@ jobs:
           done
 
   # ------------------------------------------------------------------
-  # Winners page (api/winners.php) — its own job, so it can neither disturb
+  # Winners page (api/winners.php) and, at the end, the project completion
+  # page (api/completion.php), which shares its code and reuses the open and
+  # email containers — their own job, so it can neither disturb
   # nor be disturbed by the application smoke above. Four containers from
   # the same image, each with its own copy of the CI config:
   #   winners-open   :8791  api/config.ci.php as committed (open, archive-only,
@@ -541,7 +543,7 @@ jobs:
           mkdir -p /tmp/wfix
           # Valid documents: content checks are real (getimagesize, %PDF-, a
           # ZIP holding [Content_Types].xml), so these must be the real thing.
-          printf '%s\n%s\n' '%PDF-1.4' '%%EOF' > /tmp/wfix/finance-form.pdf
+          printf '%s\n%s\n' '%PDF-1.4' '%%EOF' > /tmp/wfix/report.pdf
           echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==' \
             | base64 -d > /tmp/wfix/cheque.png
           python3 - <<'PY'
@@ -570,7 +572,7 @@ jobs:
           cat > /tmp/wfix/common.sh <<'SH'
           FIELDS=(-F school='University of Regina' -F full_name='CI Winner'
                   -F project_title='CI Winning Project' -F email='ci-winner@example.com'
-                  -F locale=en)
+                  -F funds_sent_to='CI Students Association' -F locale=en)
           post() {
             local port=$1; shift
             local code
@@ -606,24 +608,33 @@ jobs:
           source /tmp/wfix/common.sh
           code=$(post 8791 "${FIELDS[@]}" \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           test "$code" = "200"
           test "$(jq -r .ok /tmp/body.json)" = "true"
           id=$(jq -r .id /tmp/body.json)
           echo "$id" | grep -Eq '^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$'
           dir="/var/www/_submissions/winners/$id"
-          for f in 'Funding agreement - CI Winner.docx' 'Finance form - CI Winner.pdf' 'Void cheque - CI Winner.png'; do
+          for f in 'Funding agreement - CI Winner.docx' 'Void cheque - CI Winner.png' 'Submission details - CI Winner.txt'; do
             docker exec winners-open test -f "$dir/$f"
           done
+          # What was typed is filed WITH the documents: the details file says
+          # who the funds are sent to (it is uploaded like the other two).
+          docker exec winners-open cat "$dir/Submission details - CI Winner.txt" > /tmp/wdetails.txt
+          cat /tmp/wdetails.txt
+          grep -q 'winner documents' /tmp/wdetails.txt
+          grep -q 'Funds sent to: CI Students Association' /tmp/wdetails.txt
+          grep -q 'Void cheque - CI Winner.png' /tmp/wdetails.txt
+          if grep -q 'TEST SUBMISSION' /tmp/wdetails.txt; then echo "a localhost details file says TEST"; exit 1; fi
           # One level deeper than applications, so the application retry glob
           # (submissions_dir/*/DELIVERY-PENDING) can never see it.
           docker exec winners-open test ! -e "/var/www/_submissions/$id"
           docker exec winners-open cat "$dir/submission.json" > /tmp/wsub.json
           test "$(jq -r .kind /tmp/wsub.json)" = "winners"
-          test "$(jq -r '.documents | length' /tmp/wsub.json)" = "3"
+          test "$(jq -r '.documents | length' /tmp/wsub.json)" = "3"     # two uploads + the details file
+          test "$(jq -r '[.documents[].slot] | join(" ")' /tmp/wsub.json)" = "file_agreement file_void_cheque details"
           test "$(jq -r '.files' /tmp/wsub.json)" = "null"          # never the application key
           test "$(jq -r .fields.school /tmp/wsub.json)" = "University of Regina"
+          test "$(jq -r .fields.funds_sent_to /tmp/wsub.json)" = "CI Students Association"
           test "$(jq -r .fields.school_listed /tmp/wsub.json)" = "yes"
           test "$(jq -r '.earlier_submissions | length' /tmp/wsub.json)" = "0"
           echo "$id" > /tmp/wfirst.id
@@ -638,6 +649,7 @@ jobs:
           grep -q 'To: ci-winner@example.com' /tmp/mail.captured        # the confirmation
           grep -q 'Hi CI Winner' /tmp/mail.captured
           grep -q 'To: winners-ci@example.invalid' /tmp/mail.captured   # the one team notice
+          grep -q 'Funds sent to: CI Students Association' /tmp/mail.captured
           # Documents stay on the server until SharePoint has them.
           docker exec winners-open test -f "$dir/Void cheque - CI Winner.png"
 
@@ -652,9 +664,8 @@ jobs:
           # text that would turn the confirmation into someone else's message.
           code=$(post 8791 -F school='Anything At All' -F full_name='Winner,  ci' \
             -F project_title='Claim your prize at https://evil.example/x' -F email='ci-relay@example.com' \
-            -F locale=en \
+            -F funds_sent_to='CI Winner' -F locale=en \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           test "$code" = "200"
           id=$(jq -r .id /tmp/body.json)
@@ -704,7 +715,6 @@ jobs:
             echo "expected $2 messages in $1"; subjects "$1"; return 1
           }
           docs=(-F file_agreement=@/tmp/wfix/agreement.docx
-                -F file_finance_form=@/tmp/wfix/finance-form.pdf
                 -F file_void_cheque=@/tmp/wfix/cheque.png)
           # Only localhost has posted so far: nothing is marked.
           subjects winners-open > /tmp/wsubj.txt
@@ -730,7 +740,7 @@ jobs:
           #    second submission of the TEST one only.
           code=$(post 8791 -H 'Host: staging.alumoimpact.ca' -F school='University of Regina' \
             -F full_name='Winner, CI' -F project_title='CI Test Project' -F email='ci-test@example.com' \
-            -F locale=fr "${docs[@]}")
+            -F funds_sent_to='CI Winner' -F locale=fr "${docs[@]}")
           test "$code" = "200"
           t2=$(jq -r .id /tmp/body.json)
           docker exec winners-open cat "/var/www/_submissions/winners/$t2/submission.json" > /tmp/wsubt.json
@@ -767,20 +777,22 @@ jobs:
           source /tmp/wfix/common.sh
           before=$(archives winners-open)
           code=$(post 8791 "${FIELDS[@]}" \
-            -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf)
+            -F file_agreement=@/tmp/wfix/agreement.docx)
           test "$code" = "422"
           test "$(jq -r .error /tmp/body.json)" = "fields"
           test "$(jq -r .fields.file_void_cheque /tmp/body.json)" = "required"
-          # "not listed" needs its name box; email must be an email
+          # A finance form posted the old way is simply not a slot any more.
+          test "$(jq -r .fields.file_finance_form /tmp/body.json)" = "null"
+          # "not listed" needs its name box; email must be an email; who the
+          # funds are sent to is required (this post leaves it out)
           code=$(post 8791 -F school='__other' -F full_name='CI Winner' -F project_title='P' \
             -F email='not-an-email' \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           test "$code" = "422"
           test "$(jq -r .fields.school_other /tmp/body.json)" = "required"
           test "$(jq -r .fields.email /tmp/body.json)" = "invalid_email"
+          test "$(jq -r .fields.funds_sent_to /tmp/body.json)" = "required"
           test "$(archives winners-open)" = "$before"
 
       - name: Winners — wrong types (by name and by content) are 422
@@ -790,12 +802,15 @@ jobs:
           before=$(archives winners-open)
           code=$(post 8791 "${FIELDS[@]}" \
             -F file_agreement=@/tmp/wfix/agreement.gif \
-            -F file_finance_form=@/tmp/wfix/fake.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.docx)
           test "$code" = "422"
           test "$(jq -r .fields.file_agreement /tmp/body.json)" = "file_type"      # .gif
-          test "$(jq -r .fields.file_finance_form /tmp/body.json)" = "file_type"   # HTML named .pdf
           test "$(jq -r .fields.file_void_cheque /tmp/body.json)" = "file_type"    # docx: not for the cheque
+          code=$(post 8791 "${FIELDS[@]}" \
+            -F file_agreement=@/tmp/wfix/fake.pdf \
+            -F file_void_cheque=@/tmp/wfix/cheque.png)
+          test "$code" = "422"
+          test "$(jq -r .fields.file_agreement /tmp/body.json)" = "file_type"      # HTML named .pdf
           test "$(archives winners-open)" = "$before"
 
       - name: Winners — HEIC gets its own error
@@ -804,7 +819,6 @@ jobs:
           source /tmp/wfix/common.sh
           code=$(post 8791 "${FIELDS[@]}" \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.heic)
           test "$code" = "422"
           test "$(jq -r .fields.file_void_cheque /tmp/body.json)" = "file_heic"
@@ -817,11 +831,10 @@ jobs:
           # so winners.php's own 10 MB check answers 422; 413 is also a correct
           # rejection if post_max_size ever trips first.
           code=$(post 8791 "${FIELDS[@]}" \
-            -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/too-big.pdf \
+            -F file_agreement=@/tmp/wfix/too-big.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           case "$code" in
-            422) test "$(jq -r .fields.file_finance_form /tmp/body.json)" = "file_size" ;;
+            422) test "$(jq -r .fields.file_agreement /tmp/body.json)" = "file_size" ;;
             413) ;;
             *)   echo "unexpected status: $code"; exit 1 ;;
           esac
@@ -848,7 +861,6 @@ jobs:
           test "$(jq -r .closes_at_ts /tmp/body.json)" = "1577854800"
           code=$(post 8792 "${FIELDS[@]}" \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           test "$code" = "403"
           test "$(jq -r .error /tmp/body.json)" = "closed"
@@ -860,9 +872,9 @@ jobs:
           set -euo pipefail
           source /tmp/wfix/common.sh
           code=$(post 8793 -F school='__other' -F school_other='École CI' -F full_name='CI Gagnante' \
-            -F project_title='Projet CI' -F email='ci-gagnante@example.com' -F locale=fr \
+            -F project_title='Projet CI' -F email='ci-gagnante@example.com' \
+            -F funds_sent_to='Association CI' -F locale=fr \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           test "$code" = "200"
           id=$(jq -r .id /tmp/body.json)
@@ -880,7 +892,7 @@ jobs:
           grep -q "winners/$id: left pending — winner documents go to SharePoint only (delivery_mode is 'email')" /tmp/redeliver.out
           no_attachments winners-email
           docker exec winners-email test -f "$dir/DELIVERY-PENDING"
-          for f in 'Funding agreement - CI Gagnante.docx' 'Finance form - CI Gagnante.pdf' 'Void cheque - CI Gagnante.png'; do
+          for f in 'Funding agreement - CI Gagnante.docx' 'Void cheque - CI Gagnante.png' 'Submission details - CI Gagnante.txt'; do
             docker exec winners-email test -f "$dir/$f"
           done
 
@@ -898,7 +910,6 @@ jobs:
           test "$(jq -r .confirmation /tmp/body.json)" = "false"
           code=$(post 8794 "${FIELDS[@]}" \
             -F file_agreement=@/tmp/wfix/agreement.docx \
-            -F file_finance_form=@/tmp/wfix/finance-form.pdf \
             -F file_void_cheque=@/tmp/wfix/cheque.png)
           test "$code" = "200"
           test "$(jq -r .ok /tmp/body.json)" = "true"
@@ -981,7 +992,9 @@ jobs:
           $expect('submissions closed after the grace', winners_window_state($w, 1000 + 15 * 60, true) === 'closed');
           $expect('doc name keeps its extension when long',
               winners_doc_name('Void cheque', str_repeat('A', 150), 'jpg') === 'Void cheque - ' . str_repeat('A', 86) . '.jpg');
-          $expect('doc name loses path characters', winners_doc_name('Finance form', 'a/b:c', 'pdf') === 'Finance form - a-b-c.pdf');
+          $expect('doc name loses path characters', winners_doc_name('Void cheque', 'a/b:c', 'pdf') === 'Void cheque - a-b-c.pdf');
+          $expect('two upload slots, no finance form',
+              array_keys(winners_upload_slots()) === ['file_agreement', 'file_void_cheque']);
           $k = winners_name_keys('Jane Doe');
           foreach (['jane  doe.', 'Doe, Jane', 'Jané Doe', "J\u{0430}ne Doe", 'JaneDoe'] as $variant) {
               $expect("same name: '$variant'", (bool)array_intersect($k, winners_name_keys($variant)));
@@ -1021,6 +1034,94 @@ jobs:
               $notice(true, true) === '[TEST] Winner documents filed after retry — Jane Doe (R)');
           $expect('real record: filed-after-retry notice unmarked',
               $notice(false, true) === 'Winner documents filed after retry — Jane Doe (R)');
+          // ---- Project completion (api/completion.php): the second kind ----
+          $expect('CI block inherits round and root_folder from the winners block',
+              ($cc = completion_config($base)) !== null && $cc['round'] === 'CI Round'
+              && $cc['root_folder'] === 'Winners (CI)' && $cc['subfolder'] === 'Project completion');
+          $expect('completion_cfg twice is the same', completion_cfg(completion_cfg($base)) === completion_cfg($base));
+          $c = $base; unset($c['completion']);
+          $expect('no completion block -> closed', completion_config($c) === null);
+          $c = $base; unset($c['completion']['allow_without_graph']);
+          $expect('allow_without_graph is not inherited -> closed', completion_config($c) === null);
+          $c = $base; $c['completion']['round'] = '';
+          $expect("a round that is present but empty is the block's own -> closed", completion_config($c) === null);
+          $c = $base; unset($c['winners']['allow_without_graph'], $c['completion']['allow_without_graph']);
+          $c['delivery_mode'] = 'graph';
+          $c['graph'] = ['tenant_id' => 't', 'client_id' => 'c', 'client_secret' => 's', 'drive_id' => 'apps-drive'];
+          $c['winners']['drive_id'] = 'winners-drive'; $c['winners']['notify_to'] = 'w@example.invalid';
+          unset($c['completion']['notify_to']);
+          $expect('graph mode, no deadline key -> closed', completion_config($c) === null);
+          $c['completion']['closes_at'] = '2026-13-01T00:00:00-05:00';
+          $expect('impossible deadline -> closed', completion_config($c) === null);
+          $c['completion']['closes_at'] = 'none';
+          $cc = completion_config($c);
+          $expect("deadline 'none' -> open, no deadline, the winners block's drive",
+              is_array($cc) && $cc['closes_at_ts'] === null && $cc['drive_id'] === 'winners-drive' && $cc['create_root'] === false);
+          $expect("notify_to left out -> the winners block's",
+              winners_notify_address(completion_cfg($c), 'completion') === 'w@example.invalid');
+          $c['completion']['drive_id'] = 'completion-drive'; $c['completion']['subfolder'] = '';
+          $cc = completion_config($c);
+          $expect('own drive_id and an empty subfolder are kept', $cc['drive_id'] === 'completion-drive' && $cc['subfolder'] === '');
+          $rec = ['kind' => 'completion', 'root_folder' => 'Winners', 'round' => 'Fall 2026', 'subfolder' => 'Project completion',
+                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'photo_consent' => 'no'],
+                  'documents' => [['slot' => 'file_report', 'label' => 'Completion report', 'name' => 'a'],
+                                  ['slot' => 'file_photos', 'label' => 'Photo 1 (do not share)', 'name' => 'b'],
+                                  ['slot' => 'file_photos', 'label' => 'Photo 2 (do not share)', 'name' => 'c']]];
+          $expect('completion folder: root / round / subfolder / leaf',
+              winners_folder_segments($rec) === [['Winners', 'Fall 2026', 'Project completion', 'Jane Doe - P'], 0]);
+          $rec['test'] = true;
+          $expect('completion test folder: TEST / root / round / subfolder / leaf, root at 1',
+              winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Project completion', 'Jane Doe - P'], 1]);
+          $rec['subfolder'] = '';
+          $expect('no subfolder -> root / round / leaf',
+              winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P'], 1]);
+          $rec2 = $rec; unset($rec2['kind']);
+          $expect('a winners record ignores subfolder', winners_folder_segments(['subfolder' => 'X'] + $rec2)[0] === ['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P']);
+          $expect('photos line: count and the answer', completion_photos_text($rec) === '2 — do NOT share');
+          $rec['fields']['photo_consent'] = 'yes';
+          $expect('photos line: yes', completion_photos_text($rec) === '2 — OK to share');
+          $rec['fields']['photo_consent'] = '';
+          $expect('photos line: unanswered reads as do not share', strpos(completion_photos_text($rec), 'do NOT share') !== false);
+          $expect('photos line: none', completion_photos_text(['fields' => [], 'documents' => []]) === 'none');
+          $expect('details text carries the photos line for a completion record',
+              strpos(winners_details_text($rec), "\nPhotos:        2 — ") !== false);
+          $expect('details text has no photos line for a winners record',
+              strpos(winners_details_text($rec2), 'Photos:') === false);
+          $expect('label: one report', completion_doc_label('file_report', 'Completion report', 1, 1, '') === 'Completion report');
+          $expect('label: receipts are numbered', completion_doc_label('file_receipts', 'Receipt', 2, 3, 'yes') === 'Receipt 2');
+          $expect('label: one receipt is not', completion_doc_label('file_receipts', 'Receipt', 1, 1, '') === 'Receipt');
+          $expect('label: photo, yes', completion_doc_label('file_photos', 'Photo', 1, 2, 'yes') === 'Photo 1 (OK to share)');
+          $expect('label: photo, no', completion_doc_label('file_photos', 'Photo', 1, 1, 'no') === 'Photo (do not share)');
+          $expect('label: photo, unanswered', completion_doc_label('file_photos', 'Photo', 1, 1, '') === 'Photo (do not share)');
+          $multi = ['name' => ['a.pdf', '', 'c.png'], 'type' => ['x', '', 'y'], 'tmp_name' => ['/t/a', '', '/t/c'],
+                    'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_NO_FILE, UPLOAD_ERR_OK], 'size' => [1, 0, 3]];
+          $expect('several files: one entry each, empty ones dropped',
+              array_column(completion_files($multi), 'name') === ['a.pdf', 'c.png']);
+          $expect('an empty single input is no file',
+              completion_files(['name' => '', 'type' => '', 'tmp_name' => '', 'error' => UPLOAD_ERR_NO_FILE, 'size' => 0]) === []);
+          $expect('no input at all is no file', completion_files(null) === []);
+          $slots = completion_upload_slots();
+          $expect('an optional slot left empty is fine', completion_check_slot(null, $slots['file_photos'], 100) === ['files' => []]);
+          $expect('a required slot left empty', completion_check_slot(null, $slots['file_receipts'], 100) === ['error' => 'required']);
+          $eleven = ['name' => array_fill(0, 11, 'r.pdf'), 'type' => array_fill(0, 11, ''), 'tmp_name' => array_fill(0, 11, '/nope'),
+                     'error' => array_fill(0, 11, UPLOAD_ERR_OK), 'size' => array_fill(0, 11, 5)];
+          $expect('eleven receipts', completion_check_slot($eleven, $slots['file_receipts'], 100) === ['error' => 'too_many']);
+          $expect('the file count fits max_file_uploads',
+              array_sum(array_column($slots, 'max')) < (int)ini_get('max_file_uploads'));
+          $notice = function (array $record, bool $afterRetry) use ($base): string {
+              file_put_contents('/tmp/mail.out', '');
+              winners_notify_delivered($base, $record, ['path' => 'W/R/Project completion/Jane Doe - P'], $afterRetry, true);
+              return (string)file_get_contents('/tmp/mail.out');
+          };
+          $subject = fn(string $m): string => preg_match('/^Subject: =\?UTF-8\?B\?(.*)\?=\r?$/m', $m, $x) === 1 ? (string)base64_decode($x[1]) : '';
+          $rec = ['id' => 'x', 'kind' => 'completion', 'round' => 'R', 'test' => true,
+                  'fields' => ['full_name' => 'Jane Doe', 'photo_consent' => 'yes'],
+                  'documents' => [['slot' => 'file_report', 'label' => 'Completion report', 'name' => 'a'],
+                                  ['slot' => 'file_photos', 'label' => 'Photo (OK to share)', 'name' => 'b']]];
+          $m = $notice($rec, false);
+          $expect('completion: received notice subject', $subject($m) === '[TEST] Completion report received — Jane Doe (R)');
+          $expect('completion: the notice goes to the completion address', (bool)preg_match('/^To: .*completion-ci@example\.invalid/m', $m));
+          $expect('completion: filed-after-retry subject', $subject($notice(['test' => false] + $rec, true)) === 'Completion report filed after retry — Jane Doe (R)');
           $tmp = sys_get_temp_dir() . '/winners-sep-' . getmypid();
           foreach (['real-a' => false, 'test-b' => true] as $sid => $t) {
               @mkdir("$tmp/$sid", 0700, true);
@@ -1035,6 +1136,223 @@ jobs:
           exit($failed ? 1 : 0);
           PHP
 
+      # ---- Project completion page (api/completion.php). Same containers:
+      # winners-open (archive-only; its 'completion' block is the smallest
+      # one, so round and root_folder come from the winners block) and
+      # winners-email. Placed after every winners step, so the messages
+      # these add never disturb the counts above.
+      - name: Completion — fixtures and state check
+        run: |
+          set -euo pipefail
+          cp /tmp/wfix/report.pdf /tmp/wfix/receipt-1.pdf
+          cp /tmp/wfix/cheque.png /tmp/wfix/receipt-2.png
+          cp /tmp/wfix/cheque.png /tmp/wfix/photo-a.png
+          cp /tmp/wfix/cheque.png /tmp/wfix/photo-b.png
+          cat > /tmp/wfix/completion.sh <<'SH'
+          CFIELDS=(-F school='University of Regina' -F full_name='CI Finisher'
+                   -F project_title='CI Finished Project' -F email='ci-finisher@example.com'
+                   -F locale=en)
+          cpost() {
+            local port=$1; shift
+            local code
+            code=$(curl -sS -o /tmp/body.json -w '%{http_code}' "$@" "http://localhost:$port/api/completion.php")
+            cat /tmp/body.json >&2; echo >&2
+            printf '%s' "$code"
+          }
+          carchives() {  # number of completion archives in container $1
+            docker exec "$1" sh -c 'find /var/www/_submissions/completion -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l'
+          }
+          SH
+          code=$(curl -sS -o /tmp/body.json -w '%{http_code}' 'http://localhost:8791/api/completion.php?state=1')
+          cat /tmp/body.json; echo
+          test "$code" = "200"
+          test "$(jq -r .state /tmp/body.json)" = "open"
+          test "$(jq -r .closes_at_ts /tmp/body.json)" = "null"
+          test "$(jq -r .confirmation /tmp/body.json)" = "false"
+          code=$(curl -sS -o /dev/null -w '%{http_code}' 'http://localhost:8791/api/completion.php')
+          test "$code" = "405"
+
+      - name: Completion — report, two receipts and two photos are archived (renamed, kind completion), queued, never attached
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          source /tmp/wfix/completion.sh
+          code=$(cpost 8791 "${CFIELDS[@]}" -F photo_consent=no \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf' \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-2.png' \
+            -F 'file_photos[]=@/tmp/wfix/photo-a.png' \
+            -F 'file_photos[]=@/tmp/wfix/photo-b.png')
+          test "$code" = "200"
+          test "$(jq -r .ok /tmp/body.json)" = "true"
+          id=$(jq -r .id /tmp/body.json)
+          echo "$id" | grep -Eq '^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$'
+          dir="/var/www/_submissions/completion/$id"
+          for f in 'Completion report - CI Finisher.pdf' 'Receipt 1 - CI Finisher.pdf' 'Receipt 2 - CI Finisher.png' \
+                   'Photo 1 (do not share) - CI Finisher.png' 'Photo 2 (do not share) - CI Finisher.png' \
+                   'Submission details - CI Finisher.txt'; do
+            docker exec winners-open test -f "$dir/$f"
+          done
+          # Its own directory: neither the application glob nor the winners one.
+          docker exec winners-open test ! -e "/var/www/_submissions/$id"
+          docker exec winners-open test ! -e "/var/www/_submissions/winners/$id"
+          docker exec winners-open cat "$dir/submission.json" > /tmp/csub.json
+          test "$(jq -r .kind /tmp/csub.json)" = "completion"
+          test "$(jq -r .round /tmp/csub.json)" = "CI Round"                 # inherited from the winners block
+          test "$(jq -r .root_folder /tmp/csub.json)" = "Winners (CI)"       # inherited
+          test "$(jq -r .subfolder /tmp/csub.json)" = "Project completion"   # the default
+          test "$(jq -r .test /tmp/csub.json)" = "false"
+          test "$(jq -r '.documents | length' /tmp/csub.json)" = "6"
+          test "$(jq -r '.files' /tmp/csub.json)" = "null"
+          test "$(jq -r .fields.photo_consent /tmp/csub.json)" = "no"
+          test "$(jq -r .fields.school_listed /tmp/csub.json)" = "yes"
+          docker exec winners-open cat "$dir/Submission details - CI Finisher.txt" > /tmp/cdetails.txt
+          cat /tmp/cdetails.txt
+          grep -q 'project completion report' /tmp/cdetails.txt
+          grep -q 'Photos:        2 — do NOT share' /tmp/cdetails.txt
+          grep -q 'Receipt 2 - CI Finisher.png' /tmp/cdetails.txt
+          # Delivery runs after the response: wait for the queue marker and
+          # the team's notice.
+          for i in $(seq 1 20); do docker exec winners-open test -f "$dir/DELIVERY-PENDING" && break; sleep 0.5; done
+          docker exec winners-open cat "$dir/DELIVERY-PENDING" > /tmp/cmarker.json
+          test "$(jq -r .kind /tmp/cmarker.json)" = "completion"
+          test "$(jq -r .mode /tmp/cmarker.json)" = "awaiting-graph"
+          for i in $(seq 1 20); do docker exec winners-open grep -q 'To: completion-ci@example.invalid' /tmp/mail.all && break; sleep 0.5; done
+          sleep 2   # anything wrongly sent to the sender would follow the notice
+          no_attachments winners-open
+          grep -q 'To: completion-ci@example.invalid' /tmp/mail.captured
+          sh ci/mail-subjects.sh /tmp/mail.captured > /tmp/csubj.txt
+          grep -qxF "Completion report NOT yet filed — will retry ($id)" /tmp/csubj.txt
+          # Nothing is ever emailed to the sender of a completion report.
+          if grep -q '^To: .*ci-finisher@example\.com' /tmp/mail.captured; then
+            echo "an email reached the sender of a completion report"; exit 1
+          fi
+          # The retry job sees it, and with no SharePoint leaves it pending.
+          docker exec winners-open php /var/www/html/api/redeliver.php | tee /tmp/redeliver.out
+          grep -q "completion/$id: left pending — completion reports go to SharePoint only (delivery_mode is 'off')" /tmp/redeliver.out
+          docker exec winners-open test -f "$dir/DELIVERY-PENDING"
+
+      - name: Completion — sent as staging it is marked test; one photo with a yes; no photos needs no answer
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          source /tmp/wfix/completion.sh
+          code=$(cpost 8791 -H 'Host: staging.alumoimpact.ca' "${CFIELDS[@]}" -F photo_consent=yes \
+            -F file_report=@/tmp/wfix/agreement.docx \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf' \
+            -F 'file_photos[]=@/tmp/wfix/photo-a.png')
+          test "$code" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          dir="/var/www/_submissions/completion/$id"
+          # One receipt and one photo: no numbers; the photo's name says yes.
+          for f in 'Completion report - CI Finisher.docx' 'Receipt - CI Finisher.pdf' 'Photo (OK to share) - CI Finisher.png'; do
+            docker exec winners-open test -f "$dir/$f"
+          done
+          docker exec winners-open cat "$dir/submission.json" > /tmp/csub.json
+          test "$(jq -r .test /tmp/csub.json)" = "true"
+          docker exec winners-open grep -q 'TEST SUBMISSION' "$dir/Submission details - CI Finisher.txt"
+          for i in $(seq 1 20); do
+            docker exec winners-open sh -c 'cat /tmp/mail.all 2>/dev/null || true' > /tmp/mail.captured
+            sh ci/mail-subjects.sh /tmp/mail.captured > /tmp/csubj.txt
+            grep -qxF "[TEST] Completion report NOT yet filed — will retry ($id)" /tmp/csubj.txt && break
+            sleep 0.5
+          done
+          grep -qxF "[TEST] Completion report NOT yet filed — will retry ($id)" /tmp/csubj.txt
+          # No photos: the sharing question needs no answer.
+          code=$(cpost 8791 "${CFIELDS[@]}" \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf')
+          test "$code" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          docker exec winners-open cat "/var/www/_submissions/completion/$id/submission.json" > /tmp/csub.json
+          test "$(jq -r '.documents | length' /tmp/csub.json)" = "3"       # report, receipt, details
+          test "$(jq -r .fields.photo_consent /tmp/csub.json)" = ""
+          docker exec winners-open grep -q 'Photos:        none' "/var/www/_submissions/completion/$id/Submission details - CI Finisher.txt"
+          no_attachments winners-open
+
+      - name: Completion — field and file errors are 422 and store nothing
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          source /tmp/wfix/completion.sh
+          before=$(carchives winners-open)
+          # Photos without an answer to the sharing question; no receipt.
+          code=$(cpost 8791 "${CFIELDS[@]}" \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_photos[]=@/tmp/wfix/photo-a.png')
+          test "$code" = "422"
+          test "$(jq -r .error /tmp/body.json)" = "fields"
+          test "$(jq -r .fields.photo_consent /tmp/body.json)" = "required"
+          test "$(jq -r .fields.file_receipts /tmp/body.json)" = "required"
+          # An answer that is neither yes nor no is no answer.
+          code=$(cpost 8791 "${CFIELDS[@]}" -F photo_consent=maybe \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf' \
+            -F 'file_photos[]=@/tmp/wfix/photo-a.png')
+          test "$code" = "422"
+          test "$(jq -r .fields.photo_consent /tmp/body.json)" = "required"
+          # No report; one wrong file among good receipts names the slot; a
+          # HEIC photo; text fields as on the winners page.
+          code=$(cpost 8791 -F school='__other' -F full_name='CI Finisher' -F project_title='P' \
+            -F email='not-an-email' -F photo_consent=yes \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf' \
+            -F 'file_receipts[]=@/tmp/wfix/agreement.gif' \
+            -F 'file_photos[]=@/tmp/wfix/cheque.heic')
+          test "$code" = "422"
+          test "$(jq -r .fields.file_report /tmp/body.json)" = "required"
+          test "$(jq -r .fields.file_receipts /tmp/body.json)" = "file_type"
+          test "$(jq -r .fields.file_photos /tmp/body.json)" = "file_heic"
+          test "$(jq -r .fields.school_other /tmp/body.json)" = "required"
+          test "$(jq -r .fields.email /tmp/body.json)" = "invalid_email"
+          # Eleven receipts are one too many (and all 12 files reach PHP: the
+          # image's max_file_uploads is 20).
+          many=()
+          for i in $(seq 1 11); do many+=(-F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf'); done
+          code=$(cpost 8791 "${CFIELDS[@]}" -F file_report=@/tmp/wfix/report.pdf "${many[@]}")
+          test "$code" = "422"
+          test "$(jq -r .fields.file_receipts /tmp/body.json)" = "too_many"
+          # Two reports in the one-file slot.
+          code=$(cpost 8791 "${CFIELDS[@]}" \
+            -F 'file_report[]=@/tmp/wfix/report.pdf' -F 'file_report[]=@/tmp/wfix/report.pdf' \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf')
+          test "$code" = "422"
+          test "$(jq -r .fields.file_report /tmp/body.json)" = "too_many"
+          # 11 MB receipt.
+          code=$(cpost 8791 "${CFIELDS[@]}" \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/too-big.pdf')
+          case "$code" in
+            422) test "$(jq -r .fields.file_receipts /tmp/body.json)" = "file_size" ;;
+            413) ;;
+            *)   echo "unexpected status: $code"; exit 1 ;;
+          esac
+          # Honeypot: pretends success, stores nothing.
+          code=$(cpost 8791 -F website='https://spam.example.com' -F full_name='Bot')
+          test "$code" = "200"
+          test "$(jq -r .id /tmp/body.json)" = "null"
+          test "$(carchives winners-open)" = "$before"
+
+      - name: Completion — email delivery mode still never attaches; redeliver leaves it pending
+        run: |
+          set -euo pipefail
+          source /tmp/wfix/common.sh
+          source /tmp/wfix/completion.sh
+          code=$(cpost 8793 "${CFIELDS[@]}" -F photo_consent=yes \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf' \
+            -F 'file_photos[]=@/tmp/wfix/photo-a.png')
+          test "$code" = "200"
+          id=$(jq -r .id /tmp/body.json)
+          dir="/var/www/_submissions/completion/$id"
+          for i in $(seq 1 20); do docker exec winners-email grep -q 'To: completion-ci@example.invalid' /tmp/mail.all && break; sleep 0.5; done
+          no_attachments winners-email
+          grep -q 'To: completion-ci@example.invalid' /tmp/mail.captured
+          docker exec winners-email php /var/www/html/api/redeliver.php | tee /tmp/redeliver.out
+          grep -q "completion/$id: left pending — completion reports go to SharePoint only (delivery_mode is 'email')" /tmp/redeliver.out
+          no_attachments winners-email
+          docker exec winners-email test -f "$dir/DELIVERY-PENDING"
+          docker exec winners-email test -f "$dir/Completion report - CI Finisher.pdf"
+
       - name: Winners — container logs, archives and mail (on failure)
         if: failure()
         run: |
@@ -1043,7 +1361,8 @@ jobs:
             docker logs "$c" || true
             echo "=================== $c: archives"
             docker exec "$c" sh -c 'find /var/www/_submissions -maxdepth 3 | sort;
-              for f in /var/www/_submissions/winners/*/submission.json /var/www/_submissions/winners/*/DELIVERY-PENDING; do
+              for f in /var/www/_submissions/winners/*/submission.json /var/www/_submissions/winners/*/DELIVERY-PENDING \
+                       /var/www/_submissions/completion/*/submission.json /var/www/_submissions/completion/*/DELIVERY-PENDING; do
                 [ -f "$f" ] && { echo "--- $f"; cat "$f"; echo; }
               done' || true
             echo "=================== $c: captured mail"
