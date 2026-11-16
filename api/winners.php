@@ -19,7 +19,10 @@
       funds are sent to is filed WITH the banking documents, not only in the
       team's notice email);
    2. answers the winner, then files the documents in SharePoint (Microsoft
-      Graph) under <root_folder>/<round>/<Full name - Project title>/;
+      Graph) under <round>/<root_folder>/<Region>/<Full name - Project title>/
+      — Fall 2026 / Payments / Ontario / … — the region being the
+      applications' own, worked out from the school, plus a second copy of
+      the void cheque in <round>/<root_folder>/All Void/;
    3. on success deletes the server copies; on failure leaves a
       DELIVERY-PENDING marker for api/redeliver.php and emails the team once;
    4. emails the team a notice — and the winner a confirmation, but only when
@@ -198,6 +201,9 @@ $record = [
     'kind'         => 'winners',
     'round'        => $w['round'],
     'root_folder'  => $w['root_folder'],
+    /* Its presence is what files the record in the round-first layout
+       (winners_folder_segments): <round> / <root_folder> / <region> / … */
+    'region'       => winners_region($SCHOOL_LIST_FILE, $school),
     'received_utc' => gmdate('c'),
     'test'         => $isTest,
     'fields'       => $fields,

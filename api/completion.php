@@ -18,10 +18,11 @@
       "Photo 1 - …", plus a "Submission details - <Name>.txt" holding what
       was typed;
    2. answers the sender, then files the documents in SharePoint (Microsoft
-      Graph) under <root_folder>/<round>/<subfolder>/<Full name - Project title>/
-      — by default Winners / <round> / Project completion / … — with the
-      photos one level down, in "Photos - OK to share" or
-      "Photos - do not share" (the sender's answer; no answer = do not share);
+      Graph) under <round>/<root_folder>/<Region>/<Full name - Project title>/
+      — by default Fall 2026 / Completion report / Ontario / … — the region
+      being the applications' own, worked out from the school; a sender who
+      answered "no" to sharing their photos gets " - DO NOT SHARE" on the
+      end of that folder's name;
    3. on success deletes the server copies; on failure leaves a
       DELIVERY-PENDING marker for api/redeliver.php and emails the team once;
    4. emails the team a notice, never with an attachment. Nothing is emailed
@@ -140,9 +141,7 @@ foreach (completion_upload_slots() as $slot => $spec) {
     foreach ($check['files'] as $i => $file) {
         $totalBytes += $file['size'];
         $docs[] = ['slot' => $slot, 'tmp' => $file['tmp'], 'ext' => $file['ext'],
-                   'label' => completion_doc_label($spec['label'], $i + 1, $count),
-                   /* Photos are filed in a sub-folder named for the answer. */
-                   'folder' => $slot === 'file_photos' ? completion_photo_folder($consent) : ''];
+                   'label' => completion_doc_label($spec['label'], $i + 1, $count)];
     }
 }
 /* The question is asked about the photos, so it only needs an answer when
@@ -202,25 +201,25 @@ foreach ($docs as $doc) {
     $name = winners_doc_name($doc['label'], $fields['full_name'], $doc['ext']);
     $dest = $dir . '/' . $name;
     if (!move_uploaded_file($doc['tmp'], $dest)) $abandon();
-    $stored[] = ['slot' => $doc['slot'], 'label' => $doc['label'], 'name' => $name, 'path' => $dest,
-                 'folder' => $doc['folder']];
+    $stored[] = ['slot' => $doc['slot'], 'label' => $doc['label'], 'name' => $name, 'path' => $dest];
 }
 $record = [
     'id'           => $id,
     'kind'         => 'completion',
     'round'        => $w['round'],
     'root_folder'  => $w['root_folder'],
-    'subfolder'    => $w['subfolder'],
+    /* Its presence is what files the record in the round-first layout
+       (winners_folder_segments): <round> / <root_folder> / <region> / … */
+    'region'       => winners_region($SCHOOL_LIST_FILE, $school),
     'received_utc' => gmdate('c'),
     'test'         => $isTest,
     'fields'       => $fields,
-    /* 'documents', NOT 'files' — see winners.php. 'folder' (photos only) is
-       the sub-folder the retry job must file the document in again. */
-    'documents'    => array_map(fn($s) => ['slot' => $s['slot'], 'label' => $s['label'], 'name' => $s['name']]
-                                          + ($s['folder'] !== '' ? ['folder' => $s['folder']] : []), $stored),
+    /* 'documents', NOT 'files' — see winners.php. */
+    'documents'    => array_map(fn($s) => ['slot' => $s['slot'], 'label' => $s['label'], 'name' => $s['name']], $stored),
 ];
 /* What was typed — the photo-sharing answer above all — as a text file filed
-   with the uploads (winners_details_file). */
+   with the uploads (winners_details_file). The answer is also on the
+   folder's own name: " - DO NOT SHARE" (winners_folder_segments). */
 $details = winners_details_file($dir, $record);
 if ($details !== null) {
     $stored[] = $details;

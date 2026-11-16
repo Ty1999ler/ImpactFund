@@ -614,7 +614,7 @@ def main(argv=None):
                   "Nous avons bien reçu vos documents — Fonds d'impact étudiant"
                   if args.locale == "fr" else "We received your documents — Student Impact Fund")))
         print("  - Filed in SharePoint (winners.drive_id, else graph.drive_id) under")
-        print("      %s<root_folder> / <round> / TEST Winner - %s /"
+        print("      %s<round> / <root_folder> / <Region> / TEST Winner - %s /"
               % ("" if local else "TEST / ", title))
         print("    and \"%sWinner documents received — TEST Winner (<round>)\" to winners.notify_to"
               % mark)

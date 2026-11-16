@@ -80,9 +80,9 @@ return [
     ],
 
     /* Project completion page (api/completion.php). Deliberately the SMALLEST
-       block: round, root_folder and drive_id are left out so CI checks that
-       they are inherited from the winners block above ('CI Round',
-       'Winners (CI)') and that subfolder defaults to 'Project completion'.
+       block: round and drive_id are left out so CI checks that they are
+       inherited from the winners block above ('CI Round') and that
+       root_folder — which is NOT inherited — defaults to 'Completion report'.
        allow_without_graph is never inherited, so it is written here too —
        and, as above, it is what lets this block go without a deadline. Keep
        this block free of a deadline key, of the confirmation key and of the

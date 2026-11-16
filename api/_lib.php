@@ -571,18 +571,21 @@ function parse_amount(string $value): ?float {
     return $number === false ? null : (float)$number;
 }
 
-/* $test: a submission from a test copy of the site (site_is_test, or the
-   'test' flag in its submission.json on a retry). */
-function graph_deliver(array $g, string $submissionId, array $fields, array $files, bool $test = false): void {
-    $token = graph_token($g);
-    $auth  = ["Authorization: Bearer $token"];
-
-    /* Built from the canonical field names, before field_map renames them for
-       whatever the destination list actually calls its columns.
-
-       The school goes in the leaf rather than in a level of its own: it is
-       what tells two identical project titles apart, and a separate level
-       would cost characters the link columns cannot spare. */
+/* The folder an application files in, as path segments:
+     Region / "Title - School"                        (no graph.round: Fall 2026)
+     <round> / Projects / Region / "Title - School"   (graph.round set)
+   and either under a top-level TEST for a test submission.
+   Built from the canonical field names, before field_map renames them for
+   whatever the destination list actually calls its columns.
+   The school goes in the leaf rather than in a level of its own: it is what
+   tells two identical project titles apart, and a separate level would cost
+   characters the link columns cannot spare.
+   Round-first layout (Nov 2026, client): with graph.round set the
+   application sits in the same round folder as that round's Payments and
+   Completion report folders (winners_folder_segments); graph.projects_folder
+   renames the "Projects" level. Without graph.round the region stays at the
+   top of the library, where Fall 2026's applications were filed. */
+function apply_folder_segments(array $g, array $fields, bool $test = false): array {
     $province    = (string)($fields['Province'] ?? '');
     $institution = (string)($fields['Institution'] ?? '');
     $school      = sp_school_name($institution);
@@ -593,14 +596,29 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
         sp_safe_name(sp_region_folder($province, $institution), 'Unfiled'),
         sp_safe_name($leaf, 'Untitled project'),
     ];
-    /* A test submission files under its own top-level folder
-       (TEST / Region / Title - School) and its Title gets "[TEST] " — added
-       after the folder name is built from the plain title, and BEFORE
-       graph_map_fields renames the columns. The title is shortened, never
-       the prefix, to keep within the 255 characters a single line of text
-       column holds (the cap in apply.php's $FIELDS). */
+    $round = trim((string)($g['round'] ?? ''));
+    if ($round !== '') {
+        $projects = trim((string)($g['projects_folder'] ?? ''));
+        array_unshift($segments, sp_safe_name($round, 'Round'),
+            sp_safe_name($projects !== '' ? $projects : 'Projects', 'Projects'));
+    }
+    if ($test) array_unshift($segments, 'TEST');
+    return $segments;
+}
+
+/* $test: a submission from a test copy of the site (site_is_test, or the
+   'test' flag in its submission.json on a retry). */
+function graph_deliver(array $g, string $submissionId, array $fields, array $files, bool $test = false): void {
+    $token = graph_token($g);
+    $auth  = ["Authorization: Bearer $token"];
+
+    /* The folder name is built from the plain title (apply_folder_segments);
+       a test submission's Title then gets "[TEST] ", BEFORE graph_map_fields
+       renames the columns. The title is shortened, never the prefix, to keep
+       within the 255 characters a single line of text column holds (the cap
+       in apply.php's $FIELDS). */
+    $segments = apply_folder_segments($g, $fields, $test);
     if ($test) {
-        array_unshift($segments, 'TEST');
         $fields['Title'] = test_prefix(true, mb_substr((string)($fields['Title'] ?? ''), 0,
             255 - mb_strlen(test_prefix(true, ''))));
     }
@@ -1253,6 +1271,7 @@ function winners_details_text(array $record): string {
             : ($listed === 'unchecked' ? '   (not checked: the Fall 2026 list could not be read)' : '')) . "\n"
          . 'Project title: ' . $v('project_title') . "\n"
          . ($v('funds_sent_to') !== '' ? 'Funds sent to: ' . $v('funds_sent_to') . "\n" : '')
+         . ((string)($record['region'] ?? '') !== '' ? 'Region:        ' . str_replace(["\r", "\n"], ' ', (string)$record['region']) . "\n" : '')
          . (winners_kind($record) === 'completion' ? 'Photos:        ' . completion_photos_text($record) . "\n" : '')
          . 'Round:         ' . (string)($record['round'] ?? '') . "\n"
          . 'Submission id: ' . (string)($record['id'] ?? '') . "\n";
@@ -1294,6 +1313,13 @@ function winners_details_file(string $dir, array $record): ?array {
    is the server's finding rather than the browser's say-so and the two can
    never drift. Case-insensitive. null when the list cannot be read. */
 function winners_school_listed(string $listFile, string $school): ?bool {
+    $row = winners_school_row($listFile, $school);
+    return $row === null ? null : $row !== [];
+}
+
+/* The frozen list's row for $school ([] when it is not on the list, null
+   when the list cannot be read). Case-insensitive. */
+function winners_school_row(string $listFile, string $school): ?array {
     $src = (string)@file_get_contents($listFile);
     $start = strpos($src, '= [');
     $end = strrpos($src, ']');
@@ -1305,9 +1331,22 @@ function winners_school_listed(string $listFile, string $school): ?bool {
     }
     $want = mb_strtolower(trim($school));
     foreach ($rows as $row) {
-        if (is_array($row) && mb_strtolower(trim((string)($row['school'] ?? ''))) === $want) return true;
+        if (is_array($row) && mb_strtolower(trim((string)($row['school'] ?? ''))) === $want) return $row;
     }
-    return false;
+    return [];
+}
+
+/* The region folder a winner's documents file under — the applications' own
+   four (sp_region_folder: Ontario, West, Quebec (FR), Quebec (EN) & East),
+   worked out from the province the frozen list gives the school. The winners
+   pages don't ask for a province, so a school that is not on the list ("My
+   school isn't listed", or a list that cannot be read) has none: 'Other'. */
+function winners_region(string $listFile, string $school): string {
+    $row = winners_school_row($listFile, $school);
+    $province = is_array($row) ? strtoupper(trim((string)($row['province'] ?? ''))) : '';
+    if ($province === '') return 'Other';
+    $region = sp_region_folder($province, (string)($row['school'] ?? $school));
+    return $region === 'Unfiled' ? 'Other' : $region;
 }
 
 /* Comparison keys for a winner's name, for spotting a second submission by
@@ -1441,7 +1480,9 @@ function winners_graph_get(array $auth, string $url, array $tolerate = [], &$sta
     return is_array($decoded) ? $decoded : [];
 }
 
-/* The folder a record is filed in, as [segments, index of the root]:
+/* The folder a record is filed in, as [segments, index of the root]. Two
+   layouts — the round-first one (below, every record with a 'region') and
+   the one before it:
    <root_folder> / <round> / "<Full name> - <Project title>" (root at 0), or
    for a test submission (winners_is_test) the same one level down,
    TEST / <root_folder> / … (root at 1) — the top-level TEST folder test
@@ -1453,6 +1494,37 @@ function winners_graph_get(array $auth, string $url, array $tolerate = [], &$sta
    their banking documents. */
 function winners_folder_segments(array $record): array {
     $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
+    /* ROUND-FIRST layout (Nov 2026, client) — every record archived with a
+       'region':   <round> / <root_folder> / <Region> / <leaf>
+       i.e.        Fall 2026 / Payments / Ontario / Jane Doe - Campus Pantry
+                   Fall 2026 / Completion report / West / Jane Doe - Campus Pantry
+       beside that round's applications (Fall 2026 / Projects / Region / …,
+       graph_deliver). The restricted folder — the one that must already
+       exist unless create_root — is now <root_folder> INSIDE the round, at
+       index 1 (2 under TEST); the round above it is created when missing.
+       A completion record whose sender answered "no" to "Can we share your
+       photos?" gets " - DO NOT SHARE" on its leaf (client: "for now"), the
+       leaf cut short first so neither sp_safe_name's cap nor the
+       second-submission suffix (winners_make_folder trims to 80) can take
+       the marker off. Records WITHOUT a 'region' are from before this
+       layout and keep the one described above, so a retry files them where
+       their notice said they would go. */
+    if (array_key_exists('region', $record)) {
+        $kind = winners_kind($record);
+        $leaf = sp_safe_name((string)($f['full_name'] ?? '') . ' - ' . (string)($f['project_title'] ?? ''), 'Winner');
+        if ($kind === 'completion' && (string)($f['photo_consent'] ?? '') === 'no') {
+            $leaf = rtrim(mb_substr($leaf, 0, 60), ' .-') . ' - DO NOT SHARE';
+        }
+        $segments = [
+            sp_safe_name((string)($record['round'] ?? ''), 'Round'),
+            sp_safe_name((string)($record['root_folder'] ?? ''), $kind === 'completion' ? 'Completion report' : 'Payments'),
+            sp_safe_name((string)$record['region'], 'Other'),
+            $leaf,
+        ];
+        if (!winners_is_test($record)) return [$segments, 1];
+        array_unshift($segments, 'TEST');
+        return [$segments, 2];
+    }
     $segments = [
         sp_safe_name((string)($record['root_folder'] ?? ''), 'Winners'),
         sp_safe_name((string)($record['round'] ?? ''), 'Round'),
@@ -1492,13 +1564,13 @@ function winners_make_folder(array $auth, string $driveId, array $segments, stri
             winners_graph_get($auth, "https://graph.microsoft.com/v1.0/drives/$driveId/root:/"
                 . sp_encode_path($path), [404], $rootStatus);
             if ($rootStatus === 404) {
-                /* A test copy's TEST / <root_folder> usually sits in Alumo's
-                   own library, so never suggest create_root for it. */
-                throw new RuntimeException("SharePoint folder '$path' does not exist. " . ($rootIndex > 0
-                    ? "Create it by hand in the same drive, restricted like '$segment' (keep "
-                      . 'create_root false while this drive also holds the real winners\' folders).'
-                    : 'Alumo creates it (with restricted permissions) before winners get the link; or set '
-                      . 'winners.create_root => true to let the site create it.'));
+                /* One wording for every layout and for test copies. A test
+                   copy's TEST / … usually sits in Alumo's own library, so
+                   create_root is named only with its warning. */
+                throw new RuntimeException("SharePoint folder '$path' does not exist. Alumo creates it by hand, "
+                    . 'with restricted permissions, before the page is used. (create_root => true would let the '
+                    . 'site create it, with the library\'s open permissions — never while this drive holds real '
+                    . 'winners\' folders.)');
             }
         } else {
             graph_create_folder($auth, $driveId, $parentPath, $segment, 'fail');
@@ -1534,10 +1606,10 @@ function winners_make_folder(array $auth, string $driveId, array $segments, stri
    deleted the restricted Winners folder would quietly rebuild it with the
    library's open permissions. By ID the upload follows a moved folder, and a
    deleted one answers 404, which leaves the archive pending.
-   $subfolder ('' = none) is one level INSIDE that folder — the completion
-   page's "Photos - OK to share" / "Photos - do not share" — made first by
+   $subfolder ('' = none) is one level INSIDE that folder — "All Void" inside
+   Payments (winners_graph_all_void) — made first by
    winners_graph_subfolder; it is addressed relative to the folder's ID, so
-   nothing above the submission's own folder can be created by it. */
+   nothing above that folder can be created by it. */
 function winners_graph_upload(array $auth, string $driveId, string $folderId, string $localPath, string $name, string $conflict, string $subfolder = ''): array {
     $base = "https://graph.microsoft.com/v1.0/drives/$driveId/items/" . rawurlencode($folderId)
         . ':/' . ($subfolder !== '' ? rawurlencode($subfolder) . '/' : '') . rawurlencode($name) . ':';
@@ -1580,9 +1652,9 @@ function winners_graph_upload(array $auth, string $driveId, string $folderId, st
     return $uploaded;
 }
 
-/* Make sure a sub-folder exists inside a submission's own folder (addressed
-   by ID, like the uploads). An existing one answers 409, which is fine: a
-   retry, or the second photo of the same submission. */
+/* Make sure a sub-folder exists inside a folder addressed by ID, like the
+   uploads. An existing one answers 409, which is fine: "All Void" after the
+   round's first winner, or a retry. */
 function winners_graph_subfolder(array $auth, string $driveId, string $folderId, string $name): void {
     http_json(
         "https://graph.microsoft.com/v1.0/drives/$driveId/items/" . rawurlencode($folderId) . '/children',
@@ -1627,9 +1699,11 @@ function winners_graph_deliver(array $cfg, array $record, array $docs, array &$f
         }
         $folder['id'] = (string)$found['id'];
     }
-    /* A document may name a sub-folder of the submission's folder (completion
-       photos: completion_photo_folder). Each is made once, before the first
-       file that goes in it. */
+    /* A document may name a sub-folder of the submission's folder. Nothing
+       archived since the round-first layout does (completion photos did,
+       briefly, in Nov 2026 — "Photos - OK to share" / "… do not share" — and
+       a record from then still retries into its sub-folder). Each is made
+       once, before the first file that goes in it. */
     $made = [];
     foreach ($docs as $doc) {
         $sub = sp_safe_name((string)($doc['folder'] ?? ''), '');
@@ -1639,6 +1713,53 @@ function winners_graph_deliver(array $cfg, array $record, array $docs, array &$f
         }
         winners_graph_upload($auth, $target['drive_id'], (string)$folder['id'], $doc['path'], $doc['name'],
             $retry ? 'replace' : 'rename', $sub);
+    }
+    /* Round-first layout: a second copy of the void cheque in
+       <round> / Payments / All Void. Last, so a failure here fails the
+       delivery as a whole and the retry redoes all of it with 'replace'. */
+    if (winners_kind($record) === 'winners' && array_key_exists('region', $record)) {
+        winners_graph_all_void($auth, $target['drive_id'], $record, $docs, $folder, $retry);
+    }
+}
+
+/* The name a void cheque copy gets in "All Void": "Void cheque - <the
+   submission's folder name>.<ext>", e.g.
+   "Void cheque - Jane Doe - Campus Pantry.jpg". A long folder name is cut to
+   60 characters, but a second submission's "(2 - <id>)" suffix is kept, so
+   two submissions under one name still get two different files. */
+function winners_all_void_name(string $leaf, string $ext): string {
+    $suffix = preg_match('/ \(\d+ - [0-9a-f]+\)$/u', $leaf, $m) === 1 ? $m[0] : '';
+    $base = $suffix !== '' ? mb_substr($leaf, 0, mb_strlen($leaf) - mb_strlen($suffix)) : $leaf;
+    return winners_doc_name('Void cheque', rtrim(mb_substr($base, 0, 60), ' .-') . $suffix, $ext);
+}
+
+/* Copy this submission's void cheque into  <round> / <root_folder> / All Void
+   (client, Nov 2026: one folder holding every void cheque of the round,
+   beside the per-region project folders). The Payments folder is looked up,
+   never created — it is the restricted one — and "All Void" is made inside
+   it by ID, so it inherits those restrictions. */
+function winners_graph_all_void(array $auth, string $driveId, array $record, array $docs, array $folder, bool $retry): void {
+    $cheques = [];
+    foreach ($docs as $doc) {
+        if (($doc['slot'] ?? '') === 'file_void_cheque') $cheques[] = $doc;
+    }
+    if (!$cheques) return;
+    [$segments, $rootIndex] = winners_folder_segments($record);
+    $rootPath = implode('/', array_slice($segments, 0, $rootIndex + 1));
+    $root = winners_graph_get($auth, "https://graph.microsoft.com/v1.0/drives/$driveId/root:/"
+        . sp_encode_path($rootPath), [404], $status);
+    if ($status === 404 || empty($root['id'])) {
+        throw new RuntimeException("SharePoint folder '$rootPath' is no longer there; the void cheque "
+            . "copy for 'All Void' could not be filed.");
+    }
+    winners_graph_subfolder($auth, $driveId, (string)$root['id'], 'All Void');
+    $path = (string)($folder['path'] ?? '');
+    $slash = strrpos($path, '/');
+    $leaf = $slash === false ? $path : substr($path, $slash + 1);
+    foreach ($cheques as $doc) {
+        $ext = strtolower(pathinfo((string)$doc['name'], PATHINFO_EXTENSION));
+        winners_graph_upload($auth, $driveId, (string)$root['id'], $doc['path'],
+            winners_all_void_name($leaf, $ext !== '' ? $ext : 'pdf'), $retry ? 'replace' : 'rename', 'All Void');
     }
 }
 
@@ -1941,17 +2062,20 @@ function winners_redeliver_one(array $cfg, string $dir, string $id, string $kind
    - the 'completion' config block, which inherits the winners block's
      folder settings (completion_cfg);
    - its upload slots — two of them take several files (completion_*);
-   - its folder: <root_folder> / <round> / <subfolder> / <Full name> -
-     <Project title>, i.e. by default INSIDE the restricted Winners root, one
-     level away from the folders holding banking documents
-     (winners_folder_segments);
+   - its folder: <round> / Completion report / <Region> / <Full name> -
+     <Project title>, with " - DO NOT SHARE" on the end when the sender said
+     no to sharing their photos (winners_folder_segments) — its own folder in
+     the round, beside Projects and Payments;
    - no confirmation email to the sender at all.
    ====================================================================== */
 
-/* $cfg with its 'completion' block resolved: round, root_folder, notify_to,
-   drive_id and create_root default to the winners block's values when the
-   completion block leaves the key OUT (a key that is present, even empty,
-   is the block's own), and subfolder defaults to 'Project completion'.
+/* $cfg with its 'completion' block resolved: round, notify_to, drive_id and
+   create_root default to the winners block's values when the completion
+   block leaves the key OUT (a key that is present, even empty, is the
+   block's own). root_folder is NOT inherited any more (round-first layout,
+   Nov 2026): the two pages file in different folders of the round, so it
+   defaults to 'Completion report' — and an inherited 'Payments' would put
+   reports among the banking documents.
    So the smallest working block is  'completion' => ['closes_at' => 'none'].
    No 'completion' block at all = $cfg unchanged, and the page stays closed
    — unless $evenWithoutBlock, which builds the block from the winners
@@ -1967,10 +2091,10 @@ function completion_cfg(array $cfg, bool $evenWithoutBlock = false): array {
         $c = [];
     }
     $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
-    foreach (['round', 'root_folder', 'notify_to', 'drive_id', 'create_root'] as $key) {
+    foreach (['round', 'notify_to', 'drive_id', 'create_root'] as $key) {
         if (!array_key_exists($key, $c) && array_key_exists($key, $w)) $c[$key] = $w[$key];
     }
-    if (!array_key_exists('subfolder', $c)) $c['subfolder'] = 'Project completion';
+    if (!array_key_exists('root_folder', $c)) $c['root_folder'] = 'Completion report';
     $cfg['completion'] = $c;
     return $cfg;
 }
@@ -1978,12 +2102,9 @@ function completion_cfg(array $cfg, bool $evenWithoutBlock = false): array {
 /* The resolved 'completion' block with defaults filled in, or null when the
    page must stay CLOSED — exactly winners_config's rules (round and
    root_folder, a real closes_at or 'none', SharePoint delivery ready), read
-   from the 'completion' block. Adds 'subfolder' (trimmed; '' = none). */
+   from the 'completion' block. */
 function completion_config(array $cfg): ?array {
-    $c = winners_config(completion_cfg($cfg), 'completion');
-    if ($c === null) return null;
-    $c['subfolder'] = trim((string)($c['subfolder'] ?? ''));
-    return $c;
+    return winners_config(completion_cfg($cfg), 'completion');
 }
 
 /* The three upload slots — input name => label, accepted extensions and how
@@ -2044,13 +2165,4 @@ function completion_check_slot($entry, array $spec, int $maxBytes): array {
    there is more than one. */
 function completion_doc_label(string $label, int $n, int $count): string {
     return $count > 1 ? $label . ' ' . $n : $label;
-}
-
-/* The sub-folder of the submission's folder that its photos are filed in,
-   named for the sender's answer to "Can we share your photos?" — so the
-   answer is the first thing anyone opening the folder sees, and the file
-   names stay plain (client's choice, Nov 2026; until then the answer was in
-   each photo's file name). Anything but an explicit yes is "do not share". */
-function completion_photo_folder(string $consent): string {
-    return $consent === 'yes' ? 'Photos - OK to share' : 'Photos - do not share';
 }
