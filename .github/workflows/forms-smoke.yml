@@ -636,6 +636,9 @@ jobs:
           test "$(jq -r .fields.school /tmp/wsub.json)" = "University of Regina"
           test "$(jq -r .fields.funds_sent_to /tmp/wsub.json)" = "CI Students Association"
           test "$(jq -r .fields.school_listed /tmp/wsub.json)" = "yes"
+          # Round-first layout: the region is archived (University of Regina: SK -> West).
+          test "$(jq -r .region /tmp/wsub.json)" = "West"
+          grep -q 'Region:        West' /tmp/wdetails.txt
           test "$(jq -r '.earlier_submissions | length' /tmp/wsub.json)" = "0"
           echo "$id" > /tmp/wfirst.id
           # Delivery runs after the response: wait for the queue marker, then
@@ -671,6 +674,7 @@ jobs:
           id=$(jq -r .id /tmp/body.json)
           docker exec winners-open cat "/var/www/_submissions/winners/$id/submission.json" > /tmp/wsub2.json
           test "$(jq -r .fields.school_listed /tmp/wsub2.json)" = "no"
+          test "$(jq -r .region /tmp/wsub2.json)" = "Other"        # not on the list: no province to go by
           test "$(jq -r '.earlier_submissions | length' /tmp/wsub2.json)" = "1"
           test "$(jq -r '.earlier_submissions[0].id' /tmp/wsub2.json)" = "$first"
           for i in $(seq 1 20); do docker exec winners-open grep -q 'To: ci-relay@example.com' /tmp/mail.all && break; sleep 0.5; done
@@ -1013,12 +1017,54 @@ jobs:
           $expect('record without test -> real', winners_is_test(['id' => 'x']) === false);
           $expect("record with test 'yes' -> real (true only)", winners_is_test(['test' => 'yes']) === false);
           $expect('record with test true -> test', winners_is_test(['test' => true]) === true);
+          // A record archived BEFORE the round-first layout (no 'region') keeps its old folder.
           $rec = ['root_folder' => 'Winners', 'round' => 'Fall 2026', 'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P']];
-          $expect('real folder: Winners / round / leaf, root at 0',
+          $expect('old record, real folder: Winners / round / leaf, root at 0',
               winners_folder_segments($rec) === [['Winners', 'Fall 2026', 'Jane Doe - P'], 0]);
           $rec['test'] = true;
-          $expect('test folder: TEST / Winners / round / leaf, root at 1',
+          $expect('old record, test folder: TEST / Winners / round / leaf, root at 1',
               winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P'], 1]);
+          // Round-first layout: round / Payments / Region / leaf; the restricted folder is Payments.
+          // The leaf is "Project title - School", the applications' pattern — never the sender's name.
+          $rec = ['root_folder' => 'Payments', 'round' => 'Fall 2026', 'region' => 'Ontario',
+                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'school' => 'Algonquin College']];
+          $expect('payments folder: round / Payments / Region / Title - School, root at 1',
+              winners_folder_segments($rec) === [['Fall 2026', 'Payments', 'Ontario', 'P - Algonquin College'], 1]);
+          $expect('same leaf as that project\'s application folder',
+              winners_folder_segments($rec)[0][3] === apply_folder_segments([], ['Province' => 'ON',
+                  'Institution' => 'Algonquin College - Students Association', 'Title' => 'P'])[1]);
+          $rec['test'] = true;
+          $expect('payments test folder: TEST / round / Payments / Region / leaf, root at 2',
+              winners_folder_segments($rec) === [['TEST', 'Fall 2026', 'Payments', 'Ontario', 'P - Algonquin College'], 2]);
+          $rec['fields']['photo_consent'] = 'no';
+          $expect('a winners record never gets DO NOT SHARE', winners_folder_segments($rec)[0][4] === 'P - Algonquin College');
+          $expect('no school: the title alone', winners_folder_segments(['fields' => ['project_title' => 'P']] + $rec)[0][4] === 'P');
+          $expect('a region that is empty files under Other',
+              winners_folder_segments(['region' => '', 'round' => 'R', 'root_folder' => 'Payments'] + $rec)[0][3] === 'Other');
+          // The four application regions, from the frozen list's province; Other without one.
+          $list = '/var/www/html/js/winners-schools-fall-2026.js';
+          foreach (['Algonquin College' => 'Ontario', 'university of regina' => 'West',
+                    'McGill University' => 'Quebec (EN) & East', 'Université Laval' => 'Quebec (FR)',
+                    'Crandall University' => 'Quebec (EN) & East', 'Anything At All' => 'Other'] as $sch => $region) {
+              $expect("region of $sch: $region", winners_region($list, $sch) === $region);
+          }
+          $expect('unreadable list -> Other', winners_region('/nonexistent.js', 'McGill University') === 'Other');
+          $expect('details text names the region', strpos(winners_details_text($rec), "\nRegion:        Ontario\n") !== false);
+          // The void cheque's copy in "All Void" is named after the submission's folder.
+          $expect('all void name', winners_all_void_name('Campus Pantry - Algonquin College', 'jpg') === 'Void cheque - Campus Pantry - Algonquin College.jpg');
+          $long = winners_all_void_name(str_repeat('A', 90) . ' (2 - abcd1234)', 'png');
+          $expect('all void name: long, and the second-submission suffix survives',
+              $long === 'Void cheque - ' . str_repeat('A', 60) . ' (2 - abcd1234).png');
+          // Applications: Region / leaf without graph.round (Fall 2026), round / Projects / Region / leaf with it.
+          $af = ['Province' => 'ON', 'Institution' => 'Algonquin College - Students Association', 'Title' => 'My Project'];
+          $expect('application folder, no round: Region / Title - School',
+              apply_folder_segments([], $af) === ['Ontario', 'My Project - Algonquin College']);
+          $expect('application folder, round set: round / Projects / Region / Title - School',
+              apply_folder_segments(['round' => 'Spring 2027'], $af) === ['Spring 2027', 'Projects', 'Ontario', 'My Project - Algonquin College']);
+          $expect('application test folder: TEST first',
+              apply_folder_segments(['round' => 'Spring 2027', 'projects_folder' => 'Applications'], $af, true)
+                  === ['TEST', 'Spring 2027', 'Applications', 'Ontario', 'My Project - Algonquin College']);
+          $expect('application test folder, no round', apply_folder_segments([], $af, true) === ['TEST', 'Ontario', 'My Project - Algonquin College']);
           // The "filed" notices: CI has no SharePoint, so no request sends them.
           // mail() goes to ci/fake-sendmail.sh, which leaves the message in /tmp/mail.out.
           $notice = function (bool $test, bool $afterRetry) use ($base): string {
@@ -1035,16 +1081,16 @@ jobs:
           $expect('real record: filed-after-retry notice unmarked',
               $notice(false, true) === 'Winner documents filed after retry — Jane Doe (R)');
           // ---- Project completion (api/completion.php): the second kind ----
-          $expect('CI block inherits round and root_folder from the winners block',
+          $expect("CI block inherits round from the winners block; root_folder is its own default, never the winners'",
               ($cc = completion_config($base)) !== null && $cc['round'] === 'CI Round'
-              && $cc['root_folder'] === 'Winners (CI)' && $cc['subfolder'] === 'Project completion');
+              && $cc['root_folder'] === 'Completion report');
           $expect('completion_cfg twice is the same', completion_cfg(completion_cfg($base)) === completion_cfg($base));
           $c = $base; unset($c['completion']);
           $expect('no completion block -> closed', completion_config($c) === null);
           [$rc, $rk] = winners_record_cfg($c, ['kind' => 'completion']);
           $expect('no completion block: an archived report still resolves to the winners block (retry, notices)',
-              $rk === 'completion' && $rc['completion']['root_folder'] === 'Winners (CI)'
-              && $rc['completion']['subfolder'] === 'Project completion'
+              $rk === 'completion' && $rc['completion']['root_folder'] === 'Completion report'
+              && $rc['completion']['round'] === 'CI Round'
               && winners_notify_address($rc, $rk) === 'winners-ci@example.invalid'
               && !isset($c['completion']));
           $c = $base; unset($c['completion']['allow_without_graph']);
@@ -1065,15 +1111,16 @@ jobs:
               is_array($cc) && $cc['closes_at_ts'] === null && $cc['drive_id'] === 'winners-drive' && $cc['create_root'] === false);
           $expect("notify_to left out -> the winners block's",
               winners_notify_address(completion_cfg($c), 'completion') === 'w@example.invalid');
-          $c['completion']['drive_id'] = 'completion-drive'; $c['completion']['subfolder'] = '';
+          $c['completion']['drive_id'] = 'completion-drive'; $c['completion']['root_folder'] = 'Reports';
           $cc = completion_config($c);
-          $expect('own drive_id and an empty subfolder are kept', $cc['drive_id'] === 'completion-drive' && $cc['subfolder'] === '');
+          $expect('own drive_id and root_folder are kept', $cc['drive_id'] === 'completion-drive' && $cc['root_folder'] === 'Reports');
           $rec = ['kind' => 'completion', 'root_folder' => 'Winners', 'round' => 'Fall 2026', 'subfolder' => 'Project completion',
                   'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'photo_consent' => 'no'],
                   'documents' => [['slot' => 'file_report', 'label' => 'Completion report', 'name' => 'a'],
                                   ['slot' => 'file_photos', 'label' => 'Photo 1', 'name' => 'b', 'folder' => 'Photos - do not share'],
                                   ['slot' => 'file_photos', 'label' => 'Photo 2', 'name' => 'c', 'folder' => 'Photos - do not share']]];
-          $expect('completion folder: root / round / subfolder / leaf',
+          // Records from the first build (no 'region'): root / round / subfolder / leaf, as archived.
+          $expect('old completion record: root / round / subfolder / leaf',
               winners_folder_segments($rec) === [['Winners', 'Fall 2026', 'Project completion', 'Jane Doe - P'], 0]);
           $rec['test'] = true;
           $expect('completion test folder: TEST / root / round / subfolder / leaf, root at 1',
@@ -1083,6 +1130,22 @@ jobs:
               winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P'], 1]);
           $rec2 = $rec; unset($rec2['kind']);
           $expect('a winners record ignores subfolder', winners_folder_segments(['subfolder' => 'X'] + $rec2)[0] === ['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P']);
+          // Round-first layout: round / Completion report / Region / leaf, " - DO NOT SHARE" on a no.
+          $new = ['kind' => 'completion', 'root_folder' => 'Completion report', 'round' => 'Fall 2026', 'region' => 'West',
+                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'school' => 'Douglas College', 'photo_consent' => 'no']];
+          $expect('completion folder, answered no: the leaf says DO NOT SHARE; root at 1',
+              winners_folder_segments($new) === [['Fall 2026', 'Completion report', 'West', 'P - Douglas College - DO NOT SHARE'], 1]);
+          $new['fields']['photo_consent'] = 'yes';
+          $expect('completion folder, answered yes: plain leaf',
+              winners_folder_segments($new)[0] === ['Fall 2026', 'Completion report', 'West', 'P - Douglas College']);
+          $new['fields']['photo_consent'] = '';
+          $expect('completion folder, no answer (no photos): plain leaf', winners_folder_segments($new)[0][3] === 'P - Douglas College');
+          $new['fields']['photo_consent'] = 'no'; $new['test'] = true;
+          $new['fields']['project_title'] = str_repeat('T', 200);
+          [$seg, $ri] = winners_folder_segments($new);
+          $expect('completion test folder: TEST first, root at 2', $ri === 2 && array_slice($seg, 0, 4) === ['TEST', 'Fall 2026', 'Completion report', 'West']);
+          $expect('a long leaf keeps its marker, short enough for the second-submission suffix',
+              substr($seg[4], -15) === ' - DO NOT SHARE' && mb_strlen($seg[4]) <= 80);
           $expect('photos line: count and the answer', completion_photos_text($rec) === '2 — do NOT share');
           $rec['fields']['photo_consent'] = 'yes';
           $expect('photos line: yes', completion_photos_text($rec) === '2 — OK to share');
@@ -1097,13 +1160,7 @@ jobs:
           $expect('label: receipts are numbered', completion_doc_label('Receipt', 2, 3) === 'Receipt 2');
           $expect('label: one receipt is not', completion_doc_label('Receipt', 1, 1) === 'Receipt');
           $expect('label: a photo name is plain', completion_doc_label('Photo', 1, 2) === 'Photo 1');
-          $expect('photo folder: yes', completion_photo_folder('yes') === 'Photos - OK to share');
-          $expect('photo folder: no', completion_photo_folder('no') === 'Photos - do not share');
-          $expect('photo folder: unanswered is do not share', completion_photo_folder('') === 'Photos - do not share');
-          $expect('photo folder names survive the SharePoint name rules',
-              sp_safe_name(completion_photo_folder('yes'), '') === 'Photos - OK to share'
-              && sp_safe_name(completion_photo_folder('no'), '') === 'Photos - do not share');
-          // The details file lists each photo under its sub-folder.
+          // A record from the photo sub-folder build (Nov 2026) still lists and files its photos there.
           $tmpd = sys_get_temp_dir() . '/completion-details-' . getmypid();
           @mkdir($tmpd, 0700, true);
           $d = winners_details_file($tmpd, $rec);
@@ -1216,8 +1273,9 @@ jobs:
           docker exec winners-open cat "$dir/submission.json" > /tmp/csub.json
           test "$(jq -r .kind /tmp/csub.json)" = "completion"
           test "$(jq -r .round /tmp/csub.json)" = "CI Round"                 # inherited from the winners block
-          test "$(jq -r .root_folder /tmp/csub.json)" = "Winners (CI)"       # inherited
-          test "$(jq -r .subfolder /tmp/csub.json)" = "Project completion"   # the default
+          test "$(jq -r .root_folder /tmp/csub.json)" = "Completion report"  # its own default, not the winners block's
+          test "$(jq -r .region /tmp/csub.json)" = "West"                    # University of Regina: SK
+          test "$(jq -r 'has("subfolder")' /tmp/csub.json)" = "false"
           test "$(jq -r .test /tmp/csub.json)" = "false"
           test "$(jq -r '.documents | length' /tmp/csub.json)" = "6"
           test "$(jq -r '.files' /tmp/csub.json)" = "null"
@@ -1228,13 +1286,13 @@ jobs:
           grep -q 'project completion report' /tmp/cdetails.txt
           grep -q 'Photos:        2 — do NOT share' /tmp/cdetails.txt
           grep -q 'Receipt 2 - CI Finisher.png' /tmp/cdetails.txt
-          # The answer names the sub-folder the photos are filed in (recorded
-          # per document, so the retry files them there again); nothing else
-          # gets one, and the file names stay plain.
-          test "$(jq -r '[.documents[] | select(.slot == "file_photos") | .folder] | unique | join("|")' /tmp/csub.json)" = "Photos - do not share"
-          test "$(jq -r '[.documents[] | select(.slot != "file_photos") | has("folder")] | any' /tmp/csub.json)" = "false"
-          grep -q 'Photos - do not share/Photo 1 - CI Finisher.png' /tmp/cdetails.txt
-          if grep -q 'to share)' /tmp/cdetails.txt; then echo "a file name still carries the sharing answer"; exit 1; fi
+          # Round-first layout: the answer goes on the project folder's name
+          # (php CLI step), so no document names a sub-folder and the file
+          # names stay plain.
+          test "$(jq -r '[.documents[] | has("folder")] | any' /tmp/csub.json)" = "false"
+          grep -q 'Region:        West' /tmp/cdetails.txt
+          grep -q '  Photo 1 - CI Finisher.png' /tmp/cdetails.txt
+          if grep -q 'to share)\|Photos - ' /tmp/cdetails.txt; then echo "a file or sub-folder name still carries the sharing answer"; exit 1; fi
           # Delivery runs after the response: wait for the queue marker and
           # the team's notice.
           for i in $(seq 1 20); do docker exec winners-open test -f "$dir/DELIVERY-PENDING" && break; sleep 0.5; done
@@ -1274,7 +1332,7 @@ jobs:
           done
           docker exec winners-open cat "$dir/submission.json" > /tmp/csub.json
           test "$(jq -r .test /tmp/csub.json)" = "true"
-          test "$(jq -r '.documents[] | select(.slot == "file_photos") | .folder' /tmp/csub.json)" = "Photos - OK to share"
+          test "$(jq -r .region /tmp/csub.json)" = "West"
           docker exec winners-open grep -q 'TEST SUBMISSION' "$dir/Submission details - CI Finisher.txt"
           for i in $(seq 1 20); do
             docker exec winners-open sh -c 'cat /tmp/mail.all 2>/dev/null || true' > /tmp/mail.captured

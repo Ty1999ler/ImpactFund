@@ -131,6 +131,17 @@ return [
         'list_id'       => '',   // list that receives one item per submission
         'drive_id'      => '',   // document library drive for the files
 
+        /* Round-first folder layout (Nov 2026). With round set, applications
+           file under  <round> / Projects / Region / Project title - School /
+           — the round folder that also holds that round's Payments and
+           Completion report folders (the winners and completion blocks
+           below). Left '' they file under  Region / Project title - School /
+           at the top of the library, where Fall 2026's applications are.
+           SET IT WHEN A NEW ROUND OPENS (e.g. 'Spring 2027'), and change it
+           at each round after. projects_folder renames the "Projects" level. */
+        'round'           => '',
+        'projects_folder' => 'Projects',
+
         /* Creating lists/columns needs more than Sites.Selected, so the target
            list schema often can't be changed. Map our canonical field names
            onto the columns that actually exist; map to '' to fold a field into
@@ -139,7 +150,8 @@ return [
         'overflow_field' => '',
 
         /* Hyperlink ("Link") columns, filled after the uploads finish. Files
-           land in  Region / Project title - School /  inside drive_id;
+           land in  [<round> / Projects /] Region / Project title - School /
+           inside drive_id;
            link_field points at that folder, file_links at one document each.
            Leave a column name out and that link is simply not written. */
         'link_field' => '',      // e.g. 'Documents'
@@ -172,10 +184,18 @@ return [
            deadline after Nov 1, 2026 needs -05:00. A value without an
            offset, or one that isn't a real date (2026-11-31), closes the page
            (logged) rather than guessing.
-       Documents land in  <root_folder>/<round>/<Full name> - <Project title>/
-       as "Funding agreement - <Name>.pdf" and "Void cheque - …", with a
-       "Submission details - <Name>.txt" holding what was typed (name, email,
-       school, project title, who the funds are sent to).
+       Documents land in
+         <round> / <root_folder> / <Region> / <Project title> - <School> /
+       e.g.  Fall 2026 / Payments / Ontario / Campus Pantry - Algonquin College /
+       (round-first layout, Nov 2026) as "Funding agreement - <Name>.pdf" and
+       "Void cheque - …", with a "Submission details - <Name>.txt" holding
+       what was typed (name, email, school, project title, who the funds are
+       sent to). A second copy of the void cheque goes in
+         <round> / <root_folder> / All Void /
+       named "Void cheque - <Project title> - <School>.<ext>".
+       <Region> is one of the applications' four — Ontario, West,
+       Quebec (FR), Quebec (EN) & East — worked out from the school the
+       winner picks; a school that is not on the list files under "Other".
        A second submission for the same name never goes into the existing
        folder: it gets a sibling "… (2 - <id>)" folder, and the team notice
        starts "SECOND SUBMISSION — confirm banking details with the winner
@@ -188,14 +208,14 @@ return [
        staging and its preview copies and the NAS): "[TEST] " in front of
        every winners email subject (team notice, confirmation, failure and
        filed-after-retry notices), documents under
-       TEST / <root_folder> / <round> / … — so with create_root false,
-       TEST / <root_folder> has to exist in that drive too — and "test": true
+       TEST / <round> / <root_folder> / … — so with create_root false,
+       TEST / <round> / <root_folder> has to exist in that drive too — and "test": true
        in submission.json, which the retry reads back. A test submission
        never counts as an earlier submission of a real winner, nor the
        reverse. */
     'winners' => [
-        'round'       => 'Fall 2026',   // SharePoint level 2; next round: 'Winter 2027'
-        'root_folder' => 'Winners',     // SharePoint level 1 (test copies of the site: under TEST /)
+        'round'       => 'Fall 2026',   // SharePoint level 1: the round's folder; next round: 'Spring 2027'
+        'root_folder' => 'Payments',    // SharePoint level 2, inside the round (was 'Winners' at level 1 until Nov 2026)
         'opens_at'    => '',            // '' = open as soon as configured
         'closes_at'   => '',            // REQUIRED, e.g. '2026-10-30T23:59:59-04:00'; 'none' = no deadline; '' = page stays closed
         /* Submissions only: an upload already on its way at closes_at is
@@ -210,7 +230,8 @@ return [
            Fall 2026: false (Alumo asked for a simple page, 2026-10-08). */
         'send_confirmation' => false,
         'drive_id'    => '',            // '' = the applications library (graph.drive_id)
-        /* false (default): root_folder must ALREADY exist in the drive —
+        /* false (default): <round> / <root_folder> must ALREADY exist in the
+           drive (the round folder itself is created when missing) —
            Alumo creates it with restricted permissions before the link goes
            out, and until it exists deliveries queue for retry (one notice to
            the team). A folder the site created would inherit the library's
@@ -237,26 +258,26 @@ return [
        drive id, a round and a root_folder, and a deadline — a real ISO date
        WITH an explicit offset, or 'none'. (Left '' or out, the page stays
        closed; it stays '' in THIS file on purpose.)
-       round, root_folder, notify_to, drive_id and create_root DEFAULT TO THE
-       WINNERS BLOCK'S VALUES when a key is left OUT of this block (a key
-       that is present, even empty, is this block's own). So the smallest
+       round, notify_to, drive_id and create_root DEFAULT TO THE WINNERS
+       BLOCK'S VALUES when a key is left OUT of this block (a key that is
+       present, even empty, is this block's own). root_folder is NOT
+       inherited: it defaults to 'Completion report'. So the smallest
        working block is the deadline line alone, set to 'none' or a date.
        Documents land in
-         <root_folder>/<round>/<subfolder>/<Full name> - <Project title>/
-       — with the defaults  Winners / Fall 2026 / Project completion / …,
-       i.e. inside the restricted Winners folder Alumo already created, one
-       level away from the folders holding banking documents — as
-       "Completion report - <Name>.pdf", "Receipt 1 - …", "Receipt 2 - …"
-       and a "Submission details - <Name>.txt"; the photos ("Photo 1 - …")
-       go one level down, in a sub-folder named for the sender's answer to
-       "Can we share your photos?": "Photos - OK to share" or
-       "Photos - do not share" (no answer = do not share). A second submission for the same
-       name and project gets a sibling "… (2 - <id>)" folder and a
+         <round> / <root_folder> / <Region> / <Project title> - <School> /
+       e.g.  Fall 2026 / Completion report / West / Campus Pantry - Douglas College /
+       (round-first layout, Nov 2026; regions as for the winners block) as
+       "Completion report - <Name>.pdf", "Receipt 1 - …", "Receipt 2 - …",
+       "Photo 1 - …" and a "Submission details - <Name>.txt". A sender who
+       answers "no" to "Can we share your photos?" gets " - DO NOT SHARE" on
+       the end of that folder's name. With create_root false,
+       <round> / <root_folder> must already exist (and TEST / <round> /
+       <root_folder> for test copies of the site). A second submission for
+       the same name and project gets a sibling "… (2 - <id>)" folder and a
        "SECOND SUBMISSION" notice. */
     'completion' => [
         // 'round'       => 'Fall 2026',  // left out = the winners block's round
-        // 'root_folder' => 'Winners',    // left out = the winners block's root_folder
-        'subfolder'   => 'Project completion',   // level between the round and the winner's folder; '' = none
+        'root_folder' => 'Completion report',   // SharePoint level 2, inside the round; left out = 'Completion report'
         'opens_at'    => '',            // '' = open as soon as configured
         'closes_at'   => '',            // REQUIRED: a date like the winners block's, or 'none' = no deadline; '' = page stays closed
         'close_grace_minutes' => 15,

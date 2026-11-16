@@ -590,3 +590,49 @@ PROJECT COMPLETION PAGE (/project-completion-fall-2026/, /fr/fin-de-projet-autom
   server config edits above on staging (then production at go-live); the decision on where
   completion reports should live in SharePoint if not under Winners; the RELEASE RULE above
   still holds — none of this reaches `release` before the winners go-live.
+
+## SharePoint round-first layout — BUILT 2026-11-16 (branch claude/sharepoint-round-layout)
+Client's layout (Tyler, 2026-11-16). Supersedes the folder paths in the two sections above and
+the photo sub-folders of 2026-11-15 (PR #2).
+
+    Fall 2026/                          <- one folder per round; next: Spring 2027 (or Winter, TBD)
+      Projects/<Region>/<Project title - School>/            applications (api/apply.php)
+      Payments/<Region>/<Project title - School>/            winners page: agreement, void cheque, details
+      Payments/All Void/                                     a second copy of every void cheque
+      Completion report/<Region>/<Project title - School>[ - DO NOT SHARE]/      report, receipts, photos, details
+    TEST/…                              <- the same shape, for test copies of the site
+
+- Regions: the applications' four, unchanged (Ontario, West, Quebec (FR), Quebec (EN) & East).
+  The winners pages don't ask for a province: the region comes from the school's province in
+  the frozen list (winners_region); a school that is not on it files under "Other". The region
+  is archived in submission.json ('region'), and its PRESENCE is what selects this layout — a
+  record archived before it keeps its old folder on a retry.
+- Applications: only with graph.round set (config) — '' keeps Region / leaf at the top of the
+  library, where the Fall 2026 applications are. Alumo moves those into Fall 2026 / Projects by
+  hand (their call); the list rows' FolderId survives a move, the Link columns' URLs may not.
+  SET graph.round WHEN THE NEXT ROUND OPENS — add to the January reopen job above.
+- Payments: winners.root_folder => 'Payments' (was 'Winners'). Restricted folder = <round> /
+  Payments, looked up and never created (create_root false); the round folder above it is
+  created when missing. "All Void" is created inside Payments by ID (inherits its
+  restrictions); the copy is named "Void cheque - <folder name>.<ext>" and is filed LAST, so a
+  failure there fails the delivery as a whole and the retry redoes it.
+- Completion report: completion.root_folder defaults to 'Completion report' and is NO LONGER
+  inherited from the winners block (the 'subfolder' key is gone). " - DO NOT SHARE" on the
+  project folder's name when the sender answered no (client: "for now"); the photo sub-folders
+  are gone and file names stay plain.
+- DECIDED 2026-11-16 (client: "it should always be project title - school name"): the project
+  folder under Payments and Completion report is "<Project title> - <School>", like Projects.
+  The title is what the winner types on that page, so it can differ from their application's.
+- OPEN, the client is deciding: a SharePoint list
+  per form ("Payments", "Completion reports") so the typed answers can be sorted and exported
+  like applications — Alumo's SharePoint owner would create them (Sites.Selected cannot); until
+  then the answers live in the Submission details file, the notice email and submission.json.
+- SERVER / SHAREPOINT STEPS (not in the repo), per environment:
+  1. api/config.php: winners 'root_folder' => 'Payments'. (Left at 'Winners', deliveries look
+     for <round> / Winners, fail, and queue with a notice naming the folder.)
+  2. SharePoint, by hand, restricted: Fall 2026 / Payments and Fall 2026 / Completion report —
+     and for staging TEST / Fall 2026 / Payments and TEST / Fall 2026 / Completion report.
+  3. Before deploying: no DELIVERY-PENDING left under submissions_dir/winners or /completion
+     from the old layout, unless they should still go to the old folders (they will).
+- NOT RUN against SharePoint: CI has none. The region folders, All Void and the DO NOT SHARE
+  name need one winners and one completion test upload on staging.

@@ -69,7 +69,9 @@ or `caddy file-server --listen :8777`.
   2026) plus a "Submission details" text file of what was typed, incl. who the
   funds are sent to
   → archived under `_submissions/winners/<id>/`, then filed in SharePoint ONLY
-  (`<root_folder>/<round>/<Full name> - <Project title>/`), never emailed, server
+  (`<round>/<root_folder>/<Region>/<Project title> - <School>/`, e.g.
+  `Fall 2026/Payments/Ontario/…`, plus a copy of the void cheque in
+  `<round>/<root_folder>/All Void/`), never emailed, server
   copy deleted once filed. Configured by the `winners` block in the config —
   `round`, `root_folder`, `opens_at` (ISO with offset, or ''), `closes_at`
   (REQUIRED: ISO with offset, or 'none'), `close_grace_minutes`, `notify_to`,
@@ -78,8 +80,8 @@ or `caddy file-server --listen :8777`.
   when on) — and stays closed ("not ready", 503) unless
   `delivery_mode` is `graph` with credentials. Sent from a test copy of the
   site it is marked like an application (below): `[TEST] ` on every winners
-  email subject, the documents under `TEST/<root_folder>/<round>/…` (so with
-  `create_root` false, `TEST/<root_folder>` must exist too), `"test": true`
+  email subject, the documents under `TEST/<round>/<root_folder>/…` (so with
+  `create_root` false, `TEST/<round>/<root_folder>` must exist too), `"test": true`
   in its `submission.json`; test and real submissions never count as each
   other's second submission.
 - `api/completion.php` — the unlisted Project completion page
@@ -88,10 +90,10 @@ or `caddy file-server --listen :8777`.
   one completion report, 1–10 receipts, 0–8 photos (10 MB each, 50 MB in all)
   and the answer to "Can we share your photos?" → archived under
   `_submissions/completion/<id>/`, then filed in SharePoint ONLY
-  (`<root_folder>/<round>/Project completion/<Full name> - <Project title>/`,
-  photos in a sub-folder "Photos - OK to share" / "Photos - do not share"), never
+  (`<round>/Completion report/<Region>/<Project title> - <School>/`, with
+  " - DO NOT SHARE" on the folder name when the sender says no to sharing photos), never
   emailed, nothing sent to the sender. Configured by the `completion` block,
-  which inherits `round`, `root_folder`, `notify_to`, `drive_id` and
+  which inherits `round`, `notify_to`, `drive_id` and
   `create_root` from the `winners` block when left out; the smallest working
   block is `'completion' => ['closes_at' => 'none']`. Closed ("not ready")
   without the block. Same `[TEST]` marking and the same retry cron.
