@@ -558,8 +558,10 @@ PROJECT COMPLETION PAGE (/project-completion-fall-2026/, /fr/fin-de-projet-autom
   api/.user.ini and Dockerfile.php (19 files at most; PHP silently drops any past the limit).
   LIMITS ARE MY CHOICE, not Alumo's — the mock only says "more than one file".
 - "Can we share your photos?" yes/no: needs an answer only when photos are attached. The
-  answer is filed three ways: in each photo's file name ("Photo 1 (OK to share) - …" /
-  "… (do not share) - …"; unanswered = do not share), in the Submission details file, and in
+  answer is filed three ways: in the name of the SUB-FOLDER the photos go in, inside the
+  winner's folder — "Photos - OK to share" / "Photos - do not share"; unanswered = do not
+  share (client's choice 2026-11-15; the first build put it in each photo's file name, and
+  file names are plain again: "Photo 1 - <Name>.jpg") —, in the Submission details file, and in
   the team notice.
 - Backend: api/completion.php (sibling of winners.php) + a "Project completion" block at the
   end of api/_lib.php. The winners_* functions that take a record or a config key now serve

@@ -246,10 +246,11 @@ return [
        — with the defaults  Winners / Fall 2026 / Project completion / …,
        i.e. inside the restricted Winners folder Alumo already created, one
        level away from the folders holding banking documents — as
-       "Completion report - <Name>.pdf", "Receipt 1 - …", "Receipt 2 - …",
-       "Photo 1 (OK to share) - …" or "Photo 1 (do not share) - …" (the
-       sender's answer to "Can we share your photos?"), and a
-       "Submission details - <Name>.txt". A second submission for the same
+       "Completion report - <Name>.pdf", "Receipt 1 - …", "Receipt 2 - …"
+       and a "Submission details - <Name>.txt"; the photos ("Photo 1 - …")
+       go one level down, in a sub-folder named for the sender's answer to
+       "Can we share your photos?": "Photos - OK to share" or
+       "Photos - do not share" (no answer = do not share). A second submission for the same
        name and project gets a sibling "… (2 - <id>)" folder and a
        "SECOND SUBMISSION" notice. */
     'completion' => [

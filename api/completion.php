@@ -15,11 +15,13 @@
    1. checks the schedule, the fields and the files' real content, then
       archives under submissions_dir/completion/<id>/ with the documents
       renamed "Completion report - <Name>.<ext>", "Receipt 2 - …",
-      "Photo 1 (OK to share) - …" / "Photo 1 (do not share) - …", plus a
-      "Submission details - <Name>.txt" holding what was typed;
+      "Photo 1 - …", plus a "Submission details - <Name>.txt" holding what
+      was typed;
    2. answers the sender, then files the documents in SharePoint (Microsoft
       Graph) under <root_folder>/<round>/<subfolder>/<Full name - Project title>/
-      — by default Winners / <round> / Project completion / …;
+      — by default Winners / <round> / Project completion / … — with the
+      photos one level down, in "Photos - OK to share" or
+      "Photos - do not share" (the sender's answer; no answer = do not share);
    3. on success deletes the server copies; on failure leaves a
       DELIVERY-PENDING marker for api/redeliver.php and emails the team once;
    4. emails the team a notice, never with an attachment. Nothing is emailed
@@ -138,7 +140,9 @@ foreach (completion_upload_slots() as $slot => $spec) {
     foreach ($check['files'] as $i => $file) {
         $totalBytes += $file['size'];
         $docs[] = ['slot' => $slot, 'tmp' => $file['tmp'], 'ext' => $file['ext'],
-                   'label' => completion_doc_label($slot, $spec['label'], $i + 1, $count, $consent)];
+                   'label' => completion_doc_label($spec['label'], $i + 1, $count),
+                   /* Photos are filed in a sub-folder named for the answer. */
+                   'folder' => $slot === 'file_photos' ? completion_photo_folder($consent) : ''];
     }
 }
 /* The question is asked about the photos, so it only needs an answer when
@@ -198,7 +202,8 @@ foreach ($docs as $doc) {
     $name = winners_doc_name($doc['label'], $fields['full_name'], $doc['ext']);
     $dest = $dir . '/' . $name;
     if (!move_uploaded_file($doc['tmp'], $dest)) $abandon();
-    $stored[] = ['slot' => $doc['slot'], 'label' => $doc['label'], 'name' => $name, 'path' => $dest];
+    $stored[] = ['slot' => $doc['slot'], 'label' => $doc['label'], 'name' => $name, 'path' => $dest,
+                 'folder' => $doc['folder']];
 }
 $record = [
     'id'           => $id,
@@ -209,8 +214,10 @@ $record = [
     'received_utc' => gmdate('c'),
     'test'         => $isTest,
     'fields'       => $fields,
-    /* 'documents', NOT 'files' — see winners.php. */
-    'documents'    => array_map(fn($s) => ['slot' => $s['slot'], 'label' => $s['label'], 'name' => $s['name']], $stored),
+    /* 'documents', NOT 'files' — see winners.php. 'folder' (photos only) is
+       the sub-folder the retry job must file the document in again. */
+    'documents'    => array_map(fn($s) => ['slot' => $s['slot'], 'label' => $s['label'], 'name' => $s['name']]
+                                          + ($s['folder'] !== '' ? ['folder' => $s['folder']] : []), $stored),
 ];
 /* What was typed — the photo-sharing answer above all — as a text file filed
    with the uploads (winners_details_file). */
