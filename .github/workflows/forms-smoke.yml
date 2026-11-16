@@ -1025,15 +1025,20 @@ jobs:
           $expect('old record, test folder: TEST / Winners / round / leaf, root at 1',
               winners_folder_segments($rec) === [['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P'], 1]);
           // Round-first layout: round / Payments / Region / leaf; the restricted folder is Payments.
+          // The leaf is "Project title - School", the applications' pattern — never the sender's name.
           $rec = ['root_folder' => 'Payments', 'round' => 'Fall 2026', 'region' => 'Ontario',
-                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P']];
-          $expect('payments folder: round / Payments / Region / leaf, root at 1',
-              winners_folder_segments($rec) === [['Fall 2026', 'Payments', 'Ontario', 'Jane Doe - P'], 1]);
+                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'school' => 'Algonquin College']];
+          $expect('payments folder: round / Payments / Region / Title - School, root at 1',
+              winners_folder_segments($rec) === [['Fall 2026', 'Payments', 'Ontario', 'P - Algonquin College'], 1]);
+          $expect('same leaf as that project\'s application folder',
+              winners_folder_segments($rec)[0][3] === apply_folder_segments([], ['Province' => 'ON',
+                  'Institution' => 'Algonquin College - Students Association', 'Title' => 'P'])[1]);
           $rec['test'] = true;
           $expect('payments test folder: TEST / round / Payments / Region / leaf, root at 2',
-              winners_folder_segments($rec) === [['TEST', 'Fall 2026', 'Payments', 'Ontario', 'Jane Doe - P'], 2]);
+              winners_folder_segments($rec) === [['TEST', 'Fall 2026', 'Payments', 'Ontario', 'P - Algonquin College'], 2]);
           $rec['fields']['photo_consent'] = 'no';
-          $expect('a winners record never gets DO NOT SHARE', winners_folder_segments($rec)[0][4] === 'Jane Doe - P');
+          $expect('a winners record never gets DO NOT SHARE', winners_folder_segments($rec)[0][4] === 'P - Algonquin College');
+          $expect('no school: the title alone', winners_folder_segments(['fields' => ['project_title' => 'P']] + $rec)[0][4] === 'P');
           $expect('a region that is empty files under Other',
               winners_folder_segments(['region' => '', 'round' => 'R', 'root_folder' => 'Payments'] + $rec)[0][3] === 'Other');
           // The four application regions, from the frozen list's province; Other without one.
@@ -1046,7 +1051,7 @@ jobs:
           $expect('unreadable list -> Other', winners_region('/nonexistent.js', 'McGill University') === 'Other');
           $expect('details text names the region', strpos(winners_details_text($rec), "\nRegion:        Ontario\n") !== false);
           // The void cheque's copy in "All Void" is named after the submission's folder.
-          $expect('all void name', winners_all_void_name('Jane Doe - Campus Pantry', 'jpg') === 'Void cheque - Jane Doe - Campus Pantry.jpg');
+          $expect('all void name', winners_all_void_name('Campus Pantry - Algonquin College', 'jpg') === 'Void cheque - Campus Pantry - Algonquin College.jpg');
           $long = winners_all_void_name(str_repeat('A', 90) . ' (2 - abcd1234)', 'png');
           $expect('all void name: long, and the second-submission suffix survives',
               $long === 'Void cheque - ' . str_repeat('A', 60) . ' (2 - abcd1234).png');
@@ -1127,14 +1132,14 @@ jobs:
           $expect('a winners record ignores subfolder', winners_folder_segments(['subfolder' => 'X'] + $rec2)[0] === ['TEST', 'Winners', 'Fall 2026', 'Jane Doe - P']);
           // Round-first layout: round / Completion report / Region / leaf, " - DO NOT SHARE" on a no.
           $new = ['kind' => 'completion', 'root_folder' => 'Completion report', 'round' => 'Fall 2026', 'region' => 'West',
-                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'photo_consent' => 'no']];
+                  'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'school' => 'Douglas College', 'photo_consent' => 'no']];
           $expect('completion folder, answered no: the leaf says DO NOT SHARE; root at 1',
-              winners_folder_segments($new) === [['Fall 2026', 'Completion report', 'West', 'Jane Doe - P - DO NOT SHARE'], 1]);
+              winners_folder_segments($new) === [['Fall 2026', 'Completion report', 'West', 'P - Douglas College - DO NOT SHARE'], 1]);
           $new['fields']['photo_consent'] = 'yes';
           $expect('completion folder, answered yes: plain leaf',
-              winners_folder_segments($new)[0] === ['Fall 2026', 'Completion report', 'West', 'Jane Doe - P']);
+              winners_folder_segments($new)[0] === ['Fall 2026', 'Completion report', 'West', 'P - Douglas College']);
           $new['fields']['photo_consent'] = '';
-          $expect('completion folder, no answer (no photos): plain leaf', winners_folder_segments($new)[0][3] === 'Jane Doe - P');
+          $expect('completion folder, no answer (no photos): plain leaf', winners_folder_segments($new)[0][3] === 'P - Douglas College');
           $new['fields']['photo_consent'] = 'no'; $new['test'] = true;
           $new['fields']['project_title'] = str_repeat('T', 200);
           [$seg, $ri] = winners_folder_segments($new);

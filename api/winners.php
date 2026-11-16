@@ -19,7 +19,7 @@
       funds are sent to is filed WITH the banking documents, not only in the
       team's notice email);
    2. answers the winner, then files the documents in SharePoint (Microsoft
-      Graph) under <round>/<root_folder>/<Region>/<Full name - Project title>/
+      Graph) under <round>/<root_folder>/<Region>/<Project title - School>/
       — Fall 2026 / Payments / Ontario / … — the region being the
       applications' own, worked out from the school, plus a second copy of
       the void cheque in <round>/<root_folder>/All Void/;

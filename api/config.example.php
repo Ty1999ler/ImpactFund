@@ -185,14 +185,14 @@ return [
            offset, or one that isn't a real date (2026-11-31), closes the page
            (logged) rather than guessing.
        Documents land in
-         <round> / <root_folder> / <Region> / <Full name> - <Project title> /
-       e.g.  Fall 2026 / Payments / Ontario / Jane Doe - Campus Pantry /
+         <round> / <root_folder> / <Region> / <Project title> - <School> /
+       e.g.  Fall 2026 / Payments / Ontario / Campus Pantry - Algonquin College /
        (round-first layout, Nov 2026) as "Funding agreement - <Name>.pdf" and
        "Void cheque - …", with a "Submission details - <Name>.txt" holding
        what was typed (name, email, school, project title, who the funds are
        sent to). A second copy of the void cheque goes in
          <round> / <root_folder> / All Void /
-       named "Void cheque - <Full name> - <Project title>.<ext>".
+       named "Void cheque - <Project title> - <School>.<ext>".
        <Region> is one of the applications' four — Ontario, West,
        Quebec (FR), Quebec (EN) & East — worked out from the school the
        winner picks; a school that is not on the list files under "Other".
@@ -264,8 +264,8 @@ return [
        inherited: it defaults to 'Completion report'. So the smallest
        working block is the deadline line alone, set to 'none' or a date.
        Documents land in
-         <round> / <root_folder> / <Region> / <Full name> - <Project title> /
-       e.g.  Fall 2026 / Completion report / West / Jane Doe - Campus Pantry /
+         <round> / <root_folder> / <Region> / <Project title> - <School> /
+       e.g.  Fall 2026 / Completion report / West / Campus Pantry - Douglas College /
        (round-first layout, Nov 2026; regions as for the winners block) as
        "Completion report - <Name>.pdf", "Receipt 1 - …", "Receipt 2 - …",
        "Photo 1 - …" and a "Submission details - <Name>.txt". A sender who

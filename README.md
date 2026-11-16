@@ -69,7 +69,7 @@ or `caddy file-server --listen :8777`.
   2026) plus a "Submission details" text file of what was typed, incl. who the
   funds are sent to
   → archived under `_submissions/winners/<id>/`, then filed in SharePoint ONLY
-  (`<round>/<root_folder>/<Region>/<Full name> - <Project title>/`, e.g.
+  (`<round>/<root_folder>/<Region>/<Project title> - <School>/`, e.g.
   `Fall 2026/Payments/Ontario/…`, plus a copy of the void cheque in
   `<round>/<root_folder>/All Void/`), never emailed, server
   copy deleted once filed. Configured by the `winners` block in the config —
@@ -90,7 +90,7 @@ or `caddy file-server --listen :8777`.
   one completion report, 1–10 receipts, 0–8 photos (10 MB each, 50 MB in all)
   and the answer to "Can we share your photos?" → archived under
   `_submissions/completion/<id>/`, then filed in SharePoint ONLY
-  (`<round>/Completion report/<Region>/<Full name> - <Project title>/`, with
+  (`<round>/Completion report/<Region>/<Project title> - <School>/`, with
   " - DO NOT SHARE" on the folder name when the sender says no to sharing photos), never
   emailed, nothing sent to the sender. Configured by the `completion` block,
   which inherits `round`, `notify_to`, `drive_id` and

@@ -1496,10 +1496,15 @@ function winners_folder_segments(array $record): array {
     $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
     /* ROUND-FIRST layout (Nov 2026, client) — every record archived with a
        'region':   <round> / <root_folder> / <Region> / <leaf>
-       i.e.        Fall 2026 / Payments / Ontario / Jane Doe - Campus Pantry
-                   Fall 2026 / Completion report / West / Jane Doe - Campus Pantry
+       i.e.        Fall 2026 / Payments / Ontario / Campus Pantry - Algonquin College
+                   Fall 2026 / Completion report / West / Campus Pantry - Douglas College
        beside that round's applications (Fall 2026 / Projects / Region / …,
-       graph_deliver). The restricted folder — the one that must already
+       apply_folder_segments). The leaf is "<Project title> - <School>" — the
+       applications' own pattern, always (client, 2026-11-16), so a project's
+       three folders read alike; the title is whatever the winner typed on
+       this page, which may not match their application letter for letter.
+       The sender's name is in the file names and the Submission details
+       file. The restricted folder — the one that must already
        exist unless create_root — is now <root_folder> INSIDE the round, at
        index 1 (2 under TEST); the round above it is created when missing.
        A completion record whose sender answered "no" to "Can we share your
@@ -1511,7 +1516,9 @@ function winners_folder_segments(array $record): array {
        their notice said they would go. */
     if (array_key_exists('region', $record)) {
         $kind = winners_kind($record);
-        $leaf = sp_safe_name((string)($f['full_name'] ?? '') . ' - ' . (string)($f['project_title'] ?? ''), 'Winner');
+        $title = trim((string)($f['project_title'] ?? ''));
+        $school = trim((string)($f['school'] ?? ''));
+        $leaf = sp_safe_name($school !== '' ? "$title - $school" : $title, 'Untitled project');
         if ($kind === 'completion' && (string)($f['photo_consent'] ?? '') === 'no') {
             $leaf = rtrim(mb_substr($leaf, 0, 60), ' .-') . ' - DO NOT SHARE';
         }
@@ -1724,7 +1731,7 @@ function winners_graph_deliver(array $cfg, array $record, array $docs, array &$f
 
 /* The name a void cheque copy gets in "All Void": "Void cheque - <the
    submission's folder name>.<ext>", e.g.
-   "Void cheque - Jane Doe - Campus Pantry.jpg". A long folder name is cut to
+   "Void cheque - Campus Pantry - Algonquin College.jpg". A long folder name is cut to
    60 characters, but a second submission's "(2 - <id>)" suffix is kept, so
    two submissions under one name still get two different files. */
 function winners_all_void_name(string $leaf, string $ext): string {

@@ -18,7 +18,7 @@
       "Photo 1 - …", plus a "Submission details - <Name>.txt" holding what
       was typed;
    2. answers the sender, then files the documents in SharePoint (Microsoft
-      Graph) under <round>/<root_folder>/<Region>/<Full name - Project title>/
+      Graph) under <round>/<root_folder>/<Region>/<Project title - School>/
       — by default Fall 2026 / Completion report / Ontario / … — the region
       being the applications' own, worked out from the school; a sender who
       answered "no" to sharing their photos gets " - DO NOT SHARE" on the

@@ -597,9 +597,9 @@ the photo sub-folders of 2026-11-15 (PR #2).
 
     Fall 2026/                          <- one folder per round; next: Spring 2027 (or Winter, TBD)
       Projects/<Region>/<Project title - School>/            applications (api/apply.php)
-      Payments/<Region>/<Full name - Project title>/         winners page: agreement, void cheque, details
+      Payments/<Region>/<Project title - School>/            winners page: agreement, void cheque, details
       Payments/All Void/                                     a second copy of every void cheque
-      Completion report/<Region>/<Full name - Project title>[ - DO NOT SHARE]/   report, receipts, photos, details
+      Completion report/<Region>/<Project title - School>[ - DO NOT SHARE]/      report, receipts, photos, details
     TEST/…                              <- the same shape, for test copies of the site
 
 - Regions: the applications' four, unchanged (Ontario, West, Quebec (FR), Quebec (EN) & East).
@@ -620,9 +620,10 @@ the photo sub-folders of 2026-11-15 (PR #2).
   inherited from the winners block (the 'subfolder' key is gone). " - DO NOT SHARE" on the
   project folder's name when the sender answered no (client: "for now"); the photo sub-folders
   are gone and file names stay plain.
-- OPEN, the client is deciding: (2) the project folder's name under Payments and Completion
-  report — today "Full name - Project title" (typed by the winner); proposed "Project title -
-  School" to match Projects. One line each in winners_folder_segments. (6) a SharePoint list
+- DECIDED 2026-11-16 (client: "it should always be project title - school name"): the project
+  folder under Payments and Completion report is "<Project title> - <School>", like Projects.
+  The title is what the winner types on that page, so it can differ from their application's.
+- OPEN, the client is deciding: a SharePoint list
   per form ("Payments", "Completion reports") so the typed answers can be sorted and exported
   like applications — Alumo's SharePoint owner would create them (Sites.Selected cannot); until
   then the answers live in the Submission details file, the notice email and submission.json.
