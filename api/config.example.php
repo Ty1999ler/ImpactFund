@@ -154,8 +154,9 @@ return [
 
     /* ---- Winners page (api/winners.php; /winners-fall-2026/ and
        /fr/gagnants-automne-2026/) ----
-       Winners upload a signed funding agreement, a finance form and a void
-       cheque. They are filed in SharePoint ONLY — never emailed, never kept on
+       Winners upload a signed funding agreement and a void cheque, and say
+       who the funds are sent to (the finance form was dropped in Nov 2026).
+       They are filed in SharePoint ONLY — never emailed, never kept on
        the server once SharePoint has them. The page stays CLOSED ("not ready",
        503) unless all of this holds:
          - delivery_mode above is 'graph', with graph tenant_id, client_id,
@@ -172,7 +173,9 @@ return [
            offset, or one that isn't a real date (2026-11-31), closes the page
            (logged) rather than guessing.
        Documents land in  <root_folder>/<round>/<Full name> - <Project title>/
-       as "Funding agreement - <Name>.pdf", "Finance form - …", "Void cheque - …".
+       as "Funding agreement - <Name>.pdf" and "Void cheque - …", with a
+       "Submission details - <Name>.txt" holding what was typed (name, email,
+       school, project title, who the funds are sent to).
        A second submission for the same name never goes into the existing
        folder: it gets a sibling "… (2 - <id>)" folder, and the team notice
        starts "SECOND SUBMISSION — confirm banking details with the winner
@@ -219,5 +222,45 @@ return [
         /* NEVER set on a server. config.ci.php only: lets CI exercise the
            endpoint without SharePoint (archive-only, still never emailed). */
         // 'allow_without_graph' => true,
+    ],
+
+    /* ---- Project completion page (api/completion.php;
+       /project-completion-fall-2026/ and /fr/fin-de-projet-automne-2026/) ----
+       A winner whose project is done uploads a completion report (one file),
+       receipts (1 to 10 files) and photos (0 to 8 files), and says whether
+       the photos may be shared. Same rails as the winners page: SharePoint
+       ONLY, never emailed, server copies deleted once filed, "[TEST] "
+       marking from a test copy of the site, the same retry cron. Nothing is
+       emailed to the sender; the team gets a notice without attachments.
+       The page stays CLOSED ("not ready", 503) without this block, and under
+       the winners block's rules: delivery_mode 'graph' with credentials and a
+       drive id, a round and a root_folder, and a deadline — a real ISO date
+       WITH an explicit offset, or 'none'. (Left '' or out, the page stays
+       closed; it stays '' in THIS file on purpose.)
+       round, root_folder, notify_to, drive_id and create_root DEFAULT TO THE
+       WINNERS BLOCK'S VALUES when a key is left OUT of this block (a key
+       that is present, even empty, is this block's own). So the smallest
+       working block is the deadline line alone, set to 'none' or a date.
+       Documents land in
+         <root_folder>/<round>/<subfolder>/<Full name> - <Project title>/
+       — with the defaults  Winners / Fall 2026 / Project completion / …,
+       i.e. inside the restricted Winners folder Alumo already created, one
+       level away from the folders holding banking documents — as
+       "Completion report - <Name>.pdf", "Receipt 1 - …", "Receipt 2 - …",
+       "Photo 1 (OK to share) - …" or "Photo 1 (do not share) - …" (the
+       sender's answer to "Can we share your photos?"), and a
+       "Submission details - <Name>.txt". A second submission for the same
+       name and project gets a sibling "… (2 - <id>)" folder and a
+       "SECOND SUBMISSION" notice. */
+    'completion' => [
+        // 'round'       => 'Fall 2026',  // left out = the winners block's round
+        // 'root_folder' => 'Winners',    // left out = the winners block's root_folder
+        'subfolder'   => 'Project completion',   // level between the round and the winner's folder; '' = none
+        'opens_at'    => '',            // '' = open as soon as configured
+        'closes_at'   => '',            // REQUIRED: a date like the winners block's, or 'none' = no deadline; '' = page stays closed
+        'close_grace_minutes' => 15,
+        // 'notify_to'   => '',         // left out = the winners block's notify_to
+        // 'drive_id'    => '',         // left out = the winners block's drive
+        // 'create_root' => false,      // left out = the winners block's setting
     ],
 ];

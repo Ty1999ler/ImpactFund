@@ -915,9 +915,12 @@ function delivery_record_failure(array $cfg, string $dir, string $submissionId, 
    was changed for it. The upload loop below is a copy of graph_deliver's
    rather than a refactor of it, for the same reason.
 
-   Winner documents are a signed funding agreement, a finance form (tax and
-   banking details) and a void cheque, and they should end up in exactly one
-   place: Alumo's SharePoint. Hence, unlike applications:
+   Two kinds of record share this block (winners_kind): 'winners' — a signed
+   funding agreement and a void cheque (the finance form and tax block were
+   dropped in Nov 2026) — and, since Nov 2026, 'completion' — a project
+   completion report, receipts and photos (api/completion.php, the
+   "Project completion" block further down). Both should end up in exactly
+   one place: Alumo's SharePoint. Hence, unlike applications:
    - delivery is Microsoft Graph ONLY. winners_config() keeps the page closed
      unless delivery_mode is 'graph' with credentials, so documents are never
      parked on the web host waiting for a transport that cannot file them;
@@ -926,10 +929,11 @@ function delivery_record_failure(array $cfg, string $dir, string $submissionId, 
    - once SharePoint has the files the server copies are deleted, leaving a
      small submission.json with no file contents;
    - archives live one level deeper than applications
-     (submissions_dir/winners/<id>/), so the application retry glob — one
-     directory level, submissions_dir/<id>/DELIVERY-PENDING — cannot see them
-     and can never push one down its email-capable path; and they list their
-     files under 'documents', not 'files', as a second guard.
+     (submissions_dir/winners/<id>/, submissions_dir/completion/<id>/), so
+     the application retry glob — one directory level,
+     submissions_dir/<id>/DELIVERY-PENDING — cannot see them and can never
+     push one down its email-capable path; and they list their files under
+     'documents', not 'files', as a second guard.
    A submission from a test copy of the site (site_is_test, above) is marked
    the way applications are: "[TEST] " in front of every winners email
    subject, its documents filed under a top-level TEST folder
@@ -938,11 +942,42 @@ function delivery_record_failure(array $cfg, string $dir, string $submissionId, 
    real archives never count as each other's second submission.
    ====================================================================== */
 
+/* 'winners' or 'completion': which of the two kinds a record is. Anything but
+   'completion' reads as 'winners', so records archived before the second kind
+   existed keep working. */
+function winners_kind(array $record): string {
+    return ($record['kind'] ?? '') === 'completion' ? 'completion' : 'winners';
+}
+
+/* The words that differ between the two kinds in team notices and logs. */
+function winners_kind_words(string $kind): array {
+    return $kind === 'completion'
+        ? ['subject' => 'Completion report', 'sent' => 'their project completion report',
+           'these' => 'These completion documents', 'only' => 'completion reports']
+        : ['subject' => 'Winner documents', 'sent' => 'their documents',
+           'these' => 'These winner documents', 'only' => 'winner documents'];
+}
+
+/* The config a record's kind reads, as [config, block key]. For 'completion'
+   the block is resolved first (completion_cfg: it inherits the winners
+   block's folder settings). */
+function winners_record_cfg(array $cfg, array $record): array {
+    /* true: resolve the completion block even when config no longer has one.
+       A report archived while the page was open must still retry into the
+       winners block's drive after the page's block is taken out — otherwise
+       it would look for its folder in the applications library. */
+    return winners_kind($record) === 'completion'
+        ? [completion_cfg($cfg, true), 'completion']
+        : [$cfg, 'winners'];
+}
+
 /* Where winner documents go, read from config every time (the retry job
    needs it even when the 'winners' block is incomplete or the round is over):
-   the drive is winners.drive_id, else the applications' graph.drive_id. */
-function winners_graph_target(array $cfg): array {
-    $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
+   the drive is winners.drive_id, else the applications' graph.drive_id.
+   $key names the config block: 'winners', or 'completion' (resolved by
+   completion_cfg first). */
+function winners_graph_target(array $cfg, string $key = 'winners'): array {
+    $w = is_array($cfg[$key] ?? null) ? $cfg[$key] : [];
     $g = is_array($cfg['graph'] ?? null) ? $cfg['graph'] : [];
     $drive = trim((string)($w['drive_id'] ?? ''));
     if ($drive === '') $drive = trim((string)($g['drive_id'] ?? ''));
@@ -995,9 +1030,11 @@ function winners_parse_time(string $value): ?int {
      api/config.ci.php alone: CI has no SharePoint. Never set it on a server.
    Adds opens_at_ts / closes_at_ts (int|null), graph_ready, drive_id and
    create_root, and makes send_confirmation a bool (true only when set to
-   exactly true — see winners_ack). */
-function winners_config(array $cfg): ?array {
-    $w = $cfg['winners'] ?? null;
+   exactly true — see winners_ack).
+   $key names the block: 'winners', or 'completion' — the same rules apply
+   to the project completion page (completion_config). */
+function winners_config(array $cfg, string $key = 'winners'): ?array {
+    $w = $cfg[$key] ?? null;
     if (!is_array($w)) return null;
     $w += [
         'round'               => '',
@@ -1014,39 +1051,39 @@ function winners_config(array $cfg): ?array {
     $w['round'] = trim((string)$w['round']);
     $w['root_folder'] = trim((string)$w['root_folder']);
     if ($w['round'] === '' || $w['root_folder'] === '') {
-        error_log('winners: config needs a round and a root_folder — page stays closed');
+        error_log("$key: config needs a round and a root_folder — page stays closed");
         return null;
     }
-    foreach (['opens_at', 'closes_at'] as $key) {
-        $value = trim((string)$w[$key]);
-        $w[$key . '_ts'] = null;
-        if ($key === 'closes_at' && strtolower($value) === 'none') continue;
+    foreach (['opens_at', 'closes_at'] as $field) {
+        $value = trim((string)$w[$field]);
+        $w[$field . '_ts'] = null;
+        if ($field === 'closes_at' && strtolower($value) === 'none') continue;
         if ($value === '') {
-            if ($key === 'opens_at' || $w['allow_without_graph'] === true) continue;
-            error_log("winners: closes_at is not set — give the deadline (e.g. 2026-10-30T23:59:59-04:00) "
+            if ($field === 'opens_at' || $w['allow_without_graph'] === true) continue;
+            error_log("$key: closes_at is not set — give the deadline (e.g. 2026-10-30T23:59:59-04:00) "
                 . "or 'none' for no deadline — page stays closed");
             return null;
         }
         $ts = winners_parse_time($value);
         if ($ts === null) {
-            error_log("winners: $key '$value' is not a real ISO date with an explicit offset "
+            error_log("$key: $field '$value' is not a real ISO date with an explicit offset "
                 . '(e.g. 2026-10-30T23:59:59-04:00) — page stays closed');
             return null;
         }
-        $w[$key . '_ts'] = $ts;
+        $w[$field . '_ts'] = $ts;
     }
     if ($w['opens_at_ts'] !== null && $w['closes_at_ts'] !== null && $w['opens_at_ts'] >= $w['closes_at_ts']) {
-        error_log('winners: opens_at is not before closes_at — page stays closed');
+        error_log("$key: opens_at is not before closes_at — page stays closed");
         return null;
     }
     $w['close_grace_minutes'] = max(0, min(120, (int)$w['close_grace_minutes']));
 
-    $target = winners_graph_target($cfg);
+    $target = winners_graph_target($cfg, $key);
     $w['graph_ready'] = $target['ready'];
     $w['drive_id']    = $target['drive_id'];
     $w['create_root'] = $target['create_root'];
     if (!$w['graph_ready'] && $w['allow_without_graph'] !== true) {
-        error_log("winners: SharePoint delivery is not set up (delivery_mode 'graph', graph "
+        error_log("$key: SharePoint delivery is not set up (delivery_mode 'graph', graph "
             . 'tenant_id/client_id/client_secret and a drive id) — page stays closed');
         return null;
     }
@@ -1066,14 +1103,15 @@ function winners_window_state(array $w, int $now, bool $forSubmit): string {
     return 'open';
 }
 
-/* The three documents — input name => label + accepted extensions. The label
+/* The two documents — input name => label + accepted extensions. The label
    starts the file name in SharePoint ("Void cheque - Jane Doe.jpg"). Must
-   match SLOTS in js/winners-form.js and the accept= lists on both pages. */
+   match the "winners" SLOTS in js/winners-form.js and the accept= lists on
+   both pages. (Until Nov 2026 there was a third, file_finance_form; Alumo
+   dropped the finance form.) */
 function winners_upload_slots(): array {
     $documents = ['pdf', 'docx', 'jpg', 'jpeg', 'png'];
     return [
         'file_agreement'    => ['label' => 'Funding agreement', 'exts' => $documents],
-        'file_finance_form' => ['label' => 'Finance form',      'exts' => $documents],
         'file_void_cheque'  => ['label' => 'Void cheque',       'exts' => ['pdf', 'jpg', 'jpeg', 'png']],
     ];
 }
@@ -1175,9 +1213,10 @@ function winners_send_mail(array $cfg, string $to, string $subject, string $body
     return send_mail($cfg, $to, $subject, $body, $replyTo);
 }
 
-/* Team notices: winners.notify_to, else failure_notify_to, else relay_to. */
-function winners_notify_address(array $cfg): string {
-    $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
+/* Team notices: <block>.notify_to, else failure_notify_to, else relay_to.
+   $key names the config block ('winners' or 'completion'). */
+function winners_notify_address(array $cfg, string $key = 'winners'): string {
+    $w = is_array($cfg[$key] ?? null) ? $cfg[$key] : [];
     foreach ([$w['notify_to'] ?? '', $cfg['failure_notify_to'] ?? '', $cfg['relay_to'] ?? ''] as $to) {
         $to = trim((string)$to);
         if ($to !== '') return $to;
@@ -1185,7 +1224,24 @@ function winners_notify_address(array $cfg): string {
     return '';
 }
 
-/* Plain-text block naming the winner, shared by every team notice. */
+/* "3 — OK to share" / "2 — do NOT share" / "none": the photos line of a
+   completion record, from how many photo documents it lists and the sender's
+   answer to "Can we share your photos?". */
+function completion_photos_text(array $record): string {
+    $count = 0;
+    foreach ((array)($record['documents'] ?? []) as $doc) {
+        if (is_array($doc) && ($doc['slot'] ?? '') === 'file_photos') $count++;
+    }
+    if ($count === 0) return 'none';
+    $consent = (string)($record['fields']['photo_consent'] ?? '');
+    return $count . ' — ' . ($consent === 'yes' ? 'OK to share'
+        : ($consent === 'no' ? 'do NOT share' : 'sharing not answered: do NOT share'));
+}
+
+/* Plain-text block naming the winner, shared by every team notice and by the
+   "Submission details" file that is filed with the documents. A winners
+   record adds who the funds are sent to; a completion record its photos
+   line. */
 function winners_details_text(array $record): string {
     $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
     $v = fn(string $k): string => str_replace(["\r", "\n"], ' ', (string)($f[$k] ?? ''));
@@ -1196,8 +1252,39 @@ function winners_details_text(array $record): string {
          . ($listed === 'no' ? '   (NOT on the Fall 2026 list)'
             : ($listed === 'unchecked' ? '   (not checked: the Fall 2026 list could not be read)' : '')) . "\n"
          . 'Project title: ' . $v('project_title') . "\n"
+         . ($v('funds_sent_to') !== '' ? 'Funds sent to: ' . $v('funds_sent_to') . "\n" : '')
+         . (winners_kind($record) === 'completion' ? 'Photos:        ' . completion_photos_text($record) . "\n" : '')
          . 'Round:         ' . (string)($record['round'] ?? '') . "\n"
          . 'Submission id: ' . (string)($record['id'] ?? '') . "\n";
+}
+
+/* "Submission details - Jane Doe.txt": what the sender typed, written into
+   the archive beside the uploads and filed with them. SharePoint gets no list
+   item for these records, so without this file the typed answers — who the
+   funds are sent to, whether photos may be shared — would exist only in the
+   team's notice email. Returns the document entry (slot 'details'), or null
+   when it could not be written: the uploads are then filed without it, and
+   the notice email still carries the same text. */
+function winners_details_file(string $dir, array $record): ?array {
+    $kind = winners_kind($record);
+    $name = winners_doc_name('Submission details', (string)($record['fields']['full_name'] ?? ''), 'txt');
+    $text = "\xEF\xBB\xBF"
+          . 'Student Impact Fund by Alumo — '
+          . ($kind === 'completion' ? 'project completion report' : 'winner documents') . "\r\n"
+          . (winners_is_test($record) ? "TEST SUBMISSION (sent from a test copy of the site)\r\n" : '')
+          . "\r\n"
+          . str_replace("\n", "\r\n", winners_details_text($record))
+          . 'Received:      ' . (string)($record['received_utc'] ?? '') . " (UTC)\r\n"
+          . "\r\nFiles sent with this submission:\r\n";
+    foreach ((array)($record['documents'] ?? []) as $doc) {
+        $text .= '  ' . (string)($doc['name'] ?? '') . "\r\n";
+    }
+    $path = $dir . '/' . $name;
+    if (@file_put_contents($path, $text) === false) {
+        error_log("$kind: could not write the submission details file in $dir — filed without it");
+        return null;
+    }
+    return ['slot' => 'details', 'label' => 'Submission details', 'name' => $name, 'path' => $path];
 }
 
 /* Is $school on the frozen list the page offers? Read from the page's own
@@ -1304,6 +1391,13 @@ function winners_second_text(array $record, array $folder): string {
     $earlier = is_array($record['earlier_submissions'] ?? null) ? $record['earlier_submissions'] : [];
     $folderClash = !empty($folder['second']);
     if (!$earlier && !$folderClash) return '';
+    if (winners_kind($record) === 'completion') {
+        /* No banking details here, and sending a report twice (a corrected
+           report, more receipts) is ordinary: say so plainly, nothing more. */
+        return "SECOND SUBMISSION for this name and project — a folder for it was already in\n"
+             . "SharePoint, so this one was filed in a separate folder beside it rather than\n"
+             . "added to it. Check which one is current.\n\n";
+    }
     $one = fn($v): string => str_replace(["\r", "\n"], ' ', (string)$v);
     $text = "SECOND SUBMISSION for this name — confirm banking details with the winner before paying.\n";
     if ($earlier) {
@@ -1351,14 +1445,22 @@ function winners_graph_get(array $auth, string $url, array $tolerate = [], &$sta
    for a test submission (winners_is_test) the same one level down,
    TEST / <root_folder> / … (root at 1) — the top-level TEST folder test
    applications use. So test documents never sit beside a real winner's, and
-   a test folder can never clash with a real one. */
+   a test folder can never clash with a real one.
+   A completion record with a 'subfolder' gets that level between the round
+   and the leaf — <root_folder> / <round> / Project completion / <leaf> — so
+   a winner's report never lands in (or clashes with) the folder holding
+   their banking documents. */
 function winners_folder_segments(array $record): array {
     $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
     $segments = [
         sp_safe_name((string)($record['root_folder'] ?? ''), 'Winners'),
         sp_safe_name((string)($record['round'] ?? ''), 'Round'),
-        sp_safe_name((string)($f['full_name'] ?? '') . ' - ' . (string)($f['project_title'] ?? ''), 'Winner'),
     ];
+    $subfolder = trim((string)($record['subfolder'] ?? ''));
+    if (winners_kind($record) === 'completion' && $subfolder !== '') {
+        $segments[] = sp_safe_name($subfolder, 'Project completion');
+    }
+    $segments[] = sp_safe_name((string)($f['full_name'] ?? '') . ' - ' . (string)($f['project_title'] ?? ''), 'Winner');
     if (!winners_is_test($record)) return [$segments, 0];
     array_unshift($segments, 'TEST');
     return [$segments, 1];
@@ -1481,7 +1583,8 @@ function winners_graph_upload(array $auth, string $driveId, string $folderId, st
    instead of mistaking them for a second submission. No list item is
    created — the folder and the team notice are the record. */
 function winners_graph_deliver(array $cfg, array $record, array $docs, array &$folder): void {
-    $target = winners_graph_target($cfg);
+    [$kindCfg, $key] = winners_record_cfg($cfg, $record);
+    $target = winners_graph_target($kindCfg, $key);
     if (!$target['ready']) {
         throw new RuntimeException("SharePoint delivery is not configured (delivery_mode is '"
             . ($cfg['delivery_mode'] ?? 'off') . "')");
@@ -1557,21 +1660,27 @@ function winners_finish_delivery(string $dir, array $docs, array $folder, string
    "[TEST] " in front of the subject for a test record. */
 function winners_notify_delivered(array $cfg, array $record, array $folder, bool $afterRetry, bool $copiesDeleted): void {
     try {
-        $to = winners_notify_address($cfg);
+        [$kindCfg, $key] = winners_record_cfg($cfg, $record);
+        $words = winners_kind_words(winners_kind($record));
+        $to = winners_notify_address($kindCfg, $key);
         if ($to === '') return;
         $body = winners_second_text($record, $folder);
         $name = (string)($record['fields']['full_name'] ?? '');
         $subject = ($body !== '' ? 'SECOND SUBMISSION — ' : '')
-            . ($afterRetry ? 'Winner documents filed after retry — ' : 'Winner documents received — ')
+            . $words['subject'] . ($afterRetry ? ' filed after retry — ' : ' received — ')
             . $name . ' (' . (string)($record['round'] ?? '') . ')';
+        $labels = [];
+        foreach ((array)($record['documents'] ?? []) as $doc) {
+            if (is_array($doc) && (string)($doc['label'] ?? '') !== '') $labels[] = (string)$doc['label'];
+        }
         $body .= ($afterRetry
-                ? "These winner documents failed to file earlier and are now in SharePoint.\n"
-                : "A winner sent their documents. They are filed in SharePoint (sign-in required):\n")
+                ? $words['these'] . " failed to file earlier and are now in SharePoint.\n"
+                : 'A winner sent ' . $words['sent'] . ". Filed in SharePoint (sign-in required):\n")
                . '  ' . (string)($folder['path'] ?? '') . "\n"
                . ((string)($folder['webUrl'] ?? '') !== '' ? '  ' . $folder['webUrl'] . "\n" : '')
                . "\n" . winners_details_text($record) . "\n"
-               . "Documents: funding agreement, finance form, void cheque. They are NOT\n"
-               . "attached — winner documents only ever go to SharePoint.\n"
+               . ($labels ? wordwrap('Documents: ' . implode(', ', $labels) . '.', 76, "\n", false) . "\n" : '')
+               . 'They are NOT attached — ' . $words['only'] . " only ever go to SharePoint.\n"
                . ($copiesDeleted
                    ? "The copies on the web server have been deleted.\n"
                    : "WARNING: the copies on the web server could NOT all be deleted — see\n"
@@ -1592,8 +1701,10 @@ function winners_record_failure(array $cfg, string $dir, array $record, string $
     $id = (string)($record['id'] ?? basename($dir));
     $error = mb_substr($error, 0, 500);
     $failedAt = gmdate('c');
+    $kind = winners_kind($record);
+    $words = winners_kind_words($kind);
     $marker = [
-        'kind'      => 'winners',
+        'kind'      => $kind,
         'mode'      => $mode,
         'error'     => $error,
         'failed_at' => $failedAt,
@@ -1605,13 +1716,14 @@ function winners_record_failure(array $cfg, string $dir, array $record, string $
     winners_update_record($dir, ['delivery' => ['status' => 'pending-retry', 'mode' => $mode, 'error' => $error, 'failed_at' => $failedAt]]);
 
     try {
-        $to = winners_notify_address($cfg);
+        [$kindCfg, $key] = winners_record_cfg($cfg, $record);
+        $to = winners_notify_address($kindCfg, $key);
         if ($to === '') return;
         $second = winners_second_text($record, $folder);
         $body = $second
-              . "Winner documents could not be filed in SharePoint yet (mode: $mode).\n"
+              . $words['these'] . " could not be filed in SharePoint yet (mode: $mode).\n"
               . "They are safe on the server and nothing is lost. They are NOT attached\n"
-              . "to this email, and never will be: winner documents only go to SharePoint.\n\n"
+              . 'to this email, and never will be: ' . $words['only'] . " only go to SharePoint.\n\n"
               . winners_details_text($record)
               . "Archive:       $dir\n\n"
               . "Error:\n$error\n\n"
@@ -1622,7 +1734,7 @@ function winners_record_failure(array $cfg, string $dir, array $record, string $
                     . "until SharePoint delivery is switched on; the retry job then picks\n"
                     . "them up.\n");
         $sent = winners_send_mail($cfg, $to, test_prefix(winners_is_test($record),
-            ($second !== '' ? 'SECOND SUBMISSION — ' : '') . "Winner documents NOT yet filed — will retry ($id)"), $body);
+            ($second !== '' ? 'SECOND SUBMISSION — ' : '') . $words['subject'] . " NOT yet filed — will retry ($id)"), $body);
         if ($sent) {
             $marker['notified'] = true;
             @file_put_contents($dir . '/DELIVERY-PENDING', json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -1698,7 +1810,7 @@ function winners_ack(array $cfg, array $record): void {
         $body = ($name !== '' ? "Bonjour $name,\n\n" : "Bonjour,\n\n")
               . 'Merci ! Nous avons bien reçu vos documents '
               . ($title !== '' ? "pour « $title »" : 'pour votre projet') . ' : votre entente de '
-              . "financement signée, votre formulaire financier rempli et votre spécimen de chèque.\n\n"
+              . "financement signée et votre spécimen de chèque.\n\n"
               . "Notre équipe les examinera et communiquera avec vous au sujet de votre paiement. "
               . "S'il faut modifier quoi que ce soit, répondez simplement à ce courriel.\n\n"
               . "Fonds d'impact étudiant par Alumo\n";
@@ -1707,7 +1819,7 @@ function winners_ack(array $cfg, array $record): void {
         $body = ($name !== '' ? "Hi $name,\n\n" : "Hi,\n\n")
               . 'Thank you! We received your documents '
               . ($title !== '' ? "for \"$title\"" : 'for your project') . ': your signed funding '
-              . "agreement, your completed finance form and your void cheque.\n\n"
+              . "agreement and your void cheque.\n\n"
               . 'Our team will review them and be in touch about your payment. If anything '
               . "needs to change, just reply to this email.\n\n"
               . "Student Impact Fund by Alumo\n";
@@ -1720,9 +1832,11 @@ function winners_ack(array $cfg, array $record): void {
    the archive is left pending, never emailed. Returns the one-line summary.
    A test record keeps its marks on the retry ("[TEST] " subjects, the TEST
    folder): they come from its archived 'test' flag (winners_is_test), as a
-   cron run has no host. */
-function winners_redeliver_one(array $cfg, string $dir, string $id): string {
-    $label = "winners/$id";
+   cron run has no host.
+   $kind is the archive directory the marker was found in — 'winners' or
+   'completion' — and the record inside must say the same. */
+function winners_redeliver_one(array $cfg, string $dir, string $id, string $kind = 'winners'): string {
+    $label = "$kind/$id";
     $markerPath = $dir . '/DELIVERY-PENDING';
     if (!is_file($markerPath)) {
         return "$label: marker gone — another run already delivered it";
@@ -1732,14 +1846,15 @@ function winners_redeliver_one(array $cfg, string $dir, string $id): string {
     $attempts = (int)($marker['attempts'] ?? 1) + 1;
 
     $record = json_decode((string)@file_get_contents($dir . '/submission.json'), true);
-    if (!is_array($record) || ($record['kind'] ?? '') !== 'winners'
+    if (!is_array($record) || ($record['kind'] ?? '') !== $kind
         || !is_array($record['fields'] ?? null) || !is_array($record['documents'] ?? null)) {
-        return "$label: left pending — submission.json missing or not a winners record";
+        return "$label: left pending — submission.json missing or not a $kind record";
     }
 
-    if (!winners_graph_target($cfg)['ready']) {
-        return "$label: left pending — winner documents go to SharePoint only (delivery_mode is '"
-            . ($cfg['delivery_mode'] ?? 'off') . "')";
+    [$kindCfg, $key] = winners_record_cfg($cfg, $record);
+    if (!winners_graph_target($kindCfg, $key)['ready']) {
+        return "$label: left pending — " . winners_kind_words($kind)['only']
+            . " go to SharePoint only (delivery_mode is '" . ($cfg['delivery_mode'] ?? 'off') . "')";
     }
 
     $docs = [];
@@ -1773,7 +1888,7 @@ function winners_redeliver_one(array $cfg, string $dir, string $id): string {
 
     /* Still failing: update the marker and wait for the next run — no email,
        the first failure already sent the one notice. */
-    $marker['kind']            = 'winners';
+    $marker['kind']            = $kind;
     $marker['mode']            = 'graph';
     $marker['attempts']        = $attempts;
     $marker['last_error']      = mb_substr($error, 0, 500);
@@ -1784,4 +1899,128 @@ function winners_redeliver_one(array $cfg, string $dir, string $id): string {
     }
     @file_put_contents($markerPath, json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     return "$label: still failing (attempt $attempts) — " . mb_substr($error, 0, 200);
+}
+
+/* ======================================================================
+   Project completion page — api/completion.php (+ its glob in
+   api/redeliver.php). Added Nov 2026.
+
+   A winner whose project is done sends a completion report, receipts and
+   (optionally) photos. It is the winners page's second kind of record
+   (winners_kind 'completion') and rides the same rails: SharePoint only,
+   never emailed, server copies deleted once filed, "[TEST]" marking, the
+   same retry. Everything above that takes a record or a config key serves
+   both kinds; only what differs lives here:
+   - the 'completion' config block, which inherits the winners block's
+     folder settings (completion_cfg);
+   - its upload slots — two of them take several files (completion_*);
+   - its folder: <root_folder> / <round> / <subfolder> / <Full name> -
+     <Project title>, i.e. by default INSIDE the restricted Winners root, one
+     level away from the folders holding banking documents
+     (winners_folder_segments);
+   - no confirmation email to the sender at all.
+   ====================================================================== */
+
+/* $cfg with its 'completion' block resolved: round, root_folder, notify_to,
+   drive_id and create_root default to the winners block's values when the
+   completion block leaves the key OUT (a key that is present, even empty,
+   is the block's own), and subfolder defaults to 'Project completion'.
+   So the smallest working block is  'completion' => ['closes_at' => 'none'].
+   No 'completion' block at all = $cfg unchanged, and the page stays closed
+   — unless $evenWithoutBlock, which builds the block from the winners
+   block's values alone. That is for records already archived (the retry
+   job, team notices: winners_record_cfg), never for deciding whether the
+   page is open (completion_config).
+   allow_without_graph is never inherited: it has to be written in the block
+   it opens. Safe to call twice. */
+function completion_cfg(array $cfg, bool $evenWithoutBlock = false): array {
+    $c = $cfg['completion'] ?? null;
+    if (!is_array($c)) {
+        if (!$evenWithoutBlock) return $cfg;
+        $c = [];
+    }
+    $w = is_array($cfg['winners'] ?? null) ? $cfg['winners'] : [];
+    foreach (['round', 'root_folder', 'notify_to', 'drive_id', 'create_root'] as $key) {
+        if (!array_key_exists($key, $c) && array_key_exists($key, $w)) $c[$key] = $w[$key];
+    }
+    if (!array_key_exists('subfolder', $c)) $c['subfolder'] = 'Project completion';
+    $cfg['completion'] = $c;
+    return $cfg;
+}
+
+/* The resolved 'completion' block with defaults filled in, or null when the
+   page must stay CLOSED — exactly winners_config's rules (round and
+   root_folder, a real closes_at or 'none', SharePoint delivery ready), read
+   from the 'completion' block. Adds 'subfolder' (trimmed; '' = none). */
+function completion_config(array $cfg): ?array {
+    $c = winners_config(completion_cfg($cfg), 'completion');
+    if ($c === null) return null;
+    $c['subfolder'] = trim((string)($c['subfolder'] ?? ''));
+    return $c;
+}
+
+/* The three upload slots — input name => label, accepted extensions and how
+   many files (min..max). Must match the "completion" SLOTS in
+   js/winners-form.js and the accept= lists on both pages. 1 + 10 + 8 = 19
+   files at most, inside max_file_uploads (20: api/.user.ini, and
+   Dockerfile.php for the test image). */
+function completion_upload_slots(): array {
+    $documents = ['pdf', 'docx', 'jpg', 'jpeg', 'png'];
+    return [
+        'file_report'   => ['label' => 'Completion report', 'exts' => $documents, 'min' => 1, 'max' => 1],
+        'file_receipts' => ['label' => 'Receipt',           'exts' => $documents, 'min' => 1, 'max' => 10],
+        'file_photos'   => ['label' => 'Photo',             'exts' => $documents, 'min' => 0, 'max' => 8],
+    ];
+}
+
+/* One $_FILES entry as a list of single-file entries, whether the input was
+   name="x" or name="x[]". "No file chosen" entries are dropped — an empty
+   multiple input still posts one. */
+function completion_files($entry): array {
+    if (!is_array($entry) || !array_key_exists('error', $entry)) return [];
+    if (!is_array($entry['error'])) {
+        return $entry['error'] === UPLOAD_ERR_NO_FILE ? [] : [$entry];
+    }
+    $files = [];
+    foreach ($entry['error'] as $i => $error) {
+        if ($error === UPLOAD_ERR_NO_FILE) continue;
+        $files[] = [
+            'name'     => $entry['name'][$i] ?? '',
+            'type'     => $entry['type'][$i] ?? '',
+            'tmp_name' => $entry['tmp_name'][$i] ?? '',
+            'error'    => $error,
+            'size'     => $entry['size'][$i] ?? 0,
+        ];
+    }
+    return $files;
+}
+
+/* Every file of one slot -> ['files' => [[tmp, ext, size], …]] (empty for an
+   optional slot left empty) or ['error' => key]. The keys are
+   winners_check_upload's, plus 'too_many'; the first problem found names the
+   slot, as on the page. */
+function completion_check_slot($entry, array $spec, int $maxBytes): array {
+    $files = completion_files($entry);
+    if (count($files) < $spec['min']) return ['error' => 'required'];
+    if (count($files) > $spec['max']) return ['error' => 'too_many'];
+    $checked = [];
+    foreach ($files as $f) {
+        $check = winners_check_upload($f, $spec['exts'], $maxBytes);
+        if (isset($check['error'])) return ['error' => $check['error']];
+        $checked[] = ['tmp' => (string)$f['tmp_name'], 'ext' => $check['ext'], 'size' => (int)$f['size']];
+    }
+    return ['files' => $checked];
+}
+
+/* What starts a document's file name in SharePoint: "Completion report",
+   "Receipt 2", "Photo 1 (OK to share)". Files of a several-file slot are
+   numbered when there is more than one. A photo's name carries the sender's
+   answer to "Can we share your photos?", because a photo gets copied out of
+   its folder — and away from the Submission details file — the moment
+   someone wants to use it; anything but an explicit yes reads "do not
+   share". */
+function completion_doc_label(string $slot, string $label, int $n, int $count, string $consent): string {
+    if ($count > 1) $label .= ' ' . $n;
+    if ($slot === 'file_photos') $label .= $consent === 'yes' ? ' (OK to share)' : ' (do not share)';
+    return $label;
 }

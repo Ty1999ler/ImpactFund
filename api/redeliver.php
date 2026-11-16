@@ -36,7 +36,10 @@ $markers = glob($base . '/*/DELIVERY-PENDING') ?: [];
    SharePoint ONLY and never emails a document (winners_redeliver_one in
    _lib.php). The application loop below is unchanged. */
 $winnerMarkers = glob($base . '/winners/*/DELIVERY-PENDING') ?: [];
-if (!$markers && !$winnerMarkers) {
+/* Project completion archives (api/completion.php), the winners page's second
+   kind of record: same depth, same SharePoint-only retry. */
+$completionMarkers = glob($base . '/completion/*/DELIVERY-PENDING') ?: [];
+if (!$markers && !$winnerMarkers && !$completionMarkers) {
     echo "redeliver: nothing pending\n";
     exit(0);
 }
@@ -56,6 +59,15 @@ foreach ($winnerMarkers as $markerPath) {
         echo winners_redeliver_one($cfg, $dir, $id) . "\n";
     } catch (Throwable $e) {
         echo "winners/$id: ERROR — " . $e->getMessage() . "\n";
+    }
+}
+foreach ($completionMarkers as $markerPath) {
+    $dir = dirname($markerPath);
+    $id  = basename($dir);
+    try {
+        echo winners_redeliver_one($cfg, $dir, $id, 'completion') . "\n";
+    } catch (Throwable $e) {
+        echo "completion/$id: ERROR — " . $e->getMessage() . "\n";
     }
 }
 exit(0);

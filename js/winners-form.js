@@ -1,35 +1,43 @@
 /* ============================================================
-   Winners page — /winners-fall-2026/ and /fr/gagnants-automne-2026/.
+   Winners page — /winners-fall-2026/ and /fr/gagnants-automne-2026/ — and,
+   since Nov 2026, the project completion page —
+   /project-completion-fall-2026/ and /fr/fin-de-projet-automne-2026/.
+   One script, two forms: <form data-handler="winners"> posts to
+   /api/winners.php, <form data-handler="completion"> to /api/completion.php.
+   Both pages use the same hooks (data-winners-*) and the same markup; what
+   differs — copy, fields, upload slots — is picked by KIND below.
 
-   1. Asks /api/winners.php?state=1 which state the page is in, then shows
-      EITHER the open content (finance form download, tax block, form) OR
-      exactly one state card: closed (with the deadline), not open yet, or not
-      ready. A check that fails for any reason shows "not ready"; without
-      JavaScript the page's <noscript> card shows instead. The schedule lives
-      in the server's config — this file never decides it. So does the
-      confirmation email to the winner (winners.send_confirmation, off by
-      default): the copy that promises it ([data-winners-confirmation]) stays
+   1. Asks the endpoint (?state=1) which state the page is in, then shows
+      EITHER the open content OR exactly one state card: closed (with the
+      deadline), not open yet, or not ready. A check that fails for any reason
+      shows "not ready"; without JavaScript the page's <noscript> card shows
+      instead. The schedule lives in the server's config — this file never
+      decides it. So does the confirmation email to the winner
+      (winners.send_confirmation, off by default; never sent for a completion
+      report): the copy that promises it ([data-winners-confirmation]) stays
       hidden unless the check answers confirmation: true.
    2. Fills the school <select> from window.ALUMO_WINNERS_SCHOOLS (the frozen
       Fall 2026 list, /js/winners-schools-fall-2026.js): one <optgroup> per
       province, then "My school isn't listed", which reveals a required box.
-   3. Validates exactly what api/winners.php validates, with inline errors,
-      then sends the form with XMLHttpRequest (a 15-minute timeout: up to
-      three phone photos over mobile data); meanwhile the button is disabled
-      and reads "Sending…". The server answers error KEYS (fields:
-      {name: key}); they are mapped onto the EN/FR copy below, so the PHP
-      never has to know the page's language.
-   Strings: FR_DRAFTS.md (Oct 2026), French pending Hafsa's approval.
+   3. Validates exactly what the endpoint validates, with inline errors, then
+      sends the form with XMLHttpRequest (a 15-minute timeout: phone photos
+      over mobile data); meanwhile the button is disabled and reads
+      "Sending…". The server answers error KEYS (fields: {name: key}); they
+      are mapped onto the EN/FR copy below, so the PHP never has to know the
+      page's language.
+   Strings: FR_DRAFTS.md (Oct and Nov 2026), French pending Hafsa's approval.
    ============================================================ */
 (function () {
   "use strict";
 
-  var form = document.querySelector('form[data-handler="winners"]');
+  var form = document.querySelector('form[data-handler="winners"], form[data-handler="completion"]');
   if (!form) return;
 
-  var ENDPOINT = "/api/winners.php";
-  var FILE_MAX_BYTES = 10 * 1024 * 1024; /* 10 MB — must match $maxBytes in api/winners.php */
-  var SCHOOL_OTHER = "__other";          /* must match $SCHOOL_OTHER in api/winners.php */
+  var IS_COMPLETION = form.getAttribute("data-handler") === "completion";
+  var ENDPOINT = IS_COMPLETION ? "/api/completion.php" : "/api/winners.php";
+  var FILE_MAX_BYTES = 10 * 1024 * 1024;  /* 10 MB — must match $maxBytes in both endpoints */
+  var TOTAL_MAX_BYTES = 50 * 1024 * 1024; /* all files together — must match $maxTotalBytes in api/completion.php */
+  var SCHOOL_OTHER = "__other";           /* must match $SCHOOL_OTHER in both endpoints */
 
   /* ---- UI strings (EN / FR, keyed off <html lang>, as in apply-form.js) ---- */
   var IS_FR = (document.documentElement.lang || "").toLowerCase().indexOf("fr") === 0;
@@ -44,8 +52,8 @@
     errTitle: "Veuillez indiquer le titre de votre projet.",
     errEmail: "Veuillez indiquer votre adresse courriel.",
     errEmailInvalid: "Veuillez entrer une adresse courriel valide.",
+    errFunds: "Veuillez indiquer à qui les fonds sont versés.",
     errAgreement: "Veuillez téléverser votre entente signée.",
-    errFinance: "Veuillez téléverser votre formulaire financier rempli.",
     errCheque: "Veuillez téléverser votre spécimen de chèque.",
     errTypeDocs: "Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, DOCX, JPG ou PNG.",
     errTypeCheque: "Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, JPG ou PNG.",
@@ -68,8 +76,8 @@
     errTitle: "Enter your project title.",
     errEmail: "Enter your email address.",
     errEmailInvalid: "Enter a valid email address.",
+    errFunds: "Enter who the funds are sent to.",
     errAgreement: "Upload your signed agreement.",
-    errFinance: "Upload your completed finance form.",
     errCheque: "Upload your void cheque.",
     errTypeDocs: "That file type isn't supported. Try PDF, DOCX, JPG or PNG.",
     errTypeCheque: "That file type isn't supported. Try PDF, JPG or PNG.",
@@ -83,6 +91,40 @@
     errServer: "Your documents could not be sent. Please try again later."
   };
 
+  /* The project completion page's own copy: what it says differently from
+     the winners page ("your report", not "your documents") and what only it
+     can say (several files in one box, the photo-sharing question). */
+  if (IS_COMPLETION) {
+    var C = IS_FR ? {
+      deadline: function (date) { return "Veuillez envoyer votre rapport au plus tard le " + date + "."; },
+      closedText: function (date) { return "La date limite pour envoyer votre rapport était le " + date + "."; },
+      closedHelp: "Si vous devez encore l'envoyer, répondez au courriel qu'Alumo vous a envoyé.",
+      errReport: "Veuillez téléverser votre rapport de fin de projet.",
+      errReceipts: "Veuillez téléverser au moins un reçu.",
+      errTooManyReceipts: "Vous pouvez téléverser jusqu'à 10 reçus. Si vous en avez davantage, regroupez-les dans un seul fichier PDF.",
+      errTooManyPhotos: "Vous pouvez téléverser jusqu'à 8 photos.",
+      errConsent: "Veuillez nous indiquer si nous pouvons partager vos photos.",
+      errTotal: "Ensemble, vos fichiers dépassent 50 MB. Veuillez en retirer quelques-uns ou utiliser des fichiers moins volumineux.",
+      errTooLarge: "La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins, et l'ensemble des fichiers, de 50 MB ou moins.",
+      errNetwork: "Une erreur s'est produite et votre rapport n'a pas été envoyé. Veuillez vérifier votre connexion et réessayer.",
+      errServer: "Votre rapport n'a pas pu être envoyé. Veuillez réessayer plus tard."
+    } : {
+      deadline: function (date) { return "Please send your report by " + date + "."; },
+      closedText: function (date) { return "The deadline to send your report was " + date + "."; },
+      closedHelp: "If you still need to send it, reply to the email Alumo sent you.",
+      errReport: "Upload your Project Completion Report.",
+      errReceipts: "Upload at least one receipt.",
+      errTooManyReceipts: "You can upload up to 10 receipts. If you have more, combine them into one PDF.",
+      errTooManyPhotos: "You can upload up to 8 photos.",
+      errConsent: "Tell us whether we can share your photos.",
+      errTotal: "Together, your files are over 50 MB. Remove a few or use smaller files.",
+      errTooLarge: "The submission is too large. Each file must be 10 MB or less, and all files together 50 MB or less.",
+      errNetwork: "Something went wrong and your report wasn't sent. Check your connection and try again.",
+      errServer: "Your report could not be sent. Please try again later."
+    };
+    Object.keys(C).forEach(function (key) { T[key] = C[key]; });
+  }
+
   /* Province group labels, same codes/order/names as apply-form.js. */
   var PROVINCES = IS_FR ? [
     ["AB", "Alberta"], ["BC", "Colombie-Britannique"], ["MB", "Manitoba"],
@@ -94,13 +136,18 @@
     ["QC", "Quebec"], ["SK", "Saskatchewan"]
   ];
 
-  /* The three documents, in page order. exts must match
-     winners_upload_slots() in api/_lib.php and the inputs' accept= lists. */
+  /* The upload slots, in page order: name (the server's key — the input is
+     name or name[]), accepted extensions, and how many files (min..max).
+     Must match winners_upload_slots() / completion_upload_slots() in
+     api/_lib.php and the inputs' accept= lists. */
   var DOC_EXTS = ["pdf", "docx", "jpg", "jpeg", "png"];
-  var SLOTS = [
-    { name: "file_agreement", exts: DOC_EXTS, missing: T.errAgreement, type: T.errTypeDocs },
-    { name: "file_finance_form", exts: DOC_EXTS, missing: T.errFinance, type: T.errTypeDocs },
-    { name: "file_void_cheque", exts: ["pdf", "jpg", "jpeg", "png"], missing: T.errCheque, type: T.errTypeCheque }
+  var SLOTS = IS_COMPLETION ? [
+    { name: "file_report", exts: DOC_EXTS, min: 1, max: 1, missing: T.errReport, type: T.errTypeDocs },
+    { name: "file_receipts", exts: DOC_EXTS, min: 1, max: 10, missing: T.errReceipts, type: T.errTypeDocs, tooMany: T.errTooManyReceipts },
+    { name: "file_photos", exts: DOC_EXTS, min: 0, max: 8, missing: "", type: T.errTypeDocs, tooMany: T.errTooManyPhotos }
+  ] : [
+    { name: "file_agreement", exts: DOC_EXTS, min: 1, max: 1, missing: T.errAgreement, type: T.errTypeDocs },
+    { name: "file_void_cheque", exts: ["pdf", "jpg", "jpeg", "png"], min: 1, max: 1, missing: T.errCheque, type: T.errTypeCheque }
   ];
   /* Some Android pickers hand over a file with no extension; judge it by its
      type when the browser knows one. When it doesn't ("" on desktop,
@@ -116,7 +163,9 @@
     school_other: T.errSchoolOther,
     full_name: T.errName,
     project_title: T.errTitle,
-    email: T.errEmail
+    email: T.errEmail,
+    funds_sent_to: T.errFunds,       /* winners page only */
+    photo_consent: T.errConsent      /* completion page only */
   };
   var SLOT_BY_NAME = {};
   SLOTS.forEach(function (slot) {
@@ -130,12 +179,16 @@
     upload_failed: T.errUploadFailed
   };
   /* Page order, for "focus the first problem". */
-  var FIELD_ORDER = ["school", "school_other", "full_name", "project_title", "email",
-    "file_agreement", "file_finance_form", "file_void_cheque"];
+  var FIELD_ORDER = IS_COMPLETION
+    ? ["school", "school_other", "full_name", "project_title", "email",
+      "file_report", "file_receipts", "file_photos", "photo_consent"]
+    : ["school", "school_other", "full_name", "project_title", "email", "funds_sent_to",
+      "file_agreement", "file_void_cheque"];
 
   var statesSection = document.querySelector("[data-winners-states]");
   var openContent = document.querySelector("[data-winners-open]");
-  var intro = document.querySelector("[data-winners-intro]");
+  /* Every intro paragraph (the completion page has two). */
+  var intros = Array.prototype.slice.call(document.querySelectorAll("[data-winners-intro]"));
   var deadlineLine = document.querySelector("[data-winners-deadline]");
   var closedText = document.querySelector("[data-winners-closed-text]");
   var success = document.querySelector("[data-winners-success]");
@@ -154,7 +207,17 @@
   var submitLabel = submitBtn.querySelector("span") || submitBtn;
   var submitText = submitLabel.textContent;
 
-  function field(name) { return form.querySelector('[name="' + name + '"]'); }
+  /* The control for a server key: name="x", or name="x[]" for a box that
+     takes several files. For a radio pair, the first radio. */
+  function field(name) {
+    return form.querySelector('[name="' + name + '"]') || form.querySelector('[name="' + name + '[]"]');
+  }
+  /* The server key for a control ("file_receipts[]" -> "file_receipts"). */
+  function keyOf(el) { return String(el.name || "").replace(/\[\]$/, ""); }
+
+  /* "Can we share your photos?" — completion page only (null elsewhere). */
+  var consentRadios = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"][name="photo_consent"]'));
+  var photosInput = IS_COMPLETION ? field("file_photos") : null;
 
   function parseJson(text) {
     try {
@@ -214,14 +277,14 @@
     if (state === "open") {
       statesSection.hidden = true;
       openContent.hidden = false;
-      intro.hidden = false;
+      intros.forEach(function (el) { el.hidden = false; });
       deadlineLine.hidden = !date;
       deadlineLine.textContent = date ? T.deadline(date) : "";
       return null;
     }
     if (!cards[state]) state = "unconfigured";
     openContent.hidden = true;
-    intro.hidden = true;
+    intros.forEach(function (el) { el.hidden = true; });
     deadlineLine.hidden = true;
     Object.keys(cards).forEach(function (key) { cards[key].hidden = key !== state; });
     if (state === "closed") {
@@ -238,7 +301,7 @@
       return showState(state, closesTs);
     } catch (e) {
       openContent.hidden = true;
-      if (intro) intro.hidden = true;
+      intros.forEach(function (el) { el.hidden = true; });
       if (deadlineLine) deadlineLine.hidden = true;
       statesSection.hidden = false;
       if (cards.unconfigured) cards.unconfigured.hidden = false;
@@ -390,13 +453,7 @@
 
   /* ---- File rules — same order as winners_check_upload() on the server:
      HEIC, then type, then size. Returns a message, or "" when fine. ---- */
-  function fileProblem(input) {
-    var slot = SLOT_BY_NAME[input.name];
-    var file = input.files && input.files[0];
-    /* A file refused on pick was cleared from the input: keep saying why
-       ("HEIC photos aren't supported…") rather than "Upload your…", or the
-       winner would just pick the same photo again. */
-    if (!file) return input.getAttribute("data-rejected") || slot.missing;
+  function oneFileProblem(file, slot) {
     var name = String(file.name || "").toLowerCase();
     var type = String(file.type || "").toLowerCase();
     var dot = name.lastIndexOf(".");
@@ -408,6 +465,35 @@
     if (file.size > FILE_MAX_BYTES) return T.errSize;
     if (file.size === 0) return T.errUploadFailed;
     return "";
+  }
+  /* Everything picked in one box, in the server's order (completion_check_slot):
+     too few, too many, then each file. In a box holding several files the
+     message names the file it is about. */
+  function fileProblem(input) {
+    var slot = SLOT_BY_NAME[keyOf(input)];
+    var files = input.files ? Array.prototype.slice.call(input.files) : [];
+    if (!files.length) {
+      /* A file refused on pick was cleared from the input: keep saying why
+         ("HEIC photos aren't supported…") rather than "Upload your…", or the
+         winner would just pick the same photo again. Only where a file is
+         required, though: an optional box that is empty is fine however it
+         came to be empty — a refused photo must never stop someone sending
+         their report without photos. */
+      return slot.min > 0 ? (input.getAttribute("data-rejected") || slot.missing) : "";
+    }
+    if (files.length > slot.max) return slot.tooMany || slot.type;
+    for (var i = 0; i < files.length; i++) {
+      var problem = oneFileProblem(files[i], slot);
+      if (problem) return files.length > 1 ? String(files[i].name || "") + " — " + problem : problem;
+    }
+    return "";
+  }
+  function filesBytes(input) {
+    var total = 0;
+    if (input && input.files) {
+      Array.prototype.forEach.call(input.files, function (file) { total += file.size || 0; });
+    }
+    return total;
   }
 
   /* A rejected file is cleared straight away (as on the application form),
@@ -425,8 +511,8 @@
     }
   }
 
-  /* ---- Whole-form validation, mirroring api/winners.php. Returns the
-     invalid fields in page order. ---- */
+  /* ---- Whole-form validation, mirroring the endpoint (api/winners.php or
+     api/completion.php). Returns the invalid fields in page order. ---- */
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   function validateAll() {
     var invalid = [];
@@ -441,18 +527,39 @@
     if (schoolSelect.value === SCHOOL_OTHER) {
       check(otherInput, otherInput.value.trim() === "" ? T.errSchoolOther : "");
     }
-    ["full_name", "project_title"].forEach(function (name) {
+    /* In page order, so the first problem found is the first on screen. */
+    function checkText(name) {
       var el = field(name);
       check(el, el.value.trim() === "" ? REQUIRED[name] : "");
-    });
+    }
+    checkText("full_name");
+    checkText("project_title");
     var email = field("email");
     var value = email.value.trim();
     check(email, value === "" ? T.errEmail
       : (!EMAIL_RE.test(value) || (email.validity && email.validity.typeMismatch)) ? T.errEmailInvalid : "");
+    if (!IS_COMPLETION) checkText("funds_sent_to");
+
+    var total = 0;
+    var lastWithFiles = null;
     SLOTS.forEach(function (slot) {
       var input = field(slot.name);
       check(input, fileProblem(input));
+      total += filesBytes(input);
+      if (input.files && input.files.length) lastWithFiles = input;
     });
+    /* All files together (completion page: up to 19 of them). Said on the
+       last box that holds any, and only once each box is fine on its own. */
+    if (IS_COMPLETION && !invalid.length && total > TOTAL_MAX_BYTES && lastWithFiles) {
+      check(lastWithFiles, T.errTotal);
+    }
+    /* The sharing question is about the photos: it needs an answer only when
+       there are some. */
+    if (consentRadios.length) {
+      var answered = consentRadios.some(function (radio) { return radio.checked; });
+      var hasPhotos = !!(photosInput && photosInput.files && photosInput.files.length);
+      check(consentRadios[0], hasPhotos && !answered ? T.errConsent : "");
+    }
     return invalid;
   }
 
@@ -511,6 +618,7 @@
         var key = String(j.fields[name]);
         var text = key === "required" ? (REQUIRED[name] || T.errFields)
           : key === "file_type" ? (SLOT_BY_NAME[name] ? SLOT_BY_NAME[name].type : T.errTypeDocs)
+          : key === "too_many" ? ((SLOT_BY_NAME[name] && SLOT_BY_NAME[name].tooMany) || T.errFields)
           : Object.prototype.hasOwnProperty.call(FIELD_ERRORS, key) ? FIELD_ERRORS[key]
           : T.errFields;
         setError(el, text);
@@ -538,7 +646,7 @@
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", ENDPOINT, true);
-    xhr.timeout = 15 * 60 * 1000; /* three 10 MB files over a slow connection */
+    xhr.timeout = 15 * 60 * 1000; /* 10 MB files (up to 50 MB of them) over a slow connection */
     xhr.setRequestHeader("Accept", "application/json");
     xhr.onload = function () { handleResponse(xhr.status, parseJson(xhr.responseText)); };
     xhr.onerror = xhr.ontimeout = xhr.onabort = function () {
@@ -561,18 +669,24 @@
     send();
   });
 
-  /* Correcting a field clears its error right away. */
+  /* Correcting a field clears its error right away. The sharing question's
+     error lives on its first radio, whichever of the two is clicked. */
+  function errorOwner(el) {
+    return consentRadios.indexOf(el) !== -1 ? consentRadios[0] : el;
+  }
   form.addEventListener("input", function (e) {
     var t = e.target;
-    if (t && t.type !== "file" && t.matches && t.matches("input, select, textarea")) clearError(t);
+    if (t && t.type !== "file" && t.matches && t.matches("input, select, textarea")) clearError(errorOwner(t));
   });
   form.addEventListener("change", function (e) {
     var t = e.target;
     if (!t || !t.matches) return;
     if (t.type === "file") {
       onFileChosen(t);
+      /* Photos taken back out: the sharing question no longer needs an answer. */
+      if (t === photosInput && consentRadios.length && !(t.files && t.files.length)) clearError(consentRadios[0]);
     } else if (t.matches("input, select, textarea")) {
-      clearError(t);
+      clearError(errorOwner(t));
     }
     if (t === schoolSelect) {
       syncSchoolOther();

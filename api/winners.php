@@ -9,11 +9,15 @@
                      emailed a confirmation, so the page only promises one
                      when it is sent.
    POST multipart -> school (+ school_other), full_name, project_title, email,
-                     locale, and three documents: file_agreement,
-                     file_finance_form, file_void_cheque.
+                     funds_sent_to, locale, and two documents: file_agreement
+                     and file_void_cheque. (The finance form and its tax block
+                     were dropped in Nov 2026, at Alumo's request.)
    1. checks the schedule, the fields and the files' real content, then
       archives under submissions_dir/winners/<id>/ with the documents renamed
-      "Funding agreement - <Name>.<ext>", "Finance form - …", "Void cheque - …";
+      "Funding agreement - <Name>.<ext>" and "Void cheque - …", plus a
+      "Submission details - <Name>.txt" holding what was typed (so who the
+      funds are sent to is filed WITH the banking documents, not only in the
+      team's notice email);
    2. answers the winner, then files the documents in SharePoint (Microsoft
       Graph) under <root_folder>/<round>/<Full name - Project title>/;
    3. on success deletes the server copies; on failure leaves a
@@ -94,6 +98,8 @@ $FIELDS = [
     'full_name'     => [true, 200],
     'project_title' => [true, 255],
     'email'         => [true, 254],
+    /* Who the payment is made out to: the winner, or their organization. */
+    'funds_sent_to' => [true, 255],
     /* Hidden input ("en" / "fr"); only picks the confirmation's language. */
     'locale'        => [false, 2],
 ];
@@ -115,7 +121,7 @@ if ($data['email'] !== '' && !filter_var($data['email'], FILTER_VALIDATE_EMAIL))
 /* ---------- files ---------- */
 
 /* 10 MB each, fixed: it is printed on the page ("Max. file size: 10 MB") and
-   mirrored by FILE_MAX_BYTES in js/winners-form.js. Three files fit well
+   mirrored by FILE_MAX_BYTES in js/winners-form.js. Two files fit well
    inside api/.user.ini's post_max_size (60M). */
 $maxBytes = 10 * 1024 * 1024;
 
@@ -150,6 +156,7 @@ $fields = [
     'full_name'     => $data['full_name'],
     'project_title' => $data['project_title'],
     'email'         => $data['email'],
+    'funds_sent_to' => $data['funds_sent_to'],
     'locale'        => $data['locale'],
 ];
 
@@ -205,6 +212,14 @@ $record = [
        a winner archive that somehow reached it would find nothing to send. */
     'documents'    => array_map(fn($s) => ['slot' => $s['slot'], 'label' => $s['label'], 'name' => $s['name']], $stored),
 ];
+/* What was typed, as a text file filed with the uploads (winners_details_file).
+   Written after the uploads so it can list them; if it cannot be written the
+   uploads are filed without it. */
+$details = winners_details_file($dir, $record);
+if ($details !== null) {
+    $stored[] = $details;
+    $record['documents'][] = ['slot' => $details['slot'], 'label' => $details['label'], 'name' => $details['name']];
+}
 if (@file_put_contents($dir . '/submission.json', json_encode($record, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) === false) {
     $abandon();
 }

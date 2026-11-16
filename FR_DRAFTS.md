@@ -191,6 +191,86 @@ FR body:
 | Confirmation email, when the typed name is left out (it looks like a link or is too long — anti-abuse) — only when send_confirmation is on — not sent for Fall 2026 | Hi, | Bonjour, |
 | Confirmation email, when the typed project title is left out (same reason) — only when send_confirmation is on — not sent for Fall 2026 | …your documents for your project: … | …vos documents pour votre projet&nbsp;: … |
 
+## C. Winners page — November 2026 changes (Hafsa's updated mock, 2026-11-13)
+
+Written 2026-11-14. On staging for review; not approved yet. The finance form, its step and
+the tax block are gone (so their rows in section B no longer apply), and one field is new.
+
+| Item | English (Hafsa's mock) | French |
+|---|---|---|
+| Title | You won. Just a few steps before you get started. | Vous avez gagné. Encore quelques étapes avant de vous lancer. *(was "… Passons maintenant au versement de votre financement.")* |
+| Intro | Send us your signed agreement and void cheque. | Envoyez-nous votre entente signée et votre spécimen de chèque. |
+| Payment note (orange box) | **When to expect your payment:** once you submit the required documents, our team will start processing your payment the week of January 4, 2027. | **Quand prévoir votre paiement&nbsp;:** une fois les documents requis envoyés, notre équipe commencera à traiter votre paiement dans la semaine du 4 janvier 2027. |
+| Form heading | Send us your documents *(no more "Step 2:")* | Envoyez-nous vos documents |
+| New field, label | Funds are sent to | Les fonds sont versés à |
+| New field, placeholder | Type recipient name or organization name | Écrivez le nom de la personne ou de l'organisation |
+| New field, error | Enter who the funds are sent to. | Veuillez indiquer à qui les fonds sont versés. |
+| Confirmation email (only if send_confirmation is ever turned on) | …your signed funding agreement and your void cheque. | …votre entente de financement signée et votre spécimen de chèque. |
+
+Deadline line and its date format are unchanged (section B): with the December 18 deadline it
+reads "Veuillez envoyer vos documents au plus tard le 18 décembre 2026 à 23 h 59 (heure de l'Est)."
+
+## D. Project completion page (/fr/fin-de-projet-automne-2026/) — new, November 2026
+
+Written 2026-11-14 from Hafsa's mock (English only). Reuses the approved winners-page wording
+wherever the two pages say the same thing (school, name, title, email, file types, privacy line,
+"Bien reçu, merci !", the state cards). New French only:
+
+### Page
+| Item | English (Hafsa's mock) | French |
+|---|---|---|
+| Browser tab title | Project completion – Alumo Fund | Fin de projet – Fonds Alumo |
+| Search description | Send your project completion report to the Student Impact Fund by Alumo. | Envoyez votre rapport de fin de projet au Fonds d'impact étudiant par Alumo. |
+| Small label above title | Project completion | Fin de projet |
+| Title | Tell us how your project came to life. | Racontez-nous comment votre projet a pris vie. |
+| Intro, line 1 | Congratulations on completing your project! Send us your Project Completion Report, your receipts and any photos you'd like to share. | Félicitations pour la réalisation de votre projet&#8239;! Envoyez-nous votre rapport de fin de projet, vos reçus et les photos que vous aimeriez partager. |
+| Intro, line 2 | Once we've received and reviewed your report, we'll send your remaining funding. | Une fois votre rapport reçu et examiné, nous vous verserons le reste de votre financement. |
+| Deadline line (only if a deadline is set for the page; none planned) | Please send your report by {date}. | Veuillez envoyer votre rapport au plus tard le {date}. |
+| Guidelines card, heading | Not sure what to include? | Vous ne savez pas quoi inclure&#8239;? |
+| Guidelines card, text | Our Project Completion Report Guidelines walk you through it, including what to put in your report and an example of how to show your budget. | Nos lignes directrices pour le rapport de fin de projet vous guident pas à pas&nbsp;: vous y trouverez ce que votre rapport doit contenir et un exemple de présentation de votre budget. |
+| Guidelines card, button | Download the guidelines | Télécharger les lignes directrices |
+
+### Form
+| Item | English (Hafsa's mock) | French |
+|---|---|---|
+| Upload 1 | Project Completion Report | Rapport de fin de projet |
+| Upload 1 hint | Your report, including your budget with actual costs. | Votre rapport, y compris votre budget avec les coûts réels. |
+| Upload 2 | Receipts | Reçus |
+| Upload 2 hint | You can upload more than one file. | Vous pouvez téléverser plusieurs fichiers. |
+| Upload 3 | Photos (optional) | Photos (facultatif) |
+| Upload 3 hint | We'd love to see your project in action! Share a few photos to help us see your impact and celebrate what you've accomplished. | Nous aimerions beaucoup voir votre projet en action&#8239;! Partagez quelques photos pour nous montrer votre impact et célébrer ce que vous avez accompli. |
+| Photo question | Can we share your photos? We'd love to show your impact and inspire other students. | Pouvons-nous partager vos photos&#8239;? Nous aimerions montrer votre impact et inspirer d'autres étudiant·es. |
+| Photo question, small line | Totally up to you. | C'est entièrement à vous de décider. |
+| Answer 1 | Yes, you can use my photos | Oui, vous pouvez utiliser mes photos |
+| Answer 2 | No, please don't use them | Non, veuillez ne pas les utiliser |
+| Button | Send my report | Envoyer mon rapport |
+| Success text | We received your report. We'll review it and be in touch about your remaining funding. | Nous avons bien reçu votre rapport. Nous l'examinerons et communiquerons avec vous au sujet du reste de votre financement. |
+| Questions, heading | Questions? | Des questions&#8239;? |
+| Questions, text | Just reply to your funding email or reach us at impact@alumo.ca. We're happy to help! | Répondez simplement au courriel concernant votre financement ou écrivez-nous à impact@alumo.ca. Il nous fera plaisir de vous aider&#8239;! |
+
+### Errors and page states (new ones only)
+| English | French |
+|---|---|
+| Upload your Project Completion Report. | Veuillez téléverser votre rapport de fin de projet. |
+| Upload at least one receipt. | Veuillez téléverser au moins un reçu. |
+| You can upload up to 10 receipts. If you have more, combine them into one PDF. | Vous pouvez téléverser jusqu'à 10 reçus. Si vous en avez davantage, regroupez-les dans un seul fichier PDF. |
+| You can upload up to 8 photos. | Vous pouvez téléverser jusqu'à 8 photos. |
+| Tell us whether we can share your photos. | Veuillez nous indiquer si nous pouvons partager vos photos. |
+| Together, your files are over 50 MB. Remove a few or use smaller files. | Ensemble, vos fichiers dépassent 50 MB. Veuillez en retirer quelques-uns ou utiliser des fichiers moins volumineux. |
+| The submission is too large. Each file must be 10 MB or less, and all files together 50 MB or less. | La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins, et l'ensemble des fichiers, de 50 MB ou moins. |
+| Something went wrong and your report wasn't sent. Check your connection and try again. | Une erreur s'est produite et votre rapport n'a pas été envoyé. Veuillez vérifier votre connexion et réessayer. |
+| Your report could not be sent. Please try again later. | Votre rapport n'a pas pu être envoyé. Veuillez réessayer plus tard. |
+| The deadline to send your report was {date}. If you still need to send it, reply to the email Alumo sent you. | La date limite pour envoyer votre rapport était le {date}. Si vous devez encore l'envoyer, répondez au courriel qu'Alumo vous a envoyé. |
+| This page needs JavaScript to send your report. Please turn it on and refresh the page. | Cette page nécessite JavaScript pour envoyer votre rapport. Veuillez l'activer, puis actualiser la page. |
+
+### Points for Hafsa (completion page)
+1. "Rapport de fin de projet" must match the title of Alumo's own French guidelines document
+   once it exists; if Alumo calls it something else, the page follows the document.
+2. "étudiant·es" matches the approved Partners description; "Il nous fera plaisir de vous
+   aider" avoids "heureux / heureuse".
+3. FLAG — the guidelines file (EN, and FR if there is one). If there is no French file, the
+   French button points at the English one with a line saying so.
+
 ## Parked with the private link (translated, not needed until the key is built)
 | English | French |
 |---|---|

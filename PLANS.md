@@ -522,3 +522,69 @@ apply-now.css v9); verify_integrity.py check P fails if they drift apart again.
   -fr.pdf), the deadline, notify_to inbox, Hafsa's French sign-off, finance review of
   the tax block, staging tests with real phones and SharePoint (incl. TEST / <root_folder>
   on staging's drive).
+
+## Winners page changes + Project completion page — BUILT 2026-11-14 (branch claude/winner-completion-pages)
+From Hafsa's email of 2026-11-13 and its two mocks ("UPDATED – Winner documents page.pdf",
+"Project Completion Report page.pdf"). Supersedes the finance-form parts of "Winners page —
+BUILT" above.
+
+WINNERS PAGE (/winners-fall-2026/, /fr/gagnants-automne-2026/)
+- New H1 "You won. Just a few steps before you get started." and intro (agreement + void
+  cheque only). REMOVED: Step 1 (finance form download), the tax information block, the
+  "Completed finance form" upload — and with them the two open items they carried (the
+  finance form PDFs, finance's sign-off on the tax wording). Two uploads now.
+- NEW orange note under the deadline: payment processing starts the week of January 4, 2027
+  (hard-coded on the round's page, like the page itself; not in the server config).
+- NEW required field "Funds are sent to" (funds_sent_to, 255) — recipient or organization.
+- NEW "Submission details - <Name>.txt" filed with the uploads (both kinds of page): what was
+  typed, incl. who the funds are sent to. SharePoint gets no list item for these records, so
+  without it that answer would live only in the team's notice email.
+- Layout per the mock: fields three across, uploads two across, no "Upload your documents"
+  heading (aria-label instead), fine print and button on one row under a rule.
+- Deadline: December 18, 2026, 11:59 pm ET — SERVER CONFIG, not the repo: set
+  winners.closes_at => '2026-12-18T23:59:59-05:00' (-05:00: EST) in each server's
+  api/config.php. Until then staging still shows whatever date its config holds.
+- winners.css / winners-form.js now ?v=3.
+
+PROJECT COMPLETION PAGE (/project-completion-fall-2026/, /fr/fin-de-projet-automne-2026/) — new
+- Unlisted like the winners page (noindex,nofollow, in no nav/sitemap/robots.txt, switcher
+  links the pair, no analytics); verify_integrity.py PRIVATE_PAGES now has all four.
+- Same markup, hooks (data-winners-*), stylesheets and script as the winners page:
+  js/winners-form.js picks its endpoint, copy and upload slots from the form's data-handler
+  ("winners" | "completion").
+- Uploads: Project Completion Report (1), Receipts (1–10), Photos (0–8, optional); the two
+  several-file inputs are name="x[]" multiple. 10 MB each, 50 MB in all (checked in the page
+  and in the endpoint, inside post_max_size 60M). max_file_uploads raised 10 → 20 in
+  api/.user.ini and Dockerfile.php (19 files at most; PHP silently drops any past the limit).
+  LIMITS ARE MY CHOICE, not Alumo's — the mock only says "more than one file".
+- "Can we share your photos?" yes/no: needs an answer only when photos are attached. The
+  answer is filed three ways: in each photo's file name ("Photo 1 (OK to share) - …" /
+  "… (do not share) - …"; unanswered = do not share), in the Submission details file, and in
+  the team notice.
+- Backend: api/completion.php (sibling of winners.php) + a "Project completion" block at the
+  end of api/_lib.php. The winners_* functions that take a record or a config key now serve
+  both kinds (winners_kind / winners_record_cfg / winners_kind_words); redeliver.php also
+  globs submissions_dir/completion/*/. Same rails: SharePoint only, never emailed, copies
+  deleted once filed, [TEST] marking, second submission → sibling "(2 - id)" folder + notice.
+  NOTHING is emailed to the sender (no send_confirmation here); the team gets
+  "Completion report received — <Name> (<round>)".
+- SharePoint: <root_folder>/<round>/Project completion/<Full name> - <Project title>/ — by
+  default INSIDE the restricted Winners root (so nothing new for Alumo to create, and the
+  same people can see it), one level away from the banking folders. completion.subfolder ''
+  drops the level; a different root_folder / drive_id moves it elsewhere.
+- Config: 'completion' block (api/config.example.php). round, root_folder, notify_to,
+  drive_id, create_root default to the winners block's when left OUT. Smallest working block:
+  'completion' => ['closes_at' => 'none'],   — WITHOUT THE BLOCK THE PAGE SHOWS "not ready".
+- Guidelines download: AWAITING_CLIENT (assets/docs/project-completion-report-guidelines-en.pdf
+  / -fr.pdf) — the button 404s until Alumo sends the file; --release fails until then.
+- CI: forms-smoke.yml "winners" job updated (two uploads, funds_sent_to, the details file) and
+  five "Completion —" steps added on the same containers, plus php CLI checks of the config
+  inheritance, folders, labels and notices. No --completion flag in _tools/submit_test.py yet.
+- French: FR_DRAFTS.md sections C (winners changes) and D (completion page), AI-assisted,
+  for Hafsa.
+- NOT locally run: this machine has no PHP or Docker, so the PHP is verified by CI only; the
+  pages were checked in a browser against a stand-in for the two endpoints.
+- Still needed: Hafsa's review of both pages and of the French; the guidelines file; the two
+  server config edits above on staging (then production at go-live); the decision on where
+  completion reports should live in SharePoint if not under Winners; the RELEASE RULE above
+  still holds — none of this reaches `release` before the winners go-live.

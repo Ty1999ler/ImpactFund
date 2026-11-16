@@ -15,9 +15,11 @@ the honeypot left empty, and the locale. --contact sends a contact-form
 message to <site>/api/contact.php instead. --winners sends a complete Winners
 page submission to <site>/api/winners.php instead: a school from the frozen
 list the server checks (js/winners-schools-fall-2026.js), "TEST Winner",
-a "TEST winner documents <time>" title, and the three documents made in
-memory — a tiny .docx funding agreement, a tiny PDF finance form and a tiny
-PNG void cheque, each saying it is not a real document. (No confirmation
+a "TEST winner documents <time>" title, "TEST Winner" as who the funds are
+sent to, and the two documents made in memory — a tiny .docx funding
+agreement and a tiny PNG void cheque, each saying it is not a real document.
+(The project completion page, api/completion.php, has no flag here yet: test
+it from the page itself on a test host.) (No confirmation
 email to --email unless that server sets winners.send_confirmation true; it
 is off by default.)
 Running it twice shows the SECOND SUBMISSION warning (test submissions are
@@ -390,6 +392,7 @@ def build_winners(email, locale, rules, now):
         ("full_name", "TEST Winner"),
         ("project_title", "TEST winner documents " + stamp),
         ("email", email),
+        ("funds_sent_to", "TEST Winner"),
         ("website", ""),              # the honeypot: must stay empty
     ]
     makers = {
@@ -398,9 +401,9 @@ def build_winners(email, locale, rules, now):
         "png": lambda _text: tiny_png(),
     }
     types = {"docx": DOCX_TYPE, "pdf": "application/pdf", "png": "image/png"}
-    # The agreement goes as .docx, the finance form as .pdf, the cheque as
-    # .png, when the slot takes that type — so all three checks get exercised.
-    preferred = {"file_agreement": "docx", "file_finance_form": "pdf", "file_void_cheque": "png"}
+    # The agreement goes as .docx and the cheque as .png, when the slot takes
+    # that type — so the ZIP check and the image check both get exercised.
+    preferred = {"file_agreement": "docx", "file_void_cheque": "png"}
     files = []
     for slot, label, exts in rules["slots"]:
         ext = preferred.get(slot)
@@ -517,7 +520,7 @@ def main(argv=None):
     kind.add_argument("--contact", action="store_true",
                       help="send a contact-form message instead of an application")
     kind.add_argument("--winners", action="store_true",
-                      help="send a Winners page submission (api/winners.php: three test "
+                      help="send a Winners page submission (api/winners.php: two test "
                            "documents) instead of an application")
     parser.add_argument("--dry-run", action="store_true",
                         help="print what would be sent, send nothing")

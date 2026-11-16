@@ -64,7 +64,10 @@ or `caddy file-server --listen :8777`.
   server under `_submissions/`, then delivered per `delivery_mode` in the
   config: `email` relay / `graph` (Microsoft Graph → SharePoint) / `off`.
 - `api/winners.php` — the unlisted Winners page (`/winners-fall-2026/`,
-  `/fr/gagnants-automne-2026/`; front end `js/winners-form.js`): three documents
+  `/fr/gagnants-automne-2026/`; front end `js/winners-form.js`): two documents
+  (signed funding agreement, void cheque — the finance form was dropped in Nov
+  2026) plus a "Submission details" text file of what was typed, incl. who the
+  funds are sent to
   → archived under `_submissions/winners/<id>/`, then filed in SharePoint ONLY
   (`<root_folder>/<round>/<Full name> - <Project title>/`), never emailed, server
   copy deleted once filed. Configured by the `winners` block in the config —
@@ -79,6 +82,19 @@ or `caddy file-server --listen :8777`.
   `create_root` false, `TEST/<root_folder>` must exist too), `"test": true`
   in its `submission.json`; test and real submissions never count as each
   other's second submission.
+- `api/completion.php` — the unlisted Project completion page
+  (`/project-completion-fall-2026/`, `/fr/fin-de-projet-automne-2026/`; same
+  front end, `js/winners-form.js`, and the same shared code in `api/_lib.php`):
+  one completion report, 1–10 receipts, 0–8 photos (10 MB each, 50 MB in all)
+  and the answer to "Can we share your photos?" → archived under
+  `_submissions/completion/<id>/`, then filed in SharePoint ONLY
+  (`<root_folder>/<round>/Project completion/<Full name> - <Project title>/`,
+  photo file names carrying "(OK to share)" / "(do not share)"), never
+  emailed, nothing sent to the sender. Configured by the `completion` block,
+  which inherits `round`, `root_folder`, `notify_to`, `drive_id` and
+  `create_root` from the `winners` block when left out; the smallest working
+  block is `'completion' => ['closes_at' => 'none']`. Closed ("not ready")
+  without the block. Same `[TEST]` marking and the same retry cron.
 - Setup: copy `api/config.example.php` to `api/config.php` and fill it in
   (config.php is git-ignored — this repo is public; never commit it).
 - The nginx image does NOT run PHP: once the forms go live, build with

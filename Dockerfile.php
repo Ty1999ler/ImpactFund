@@ -70,9 +70,11 @@ RUN rm -rf /var/www/html/_source /var/www/html/_tools \
 # Submissions land outside the webroot
 RUN mkdir -p /var/www/_submissions && chown www-data:www-data /var/www/_submissions
 
-# Modest upload limits (application form caps files at 10 MB each)
+# Modest upload limits (application form caps files at 10 MB each). Keep in
+# step with api/.user.ini: max_file_uploads 20 is for the project completion
+# page, which takes up to 19 files in one request.
 RUN { \
   echo 'upload_max_filesize = 12M'; \
   echo 'post_max_size = 60M'; \
-  echo 'max_file_uploads = 10'; \
+  echo 'max_file_uploads = 20'; \
 } > /usr/local/etc/php/conf.d/uploads.ini
