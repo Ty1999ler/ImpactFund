@@ -1277,7 +1277,8 @@ function winners_details_file(string $dir, array $record): ?array {
           . 'Received:      ' . (string)($record['received_utc'] ?? '') . " (UTC)\r\n"
           . "\r\nFiles sent with this submission:\r\n";
     foreach ((array)($record['documents'] ?? []) as $doc) {
-        $text .= '  ' . (string)($doc['name'] ?? '') . "\r\n";
+        $sub = (string)($doc['folder'] ?? '');
+        $text .= '  ' . ($sub !== '' ? $sub . '/' : '') . (string)($doc['name'] ?? '') . "\r\n";
     }
     $path = $dir . '/' . $name;
     if (@file_put_contents($path, $text) === false) {
@@ -1532,10 +1533,14 @@ function winners_make_folder(array $auth, string $driveId, array $segments, stri
    creates every missing folder on the way, so a retry after Alumo moved or
    deleted the restricted Winners folder would quietly rebuild it with the
    library's open permissions. By ID the upload follows a moved folder, and a
-   deleted one answers 404, which leaves the archive pending. */
-function winners_graph_upload(array $auth, string $driveId, string $folderId, string $localPath, string $name, string $conflict): array {
+   deleted one answers 404, which leaves the archive pending.
+   $subfolder ('' = none) is one level INSIDE that folder — the completion
+   page's "Photos - OK to share" / "Photos - do not share" — made first by
+   winners_graph_subfolder; it is addressed relative to the folder's ID, so
+   nothing above the submission's own folder can be created by it. */
+function winners_graph_upload(array $auth, string $driveId, string $folderId, string $localPath, string $name, string $conflict, string $subfolder = ''): array {
     $base = "https://graph.microsoft.com/v1.0/drives/$driveId/items/" . rawurlencode($folderId)
-        . ':/' . rawurlencode($name) . ':';
+        . ':/' . ($subfolder !== '' ? rawurlencode($subfolder) . '/' : '') . rawurlencode($name) . ':';
     $size = (int)@filesize($localPath);
     if ($size === 0) {
         /* winners_check_upload refuses empty files, so this means the archive
@@ -1575,6 +1580,18 @@ function winners_graph_upload(array $auth, string $driveId, string $folderId, st
     return $uploaded;
 }
 
+/* Make sure a sub-folder exists inside a submission's own folder (addressed
+   by ID, like the uploads). An existing one answers 409, which is fine: a
+   retry, or the second photo of the same submission. */
+function winners_graph_subfolder(array $auth, string $driveId, string $folderId, string $name): void {
+    http_json(
+        "https://graph.microsoft.com/v1.0/drives/$driveId/items/" . rawurlencode($folderId) . '/children',
+        json_encode(['name' => $name, 'folder' => new stdClass(), '@microsoft.graph.conflictBehavior' => 'fail']),
+        array_merge($auth, ['Content-Type: application/json']),
+        'POST', [409]
+    );
+}
+
 /* File one winner's documents. $folder is in/out: empty on a first attempt
    (the folder is created and written back BEFORE any upload, so a failure
    part-way still tells the caller which folder is this submission's); a
@@ -1610,9 +1627,18 @@ function winners_graph_deliver(array $cfg, array $record, array $docs, array &$f
         }
         $folder['id'] = (string)$found['id'];
     }
+    /* A document may name a sub-folder of the submission's folder (completion
+       photos: completion_photo_folder). Each is made once, before the first
+       file that goes in it. */
+    $made = [];
     foreach ($docs as $doc) {
+        $sub = sp_safe_name((string)($doc['folder'] ?? ''), '');
+        if ($sub !== '' && !isset($made[$sub])) {
+            winners_graph_subfolder($auth, $target['drive_id'], (string)$folder['id'], $sub);
+            $made[$sub] = true;
+        }
         winners_graph_upload($auth, $target['drive_id'], (string)$folder['id'], $doc['path'], $doc['name'],
-            $retry ? 'replace' : 'rename');
+            $retry ? 'replace' : 'rename', $sub);
     }
 }
 
@@ -1867,7 +1893,8 @@ function winners_redeliver_one(array $cfg, string $dir, string $id, string $kind
             $error = "archived file missing: $name";
             break;
         }
-        $docs[] = ['slot' => (string)($doc['slot'] ?? ''), 'label' => (string)($doc['label'] ?? ''), 'name' => $name, 'path' => $path];
+        $docs[] = ['slot' => (string)($doc['slot'] ?? ''), 'label' => (string)($doc['label'] ?? ''), 'name' => $name, 'path' => $path,
+                   'folder' => (string)($doc['folder'] ?? '')];
     }
 
     $folder = is_array($marker['folder'] ?? null) ? $marker['folder'] : [];
@@ -2013,14 +2040,17 @@ function completion_check_slot($entry, array $spec, int $maxBytes): array {
 }
 
 /* What starts a document's file name in SharePoint: "Completion report",
-   "Receipt 2", "Photo 1 (OK to share)". Files of a several-file slot are
-   numbered when there is more than one. A photo's name carries the sender's
-   answer to "Can we share your photos?", because a photo gets copied out of
-   its folder — and away from the Submission details file — the moment
-   someone wants to use it; anything but an explicit yes reads "do not
-   share". */
-function completion_doc_label(string $slot, string $label, int $n, int $count, string $consent): string {
-    if ($count > 1) $label .= ' ' . $n;
-    if ($slot === 'file_photos') $label .= $consent === 'yes' ? ' (OK to share)' : ' (do not share)';
-    return $label;
+   "Receipt 2", "Photo 1". Files of a several-file slot are numbered when
+   there is more than one. */
+function completion_doc_label(string $label, int $n, int $count): string {
+    return $count > 1 ? $label . ' ' . $n : $label;
+}
+
+/* The sub-folder of the submission's folder that its photos are filed in,
+   named for the sender's answer to "Can we share your photos?" — so the
+   answer is the first thing anyone opening the folder sees, and the file
+   names stay plain (client's choice, Nov 2026; until then the answer was in
+   each photo's file name). Anything but an explicit yes is "do not share". */
+function completion_photo_folder(string $consent): string {
+    return $consent === 'yes' ? 'Photos - OK to share' : 'Photos - do not share';
 }

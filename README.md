@@ -89,7 +89,7 @@ or `caddy file-server --listen :8777`.
   and the answer to "Can we share your photos?" → archived under
   `_submissions/completion/<id>/`, then filed in SharePoint ONLY
   (`<root_folder>/<round>/Project completion/<Full name> - <Project title>/`,
-  photo file names carrying "(OK to share)" / "(do not share)"), never
+  photos in a sub-folder "Photos - OK to share" / "Photos - do not share"), never
   emailed, nothing sent to the sender. Configured by the `completion` block,
   which inherits `round`, `root_folder`, `notify_to`, `drive_id` and
   `create_root` from the `winners` block when left out; the smallest working

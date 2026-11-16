@@ -1071,8 +1071,8 @@ jobs:
           $rec = ['kind' => 'completion', 'root_folder' => 'Winners', 'round' => 'Fall 2026', 'subfolder' => 'Project completion',
                   'fields' => ['full_name' => 'Jane Doe', 'project_title' => 'P', 'photo_consent' => 'no'],
                   'documents' => [['slot' => 'file_report', 'label' => 'Completion report', 'name' => 'a'],
-                                  ['slot' => 'file_photos', 'label' => 'Photo 1 (do not share)', 'name' => 'b'],
-                                  ['slot' => 'file_photos', 'label' => 'Photo 2 (do not share)', 'name' => 'c']]];
+                                  ['slot' => 'file_photos', 'label' => 'Photo 1', 'name' => 'b', 'folder' => 'Photos - do not share'],
+                                  ['slot' => 'file_photos', 'label' => 'Photo 2', 'name' => 'c', 'folder' => 'Photos - do not share']]];
           $expect('completion folder: root / round / subfolder / leaf',
               winners_folder_segments($rec) === [['Winners', 'Fall 2026', 'Project completion', 'Jane Doe - P'], 0]);
           $rec['test'] = true;
@@ -1093,12 +1093,23 @@ jobs:
               strpos(winners_details_text($rec), "\nPhotos:        2 — ") !== false);
           $expect('details text has no photos line for a winners record',
               strpos(winners_details_text($rec2), 'Photos:') === false);
-          $expect('label: one report', completion_doc_label('file_report', 'Completion report', 1, 1, '') === 'Completion report');
-          $expect('label: receipts are numbered', completion_doc_label('file_receipts', 'Receipt', 2, 3, 'yes') === 'Receipt 2');
-          $expect('label: one receipt is not', completion_doc_label('file_receipts', 'Receipt', 1, 1, '') === 'Receipt');
-          $expect('label: photo, yes', completion_doc_label('file_photos', 'Photo', 1, 2, 'yes') === 'Photo 1 (OK to share)');
-          $expect('label: photo, no', completion_doc_label('file_photos', 'Photo', 1, 1, 'no') === 'Photo (do not share)');
-          $expect('label: photo, unanswered', completion_doc_label('file_photos', 'Photo', 1, 1, '') === 'Photo (do not share)');
+          $expect('label: one report', completion_doc_label('Completion report', 1, 1) === 'Completion report');
+          $expect('label: receipts are numbered', completion_doc_label('Receipt', 2, 3) === 'Receipt 2');
+          $expect('label: one receipt is not', completion_doc_label('Receipt', 1, 1) === 'Receipt');
+          $expect('label: a photo name is plain', completion_doc_label('Photo', 1, 2) === 'Photo 1');
+          $expect('photo folder: yes', completion_photo_folder('yes') === 'Photos - OK to share');
+          $expect('photo folder: no', completion_photo_folder('no') === 'Photos - do not share');
+          $expect('photo folder: unanswered is do not share', completion_photo_folder('') === 'Photos - do not share');
+          $expect('photo folder names survive the SharePoint name rules',
+              sp_safe_name(completion_photo_folder('yes'), '') === 'Photos - OK to share'
+              && sp_safe_name(completion_photo_folder('no'), '') === 'Photos - do not share');
+          // The details file lists each photo under its sub-folder.
+          $tmpd = sys_get_temp_dir() . '/completion-details-' . getmypid();
+          @mkdir($tmpd, 0700, true);
+          $d = winners_details_file($tmpd, $rec);
+          $expect('details file: photos listed under their sub-folder',
+              is_array($d) && strpos((string)file_get_contents($d['path']), "  Photos - do not share/b\r\n") !== false
+              && strpos((string)file_get_contents($d['path']), "\r\n  a\r\n") !== false);
           $multi = ['name' => ['a.pdf', '', 'c.png'], 'type' => ['x', '', 'y'], 'tmp_name' => ['/t/a', '', '/t/c'],
                     'error' => [UPLOAD_ERR_OK, UPLOAD_ERR_NO_FILE, UPLOAD_ERR_OK], 'size' => [1, 0, 3]];
           $expect('several files: one entry each, empty ones dropped',
@@ -1123,7 +1134,7 @@ jobs:
           $rec = ['id' => 'x', 'kind' => 'completion', 'round' => 'R', 'test' => true,
                   'fields' => ['full_name' => 'Jane Doe', 'photo_consent' => 'yes'],
                   'documents' => [['slot' => 'file_report', 'label' => 'Completion report', 'name' => 'a'],
-                                  ['slot' => 'file_photos', 'label' => 'Photo (OK to share)', 'name' => 'b']]];
+                                  ['slot' => 'file_photos', 'label' => 'Photo', 'name' => 'b', 'folder' => 'Photos - OK to share']]];
           $m = $notice($rec, false);
           $expect('completion: received notice subject', $subject($m) === '[TEST] Completion report received — Jane Doe (R)');
           $expect('completion: the notice goes to the completion address', (bool)preg_match('/^To: .*completion-ci@example\.invalid/m', $m));
@@ -1195,7 +1206,7 @@ jobs:
           echo "$id" | grep -Eq '^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$'
           dir="/var/www/_submissions/completion/$id"
           for f in 'Completion report - CI Finisher.pdf' 'Receipt 1 - CI Finisher.pdf' 'Receipt 2 - CI Finisher.png' \
-                   'Photo 1 (do not share) - CI Finisher.png' 'Photo 2 (do not share) - CI Finisher.png' \
+                   'Photo 1 - CI Finisher.png' 'Photo 2 - CI Finisher.png' \
                    'Submission details - CI Finisher.txt'; do
             docker exec winners-open test -f "$dir/$f"
           done
@@ -1217,6 +1228,13 @@ jobs:
           grep -q 'project completion report' /tmp/cdetails.txt
           grep -q 'Photos:        2 — do NOT share' /tmp/cdetails.txt
           grep -q 'Receipt 2 - CI Finisher.png' /tmp/cdetails.txt
+          # The answer names the sub-folder the photos are filed in (recorded
+          # per document, so the retry files them there again); nothing else
+          # gets one, and the file names stay plain.
+          test "$(jq -r '[.documents[] | select(.slot == "file_photos") | .folder] | unique | join("|")' /tmp/csub.json)" = "Photos - do not share"
+          test "$(jq -r '[.documents[] | select(.slot != "file_photos") | has("folder")] | any' /tmp/csub.json)" = "false"
+          grep -q 'Photos - do not share/Photo 1 - CI Finisher.png' /tmp/cdetails.txt
+          if grep -q 'to share)' /tmp/cdetails.txt; then echo "a file name still carries the sharing answer"; exit 1; fi
           # Delivery runs after the response: wait for the queue marker and
           # the team's notice.
           for i in $(seq 1 20); do docker exec winners-open test -f "$dir/DELIVERY-PENDING" && break; sleep 0.5; done
@@ -1250,12 +1268,13 @@ jobs:
           test "$code" = "200"
           id=$(jq -r .id /tmp/body.json)
           dir="/var/www/_submissions/completion/$id"
-          # One receipt and one photo: no numbers; the photo's name says yes.
-          for f in 'Completion report - CI Finisher.docx' 'Receipt - CI Finisher.pdf' 'Photo (OK to share) - CI Finisher.png'; do
+          # One receipt and one photo: no numbers; the photo's sub-folder says yes.
+          for f in 'Completion report - CI Finisher.docx' 'Receipt - CI Finisher.pdf' 'Photo - CI Finisher.png'; do
             docker exec winners-open test -f "$dir/$f"
           done
           docker exec winners-open cat "$dir/submission.json" > /tmp/csub.json
           test "$(jq -r .test /tmp/csub.json)" = "true"
+          test "$(jq -r '.documents[] | select(.slot == "file_photos") | .folder' /tmp/csub.json)" = "Photos - OK to share"
           docker exec winners-open grep -q 'TEST SUBMISSION' "$dir/Submission details - CI Finisher.txt"
           for i in $(seq 1 20); do
             docker exec winners-open sh -c 'cat /tmp/mail.all 2>/dev/null || true' > /tmp/mail.captured
