@@ -71,6 +71,7 @@ return [
         // winners-ci-closes-at (the "after the deadline" variant inserts its deadline after this line)
         'close_grace_minutes' => 15,
         'notify_to'   => 'winners-ci@example.invalid',
+        'payment_week' => '2027-02-01',   // CI checks ?state=1 hands it to the page
         /* ON here (the default is off) so CI checks the confirmation email.
            forms-smoke.yml seds this line to false for its "no confirmation"
            variant, so keep it exactly as written. */

@@ -281,6 +281,14 @@ wherever the two pages say the same thing (school, name, title, email, file type
 | Completion page, too many photos | You can upload up to 10 photos. *(was 8)* | Vous pouvez téléverser jusqu'à 10 photos. |
 | Completion page, some files did not arrive (new; only if the server drops files) | Some of your files didn't reach us. Try sending fewer files at once, or email them to impact@alumo.ca. | Certains de vos fichiers ne nous sont pas parvenus. Essayez d'en envoyer moins à la fois, ou envoyez-les par courriel à impact@alumo.ca. |
 
+## F. Attestation tick box (completion page) and the payment date, 2026-11-19 — French for Hafsa
+
+| Where | English | French |
+|---|---|---|
+| Completion page, required tick box above the button — **PLACEHOLDER wording, Alumo to supply theirs** | I confirm that the funding I received was used for this project and for the eligible expenses described in my funding agreement. | Je confirme que le financement reçu a servi à ce projet et aux dépenses admissibles décrites dans mon entente de financement. |
+| Completion page, box left unticked | Tick the box to confirm before sending your report. | Veuillez cocher la case pour confirmer avant d'envoyer votre rapport. |
+| Winners page, payment note date — now written by the site from the server's setting | January 11, 2027 | 11 janvier 2027 *(day 1 → "1er février 2027")* |
+
 ## Parked with the private link (translated, not needed until the key is built)
 | English | French |
 |---|---|

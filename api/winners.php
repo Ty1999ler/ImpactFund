@@ -1,13 +1,15 @@
 <?php
 /* Winners page endpoint — /winners-fall-2026/ and /fr/gagnants-automne-2026/.
 
-   GET  ?state=1  -> {ok, state, closes_at_ts, confirmation}. state is 'open' |
+   GET  ?state=1  -> {ok, state, closes_at_ts, confirmation, payment_week}. state is 'open' |
                      'closed' | 'not-open', or 'unconfigured' with a 503. The
                      page asks on load which card to show; closes_at_ts (epoch
                      seconds or null) is the deadline it prints; confirmation
                      (winners.send_confirmation) says whether the winner is
                      emailed a confirmation, so the page only promises one
-                     when it is sent.
+                     when it is sent; payment_week ('YYYY-MM-DD' or null,
+                     winners.payment_week) is the date the page's payment
+                     note names — null leaves the page's own wording.
    POST multipart -> school (+ school_other), full_name, project_title, email,
                      funds_sent_to, locale, and two documents: file_agreement
                      and file_void_cheque. (The finance form and its tax block
@@ -60,7 +62,8 @@ if ($w === null) {
 
 if ($isStateCheck) {
     respond(200, ['ok' => true, 'state' => winners_window_state($w, time(), false),
-                  'closes_at_ts' => $w['closes_at_ts'], 'confirmation' => $w['send_confirmation']]);
+                  'closes_at_ts' => $w['closes_at_ts'], 'confirmation' => $w['send_confirmation'],
+                  'payment_week' => $w['payment_week'] !== '' ? $w['payment_week'] : null]);
 }
 
 /* When the request body exceeds post_max_size PHP silently delivers EMPTY

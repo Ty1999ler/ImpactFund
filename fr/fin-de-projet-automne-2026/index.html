@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=4">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=5">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -256,6 +256,14 @@
                   </div>
                 </fieldset>
 
+                <!-- Attestation — placeholder wording, see the EN page. -->
+                <div class="form-field form-field-check winners-attest">
+                  <label class="check-option">
+                    <input type="checkbox" id="wf-attest" name="attestation" value="yes" required aria-required="true">
+                    <span data-winners-attest-text>Je confirme que le financement reçu a servi à ce projet et aux dépenses admissibles décrites dans mon entente de financement.<span aria-hidden="true">*</span></span>
+                  </label>
+                </div>
+
                 <!-- Honeypot — ignored by validation, checked on submit -->
                 <div class="hp-field" aria-hidden="true">
                   <label for="af-website">Laissez ce champ vide</label>
@@ -332,6 +340,6 @@
        EN page. -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=4"></script>
+  <script src="/js/winners-form.js?v=5"></script>
 </body>
 </html>
