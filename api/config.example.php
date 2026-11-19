@@ -248,7 +248,7 @@ return [
     /* ---- Project completion page (api/completion.php;
        /project-completion-fall-2026/ and /fr/fin-de-projet-automne-2026/) ----
        A winner whose project is done uploads a completion report (one file),
-       receipts (1 to 10 files) and photos (0 to 8 files), and says whether
+       receipts (1 to 20 files) and photos (0 to 10 files), and says whether
        the photos may be shared. Same rails as the winners page: SharePoint
        ONLY, never emailed, server copies deleted once filed, "[TEST] "
        marking from a test copy of the site, the same retry cron. Nothing is

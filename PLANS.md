@@ -636,3 +636,28 @@ the photo sub-folders of 2026-11-15 (PR #2).
      from the old layout, unless they should still go to the old folders (they will).
 - NOT RUN against SharePoint: CI has none. The region folders, All Void and the DO NOT SHARE
   name need one winners and one completion test upload on staging.
+
+## Laura's edits — BUILT 2026-11-19 (branch claude/laura-nov19-edits)
+From Laura McAlear's email of 2026-11-19 ("We are good to publish the websites", minor wording
+edits may follow; the guidelines file comes later).
+- Winners page: payment processing starts the week of JANUARY 11, 2027 (was January 4), EN + FR.
+- School box, all four pages: the plain <select> "didn't look great" when typed in. Now the
+  application form's type-ahead (.combo-* styles from apply-now.css; the logic is its own copy
+  in js/winners-form.js): a text box over a list of matches grouped by province, case and
+  accents ignored, "My school isn't listed" always the last line. The box has NO name; a hidden
+  input name="school" carries what is sent (a listed school's exact name, or __other), so
+  api/winners.php and api/completion.php are unchanged. winners.css / winners-form.js ?v=4.
+- Completion page limits: 20 receipts, 10 photos (were 10 and 8) — 31 files at most.
+  max_file_uploads 20 -> 40 (api/.user.ini, Dockerfile.php). The 50 MB total is UNCHANGED:
+  it is the size the host is proven at (the application form), and Laura asked for the higher
+  counts only if nothing is put at risk. Ten phone photos can reach it on their own; raising
+  the total needs one large test upload on staging first (post_max_size is 60M).
+- NEW GUARD: PHP silently drops files past max_file_uploads, so a host that ignored .user.ini
+  would file a report with receipts missing. The page now sends file_count; api/completion.php
+  answers 413 "incomplete" (and logs the server's real limit) when fewer files arrive. Nothing
+  is stored in that case.
+- Her question — "if we edit the wording [of a label] after it is linked to SharePoint, will
+  it mess anything up?" — NO: labels and placeholders are display text only. What SharePoint
+  receives is keyed by each field's name= attribute (full_name, project_title, funds_sent_to…),
+  which a wording edit never touches. Changing what is ASKED (adding, removing or renaming a
+  field's name) is a code change.

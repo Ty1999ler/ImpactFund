@@ -1177,9 +1177,11 @@ jobs:
           $slots = completion_upload_slots();
           $expect('an optional slot left empty is fine', completion_check_slot(null, $slots['file_photos'], 100) === ['files' => []]);
           $expect('a required slot left empty', completion_check_slot(null, $slots['file_receipts'], 100) === ['error' => 'required']);
-          $eleven = ['name' => array_fill(0, 11, 'r.pdf'), 'type' => array_fill(0, 11, ''), 'tmp_name' => array_fill(0, 11, '/nope'),
-                     'error' => array_fill(0, 11, UPLOAD_ERR_OK), 'size' => array_fill(0, 11, 5)];
-          $expect('eleven receipts', completion_check_slot($eleven, $slots['file_receipts'], 100) === ['error' => 'too_many']);
+          $many = fn(int $n): array => ['name' => array_fill(0, $n, 'r.pdf'), 'type' => array_fill(0, $n, ''),
+              'tmp_name' => array_fill(0, $n, '/nope'), 'error' => array_fill(0, $n, UPLOAD_ERR_OK), 'size' => array_fill(0, $n, 5)];
+          $expect('the limits are 20 receipts and 10 photos', $slots['file_receipts']['max'] === 20 && $slots['file_photos']['max'] === 10);
+          $expect('twenty-one receipts', completion_check_slot($many(21), $slots['file_receipts'], 100) === ['error' => 'too_many']);
+          $expect('eleven photos', completion_check_slot($many(11), $slots['file_photos'], 100) === ['error' => 'too_many']);
           $expect('the file count fits max_file_uploads',
               array_sum(array_column($slots, 'max')) < (int)ini_get('max_file_uploads'));
           $notice = function (array $record, bool $afterRetry) use ($base): string {
@@ -1251,7 +1253,7 @@ jobs:
           set -euo pipefail
           source /tmp/wfix/common.sh
           source /tmp/wfix/completion.sh
-          code=$(cpost 8791 "${CFIELDS[@]}" -F photo_consent=no \
+          code=$(cpost 8791 "${CFIELDS[@]}" -F photo_consent=no -F file_count=5 \
             -F file_report=@/tmp/wfix/report.pdf \
             -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf' \
             -F 'file_receipts[]=@/tmp/wfix/receipt-2.png' \
@@ -1387,13 +1389,20 @@ jobs:
           test "$(jq -r .fields.file_photos /tmp/body.json)" = "file_heic"
           test "$(jq -r .fields.school_other /tmp/body.json)" = "required"
           test "$(jq -r .fields.email /tmp/body.json)" = "invalid_email"
-          # Eleven receipts are one too many (and all 12 files reach PHP: the
-          # image's max_file_uploads is 20).
+          # Twenty-one receipts are one too many (and all 22 files reach PHP:
+          # the image's max_file_uploads is 40).
           many=()
-          for i in $(seq 1 11); do many+=(-F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf'); done
+          for i in $(seq 1 21); do many+=(-F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf'); done
           code=$(cpost 8791 "${CFIELDS[@]}" -F file_report=@/tmp/wfix/report.pdf "${many[@]}")
           test "$code" = "422"
           test "$(jq -r .fields.file_receipts /tmp/body.json)" = "too_many"
+          # The page says how many files it sends; fewer arriving (PHP drops
+          # files past max_file_uploads without a word) is refused, not filed.
+          code=$(cpost 8791 "${CFIELDS[@]}" -F file_count=5 \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf')
+          test "$code" = "413"
+          test "$(jq -r .error /tmp/body.json)" = "incomplete"
           # Two reports in the one-file slot.
           code=$(cpost 8791 "${CFIELDS[@]}" \
             -F 'file_report[]=@/tmp/wfix/report.pdf' -F 'file_report[]=@/tmp/wfix/report.pdf' \

@@ -2116,15 +2116,16 @@ function completion_config(array $cfg): ?array {
 
 /* The three upload slots — input name => label, accepted extensions and how
    many files (min..max). Must match the "completion" SLOTS in
-   js/winners-form.js and the accept= lists on both pages. 1 + 10 + 8 = 19
-   files at most, inside max_file_uploads (20: api/.user.ini, and
-   Dockerfile.php for the test image). */
+   js/winners-form.js and the accept= lists on both pages. 1 + 20 + 10 = 31
+   files at most (client, Nov 2026: was 10 receipts and 8 photos), inside
+   max_file_uploads (40: api/.user.ini, and Dockerfile.php for the test
+   image). The 50 MB total is unchanged. */
 function completion_upload_slots(): array {
     $documents = ['pdf', 'docx', 'jpg', 'jpeg', 'png'];
     return [
         'file_report'   => ['label' => 'Completion report', 'exts' => $documents, 'min' => 1, 'max' => 1],
-        'file_receipts' => ['label' => 'Receipt',           'exts' => $documents, 'min' => 1, 'max' => 10],
-        'file_photos'   => ['label' => 'Photo',             'exts' => $documents, 'min' => 0, 'max' => 8],
+        'file_receipts' => ['label' => 'Receipt',           'exts' => $documents, 'min' => 1, 'max' => 20],
+        'file_photos'   => ['label' => 'Photo',             'exts' => $documents, 'min' => 0, 'max' => 10],
     ];
 }
 

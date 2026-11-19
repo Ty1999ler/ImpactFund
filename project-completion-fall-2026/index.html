@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=3">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=4">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -177,13 +177,16 @@
                     <div class="form-col">
                       <div class="form-field">
                         <label for="wf-school">School<span aria-hidden="true">*</span></label>
-                        <!-- Options from the frozen Fall 2026 list
-                             (/js/winners-schools-fall-2026.js), as on the
-                             winners page. -->
-                        <select id="wf-school" name="school" required aria-required="true">
-                          <option value="">Choose your school</option>
-                          <option value="__other">My school isn't listed</option>
-                        </select>
+                        <!-- Type-ahead box over the frozen Fall 2026 list; the hidden
+                             input is what is sent — see /winners-fall-2026/. -->
+                        <div class="combo-wrap">
+                          <input type="text" id="wf-school" placeholder="Type or choose your school" autocomplete="off"
+                                 required aria-required="true" role="combobox" aria-expanded="false"
+                                 aria-autocomplete="list" aria-haspopup="listbox" aria-controls="wf-school-listbox"
+                                 data-other-label="My school isn't listed">
+                          <div id="wf-school-listbox" class="combo-panel" role="listbox" aria-label="Schools" hidden></div>
+                        </div>
+                        <input type="hidden" name="school" value="">
                       </div>
                       <div class="form-field" id="wf-school-other-wrap" hidden>
                         <label for="wf-school-other">Your school's name<span aria-hidden="true">*</span></label>
@@ -211,7 +214,7 @@
                   <!-- Accepted types and file counts must match
                        completion_upload_slots() in api/_lib.php and the
                        "completion" SLOTS in /js/winners-form.js: one report,
-                       1 to 10 receipts, 0 to 8 photos, 10 MB each, 50 MB in
+                       1 to 20 receipts, 0 to 10 photos, 10 MB each, 50 MB in
                        all. The two boxes that take several files are named
                        x[] so PHP receives a list. -->
                   <div class="form-grid-3 file-grid">
@@ -329,6 +332,6 @@
        unlisted URL (_tools/verify_integrity.py checks this). -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=3"></script>
+  <script src="/js/winners-form.js?v=4"></script>
 </body>
 </html>

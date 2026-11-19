@@ -16,9 +16,9 @@
       (winners.send_confirmation, off by default; never sent for a completion
       report): the copy that promises it ([data-winners-confirmation]) stays
       hidden unless the check answers confirmation: true.
-   2. Fills the school <select> from window.ALUMO_WINNERS_SCHOOLS (the frozen
-      Fall 2026 list, /js/winners-schools-fall-2026.js): one <optgroup> per
-      province, then "My school isn't listed", which reveals a required box.
+   2. Runs the school box: a type-ahead over window.ALUMO_WINNERS_SCHOOLS
+      (the frozen Fall 2026 list, /js/winners-schools-fall-2026.js), grouped
+      by province, then "My school isn't listed", which reveals a required box.
    3. Validates exactly what the endpoint validates, with inline errors, then
       sends the form with XMLHttpRequest (a 15-minute timeout: phone photos
       over mobile data); meanwhile the button is disabled and reads
@@ -101,9 +101,10 @@
       closedHelp: "Si vous devez encore l'envoyer, répondez au courriel qu'Alumo vous a envoyé.",
       errReport: "Veuillez téléverser votre rapport de fin de projet.",
       errReceipts: "Veuillez téléverser au moins un reçu.",
-      errTooManyReceipts: "Vous pouvez téléverser jusqu'à 10 reçus. Si vous en avez davantage, regroupez-les dans un seul fichier PDF.",
-      errTooManyPhotos: "Vous pouvez téléverser jusqu'à 8 photos.",
+      errTooManyReceipts: "Vous pouvez téléverser jusqu'à 20 reçus. Si vous en avez davantage, regroupez-les dans un seul fichier PDF.",
+      errTooManyPhotos: "Vous pouvez téléverser jusqu'à 10 photos.",
       errConsent: "Veuillez nous indiquer si nous pouvons partager vos photos.",
+      errIncomplete: "Certains de vos fichiers ne nous sont pas parvenus. Essayez d'en envoyer moins à la fois, ou envoyez-les par courriel à impact@alumo.ca.",
       errTotal: "Ensemble, vos fichiers dépassent 50 MB. Veuillez en retirer quelques-uns ou utiliser des fichiers moins volumineux.",
       errTooLarge: "La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins, et l'ensemble des fichiers, de 50 MB ou moins.",
       errNetwork: "Une erreur s'est produite et votre rapport n'a pas été envoyé. Veuillez vérifier votre connexion et réessayer.",
@@ -114,9 +115,10 @@
       closedHelp: "If you still need to send it, reply to the email Alumo sent you.",
       errReport: "Upload your Project Completion Report.",
       errReceipts: "Upload at least one receipt.",
-      errTooManyReceipts: "You can upload up to 10 receipts. If you have more, combine them into one PDF.",
-      errTooManyPhotos: "You can upload up to 8 photos.",
+      errTooManyReceipts: "You can upload up to 20 receipts. If you have more, combine them into one PDF.",
+      errTooManyPhotos: "You can upload up to 10 photos.",
       errConsent: "Tell us whether we can share your photos.",
+      errIncomplete: "Some of your files didn't reach us. Try sending fewer files at once, or email them to impact@alumo.ca.",
       errTotal: "Together, your files are over 50 MB. Remove a few or use smaller files.",
       errTooLarge: "The submission is too large. Each file must be 10 MB or less, and all files together 50 MB or less.",
       errNetwork: "Something went wrong and your report wasn't sent. Check your connection and try again.",
@@ -143,8 +145,8 @@
   var DOC_EXTS = ["pdf", "docx", "jpg", "jpeg", "png"];
   var SLOTS = IS_COMPLETION ? [
     { name: "file_report", exts: DOC_EXTS, min: 1, max: 1, missing: T.errReport, type: T.errTypeDocs },
-    { name: "file_receipts", exts: DOC_EXTS, min: 1, max: 10, missing: T.errReceipts, type: T.errTypeDocs, tooMany: T.errTooManyReceipts },
-    { name: "file_photos", exts: DOC_EXTS, min: 0, max: 8, missing: "", type: T.errTypeDocs, tooMany: T.errTooManyPhotos }
+    { name: "file_receipts", exts: DOC_EXTS, min: 1, max: 20, missing: T.errReceipts, type: T.errTypeDocs, tooMany: T.errTooManyReceipts },
+    { name: "file_photos", exts: DOC_EXTS, min: 0, max: 10, missing: "", type: T.errTypeDocs, tooMany: T.errTooManyPhotos }
   ] : [
     { name: "file_agreement", exts: DOC_EXTS, min: 1, max: 1, missing: T.errAgreement, type: T.errTypeDocs },
     { name: "file_void_cheque", exts: ["pdf", "jpg", "jpeg", "png"], min: 1, max: 1, missing: T.errCheque, type: T.errTypeCheque }
@@ -197,7 +199,14 @@
     cards[card.getAttribute("data-winners-state")] = card;
   });
 
-  var schoolSelect = form.querySelector('select[name="school"]');
+  /* The school box (client, Nov 2026: a plain dropdown "didn't look great"
+     when typed in): a text box people type in — #wf-school, which has no
+     name and is never sent — over a list of matches, like the application
+     form's; and the hidden input the form really sends (name="school"): a
+     listed school's exact name, SCHOOL_OTHER, or "" while nothing is chosen. */
+  var schoolInput = form.querySelector("#wf-school");
+  var schoolValue = form.querySelector('input[type="hidden"][name="school"]');
+  var schoolPanel = document.getElementById("wf-school-listbox");
   var otherWrap = form.querySelector("#wf-school-other-wrap");
   var otherInput = form.querySelector('input[name="school_other"]');
   var submitBtn = form.querySelector('[type="submit"]');
@@ -208,8 +217,10 @@
   var submitText = submitLabel.textContent;
 
   /* The control for a server key: name="x", or name="x[]" for a box that
-     takes several files. For a radio pair, the first radio. */
+     takes several files. For a radio pair, the first radio. For the school,
+     the box people see, not the hidden input that carries its value. */
   function field(name) {
+    if (name === "school") return schoolInput;
     return form.querySelector('[name="' + name + '"]') || form.querySelector('[name="' + name + '[]"]');
   }
   /* The server key for a control ("file_receipts[]" -> "file_receipts"). */
@@ -359,10 +370,30 @@
     try { card.focus({ preventScroll: true }); } catch (e) { card.focus(); }
   }
 
-  /* ---- School select (frozen Fall 2026 list) ---- */
-  function fillSchools() {
+  /* ---- School box (frozen Fall 2026 list) ----
+     The same type-ahead as the application form's institution box
+     (js/apply-form.js), with its styles (.combo-* in apply-now.css): typing
+     narrows a list grouped by province, the arrow keys and Enter or a click
+     choose. Two differences: the last line is always "My school isn't
+     listed" (the box's data-other-label), whatever was typed, and it reveals
+     a required name box; and what is sent is the hidden input, so the server
+     still gets a listed school's exact name or SCHOOL_OTHER, never a
+     half-typed one. */
+  var schoolGroups = [];   /* [{ name: province, options: [school…] }] */
+  var schoolByKey = {};    /* folded name -> the list's own spelling */
+  var OTHER_LABEL = schoolInput.getAttribute("data-other-label") || "";
+  var schoolOptions = [];  /* the option elements now in the panel */
+  var schoolActive = -1;
+
+  /* Case and accents don't count when matching ("universite laval"). */
+  function fold(text) {
+    var s = String(text || "").toLowerCase().trim();
+    try { s = s.normalize("NFD").replace(/[̀-ͯ]/g, ""); } catch (e) { /* old browser: case only */ }
+    return s;
+  }
+
+  function loadSchools() {
     var rows = window.ALUMO_WINNERS_SCHOOLS;
-    var otherOption = schoolSelect.querySelector('option[value="' + SCHOOL_OTHER + '"]');
     if (!Array.isArray(rows)) return; /* list missing: "not listed" still works */
     PROVINCES.forEach(function (province) {
       var names = [];
@@ -372,25 +403,27 @@
         if (!row || row.province !== province[0] || !name || seen[name.toLowerCase()]) return;
         seen[name.toLowerCase()] = true;
         names.push(name);
+        schoolByKey[fold(name)] = name;
       });
       if (!names.length) return;
       names.sort(function (a, b) { return a.localeCompare(b); });
-      var group = document.createElement("optgroup");
-      group.label = province[1];
-      names.forEach(function (name) {
-        var option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        group.appendChild(option);
-      });
-      schoolSelect.insertBefore(group, otherOption);
+      schoolGroups.push({ name: province[1], options: names });
     });
+  }
+
+  /* What the text in the box stands for: a listed school's exact name,
+     SCHOOL_OTHER for the "not listed" line, or "" (nothing chosen yet). */
+  function schoolFor(text) {
+    var key = fold(text);
+    if (!key) return "";
+    if (OTHER_LABEL && key === fold(OTHER_LABEL)) return SCHOOL_OTHER;
+    return Object.prototype.hasOwnProperty.call(schoolByKey, key) ? schoolByKey[key] : "";
   }
 
   /* "My school isn't listed" reveals and requires the name box; any other
      choice hides and EMPTIES it, so a retracted name is never submitted. */
   function syncSchoolOther() {
-    var isOther = schoolSelect.value === SCHOOL_OTHER;
+    var isOther = schoolValue.value === SCHOOL_OTHER;
     otherWrap.hidden = !isOther;
     otherInput.required = isOther;
     if (isOther) {
@@ -402,8 +435,122 @@
     }
   }
 
-  function refreshSelectTint() {
-    schoolSelect.classList.toggle("is-placeholder", schoolSelect.value === "");
+  /* Keep the hidden input — what is sent — in step with the box. */
+  function syncSchool() {
+    schoolValue.value = schoolFor(schoolInput.value);
+    syncSchoolOther();
+  }
+
+  function setSchoolActive(index) {
+    if (schoolActive >= 0 && schoolOptions[schoolActive]) {
+      schoolOptions[schoolActive].classList.remove("is-active");
+      schoolOptions[schoolActive].setAttribute("aria-selected", "false");
+    }
+    schoolActive = index;
+    if (index >= 0 && schoolOptions[index]) {
+      var el = schoolOptions[index];
+      el.classList.add("is-active");
+      el.setAttribute("aria-selected", "true");
+      schoolInput.setAttribute("aria-activedescendant", el.id);
+      if (el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
+    } else {
+      schoolInput.removeAttribute("aria-activedescendant");
+    }
+  }
+
+  function closeSchools() {
+    schoolPanel.hidden = true;
+    schoolInput.setAttribute("aria-expanded", "false");
+    setSchoolActive(-1);
+  }
+
+  function chooseSchool(label) {
+    schoolInput.value = label;
+    clearError(schoolInput);
+    closeSchools();
+    syncSchool();
+    /* "Not listed" asks for the name next: go there. */
+    if (schoolValue.value === SCHOOL_OTHER) {
+      try { otherInput.focus(); } catch (e) { /* stays on the box */ }
+    }
+  }
+
+  /* Rebuild the panel for what is typed; an empty box, or one that already
+     holds a choice, shows the whole list. */
+  function openSchools() {
+    var typed = schoolInput.value.trim();
+    var query = schoolFor(typed) !== "" ? "" : fold(typed);
+    schoolPanel.innerHTML = "";
+    schoolOptions = [];
+    schoolActive = -1;
+    var counter = 0;
+    function addOption(label, extraClass) {
+      var option = document.createElement("div");
+      option.className = "combo-option" + (extraClass ? " " + extraClass : "");
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", "false");
+      option.id = "wf-school-option-" + (counter++);
+      option.textContent = label;
+      option.addEventListener("click", function () { chooseSchool(label); });
+      schoolPanel.appendChild(option);
+      schoolOptions.push(option);
+    }
+    schoolGroups.forEach(function (group) {
+      var matched = group.options.filter(function (name) {
+        return !query || fold(name).indexOf(query) !== -1;
+      });
+      if (!matched.length) return;
+      var heading = document.createElement("div");
+      heading.className = "combo-group-label";
+      heading.setAttribute("role", "presentation");
+      heading.textContent = group.name;
+      schoolPanel.appendChild(heading);
+      matched.forEach(function (name) { addOption(name, ""); });
+    });
+    /* Always the last line, whatever was typed: the way out when nothing
+       matches. */
+    if (OTHER_LABEL) addOption(OTHER_LABEL, "combo-option-other");
+    schoolPanel.hidden = schoolOptions.length === 0;
+    schoolInput.setAttribute("aria-expanded", schoolPanel.hidden ? "false" : "true");
+  }
+
+  function initSchools() {
+    loadSchools();
+    schoolInput.addEventListener("focus", openSchools);
+    schoolInput.addEventListener("input", function () {
+      syncSchool();
+      openSchools();
+    });
+    /* A press inside the panel (a line, or its scrollbar) must not take the
+       focus from the box — the blur below would close the list under it. */
+    schoolPanel.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    schoolInput.addEventListener("blur", function () {
+      /* Typed in full rather than picked: take the list's own spelling. */
+      var value = schoolFor(schoolInput.value);
+      if (value === SCHOOL_OTHER) schoolInput.value = OTHER_LABEL;
+      else if (value) schoolInput.value = value;
+      closeSchools();
+    });
+    schoolInput.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeSchools();
+        return;
+      }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (schoolPanel.hidden) openSchools();
+        if (!schoolOptions.length) return;
+        setSchoolActive(e.key === "ArrowDown"
+          ? (schoolActive + 1) % schoolOptions.length
+          : (schoolActive <= 0 ? schoolOptions.length - 1 : schoolActive - 1));
+        return;
+      }
+      if (e.key === "Enter" && !schoolPanel.hidden && schoolActive >= 0) {
+        e.preventDefault(); /* choose, don't send the form */
+        chooseSchool(schoolOptions[schoolActive].textContent);
+      }
+    });
+    syncSchool(); /* also covers a browser restoring the box on reload */
   }
 
   /* ---- Inline field errors (same markup as apply-form.js, plus the note is
@@ -523,8 +670,9 @@
         invalid.push(el);
       }
     }
-    check(schoolSelect, schoolSelect.value === "" ? T.errSchool : "");
-    if (schoolSelect.value === SCHOOL_OTHER) {
+    syncSchool();   /* the hidden value, from what the box holds right now */
+    check(schoolInput, schoolValue.value === "" ? T.errSchool : "");
+    if (schoolValue.value === SCHOOL_OTHER) {
       check(otherInput, otherInput.value.trim() === "" ? T.errSchoolOther : "");
     }
     /* In page order, so the first problem found is the first on screen. */
@@ -548,7 +696,7 @@
       total += filesBytes(input);
       if (input.files && input.files.length) lastWithFiles = input;
     });
-    /* All files together (completion page: up to 19 of them). Said on the
+    /* All files together (completion page: up to 31 of them). Said on the
        last box that holds any, and only once each box is fine on its own. */
     if (IS_COMPLETION && !invalid.length && total > TOTAL_MAX_BYTES && lastWithFiles) {
       check(lastWithFiles, T.errTotal);
@@ -590,6 +738,7 @@
     sending = false;
     form.removeAttribute("aria-busy");
     form.reset();
+    syncSchool();   /* reset() empties the box but not a hidden input */
     form.hidden = true;
     success.hidden = false;
     if (success.scrollIntoView) success.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -626,6 +775,8 @@
       });
       message = T.errFields;
       if (first) focusField(first);
+    } else if (j && j.error === "incomplete" && T.errIncomplete) {
+      message = T.errIncomplete;   /* the server got fewer files than were sent */
     } else if (status === 413 || (j && j.error === "too_large")) {
       message = T.errTooLarge;
     } else if (status === 429) {
@@ -653,7 +804,19 @@
       showStatus(T.errNetwork, true);
       finishSending();
     };
-    xhr.send(new FormData(form));
+    var data = new FormData(form);
+    if (IS_COMPLETION) {
+      /* How many files are on their way: a server that drops some (PHP does,
+         silently, past its max_file_uploads) can then say so instead of
+         filing a report with receipts missing — api/completion.php. */
+      var count = 0;
+      SLOTS.forEach(function (slot) {
+        var input = field(slot.name);
+        count += input && input.files ? input.files.length : 0;
+      });
+      data.append("file_count", String(count));
+    }
+    xhr.send(data);
   }
 
   form.addEventListener("submit", function (e) {
@@ -688,10 +851,6 @@
     } else if (t.matches("input, select, textarea")) {
       clearError(errorOwner(t));
     }
-    if (t === schoolSelect) {
-      syncSchoolOther();
-      refreshSelectTint();
-    }
   });
 
   /* Leaving mid-upload loses it: the browser asks first. */
@@ -701,8 +860,6 @@
     e.returnValue = "";
   });
 
-  fillSchools();
-  syncSchoolOther();   /* also covers a browser restoring the select on reload */
-  refreshSelectTint();
+  initSchools();
   checkState();
 })();

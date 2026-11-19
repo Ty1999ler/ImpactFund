@@ -87,7 +87,7 @@ or `caddy file-server --listen :8777`.
 - `api/completion.php` — the unlisted Project completion page
   (`/project-completion-fall-2026/`, `/fr/fin-de-projet-automne-2026/`; same
   front end, `js/winners-form.js`, and the same shared code in `api/_lib.php`):
-  one completion report, 1–10 receipts, 0–8 photos (10 MB each, 50 MB in all)
+  one completion report, 1–20 receipts, 0–10 photos (10 MB each, 50 MB in all)
   and the answer to "Can we share your photos?" → archived under
   `_submissions/completion/<id>/`, then filed in SharePoint ONLY
   (`<round>/Completion report/<Region>/<Project title> - <School>/`, with

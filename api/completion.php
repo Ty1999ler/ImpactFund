@@ -10,8 +10,10 @@
                      (completion.closes_at 'none').
    POST multipart -> school (+ school_other), full_name, project_title, email,
                      photo_consent ("yes" / "no"; required only when photos
-                     are sent), locale, and the documents: file_report (one),
-                     file_receipts[] (1 to 10), file_photos[] (0 to 8).
+                     are sent), locale, file_count (how many files the page
+                     is sending, so dropped ones are noticed), and the
+                     documents: file_report (one),
+                     file_receipts[] (1 to 20), file_photos[] (0 to 10).
    1. checks the schedule, the fields and the files' real content, then
       archives under submissions_dir/completion/<id>/ with the documents
       renamed "Completion report - <Name>.<ext>", "Receipt 2 - …",
@@ -57,7 +59,7 @@ if ($isStateCheck) {
                   'closes_at_ts' => $w['closes_at_ts'], 'confirmation' => false]);
 }
 
-/* Up to 19 files: together they may be 50 MB, which the page checks before
+/* Up to 31 files: together they may be 50 MB, which the page checks before
    sending (TOTAL_MAX_BYTES in js/winners-form.js) and which sits inside
    api/.user.ini's post_max_size (60M). */
 $maxTotalBytes = 50 * 1024 * 1024;
@@ -81,6 +83,25 @@ if ($state !== 'open') {
                   'message' => $state === 'closed'
                       ? 'The deadline to send your report has passed.'
                       : 'This page is not open yet.']);
+}
+
+/* ---------- did every file arrive? ----------
+   PHP keeps the first max_file_uploads files of a request and drops the rest
+   WITHOUT A WORD, so a host that ignores api/.user.ini (40) and runs PHP's
+   default (20) would file a report with receipts missing and say thank you.
+   The page therefore says how many files it is sending (file_count,
+   js/winners-form.js); fewer than that here means some were dropped on the
+   way, and nothing is stored. A request without file_count (not from the
+   page) is taken as it comes. */
+$received = 0;
+foreach (array_keys(completion_upload_slots()) as $slot) {
+    $received += count(completion_files($_FILES[$slot] ?? null));
+}
+if ((int)field('file_count', 4) > $received) {
+    error_log('completion.php: ' . (int)field('file_count', 4) . " files announced, $received received — "
+        . 'max_file_uploads is ' . ini_get('max_file_uploads') . ' on this server (api/.user.ini asks for 40)');
+    respond(413, ['ok' => false, 'error' => 'incomplete',
+                  'message' => 'Some of the files did not arrive. Try sending fewer files at once.']);
 }
 
 /* ---------- fields ---------- */
@@ -230,7 +251,7 @@ if (@file_put_contents($dir . '/submission.json', json_encode($record, JSON_PRET
 }
 
 /* ---------- answer, then deliver ----------
-   Everything the sender must not lose is on disk; filing up to 20 files in
+   Everything the sender must not lose is on disk; filing up to 32 files in
    SharePoint takes a while, so the answer goes out first. The id is returned
    for CI and logs, not shown on the page. */
 respond_and_continue(200, ['ok' => true, 'id' => $id]);

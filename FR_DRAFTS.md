@@ -271,6 +271,16 @@ wherever the two pages say the same thing (school, name, title, email, file type
 3. FLAG — the guidelines file (EN, and FR if there is one). If there is no French file, the
    French button points at the English one with a line saying so.
 
+## E. Laura's edits, 2026-11-19 (both pages) — French for Hafsa
+
+| Where | English | French |
+|---|---|---|
+| Winners page, payment note | …start processing your payment the week of January 11, 2027. *(was January 4)* | …traiter votre paiement dans la semaine du 11 janvier 2027. |
+| School box, placeholder (now a box you type in, with a list of matches) | Type or choose your school *(was "Choose your school")* | Écrivez ou sélectionnez votre école *(was "Sélectionnez votre école")* |
+| Completion page, too many receipts | You can upload up to 20 receipts. If you have more, combine them into one PDF. *(was 10)* | Vous pouvez téléverser jusqu'à 20 reçus. Si vous en avez davantage, regroupez-les dans un seul fichier PDF. |
+| Completion page, too many photos | You can upload up to 10 photos. *(was 8)* | Vous pouvez téléverser jusqu'à 10 photos. |
+| Completion page, some files did not arrive (new; only if the server drops files) | Some of your files didn't reach us. Try sending fewer files at once, or email them to impact@alumo.ca. | Certains de vos fichiers ne nous sont pas parvenus. Essayez d'en envoyer moins à la fois, ou envoyez-les par courriel à impact@alumo.ca. |
+
 ## Parked with the private link (translated, not needed until the key is built)
 | English | French |
 |---|---|
