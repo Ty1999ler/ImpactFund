@@ -189,6 +189,16 @@
   margin-top: 2px;
 }
 
+/* School box: the type-ahead's own styles are the application form's
+   (.combo-* in apply-now.css). Only its last line is ours — "My school
+   isn't listed", always shown — set off from the schools above it. */
+.winners-form .combo-option-other {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(34, 34, 34, 0.2);
+  font-weight: 600;
+}
+
 /* "Can we share your photos?" (completion page) — a cream box under the
    photos upload, like the cheque note, holding the question, "Totally up to
    you." and the two answers stacked. apply-now.css's radios are sized for a
