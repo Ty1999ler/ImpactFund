@@ -158,7 +158,12 @@ deploy_directly() {
     ( cd "$REPO" && /bin/sh -e "$tasks" ) >>"$LOG" 2>&1
     rc=$?
     rm -f "$tasks"
-    [ "$rc" -eq 0 ] && site_shows_it
+    [ "$rc" -eq 0 ] || return 1
+    # The tasks ran to the end. rsync leaves a file alone when its size and
+    # its time, to the second, are unchanged — which a stamp rewritten within
+    # the same second is — so the stamp is placed explicitly, then read back.
+    cp "$REPO/version.txt" "$DOCROOT/version.txt" 2>/dev/null
+    site_shows_it
 }
 
 method=cpanel
