@@ -223,6 +223,12 @@ return [
            closes_at exactly. */
         'close_grace_minutes' => 15,
         'notify_to'   => '',            // "documents received" notices; '' = failure_notify_to, then relay_to
+        /* The date in the page's orange note ("…our team will start
+           processing your payment the week of January 11, 2027"): the Monday
+           of that week, as 'YYYY-MM-DD'. The page writes it out in English
+           and French. '' (or not a real date) = the page keeps the date
+           typed into it. */
+        'payment_week' => '',           // e.g. '2027-01-11'
         /* false (default; anything but true counts as false): NO email at all
            to the winner's address, and the page doesn't mention one. true:
            the winner gets a confirmation (EN/FR, at most 30 a day) and the

@@ -661,3 +661,34 @@ edits may follow; the guidelines file comes later).
   receives is keyed by each field's name= attribute (full_name, project_title, funds_sent_to…),
   which a wording edit never touches. Changing what is ASKED (adding, removing or renaming a
   field's name) is a code change.
+
+## Payment week in config + attestation tick box — BUILT 2026-11-19 (branch claude/payment-week-attestation)
+- PAYMENT WEEK (winners page): winners.payment_week => 'YYYY-MM-DD' in api/config.php (the
+  Monday of the week). api/winners.php?state=1 hands it to the page, and js/winners-form.js
+  writes it over the date in the orange note, in the page's language ("February 1, 2027" /
+  "1er février 2027"). Left '' — or not a real date, which is logged — the page keeps the date
+  typed into it (January 11, 2027), so nothing changes until the key is set. It never closes
+  the page. With this, every date on the two unlisted pages is a config value: the documents
+  deadline (winners.closes_at), the report deadline (completion.closes_at), the payment week.
+- ATTESTATION (completion page, client 2026-11-19): a required tick box above the button,
+  recorded as "Attested: <Full name> on <Month D, YYYY>" — the day the report arrived, in
+  Toronto time — in the Submission details file and the team notice, with the statement AS THE
+  PAGE SHOWED IT on the next line (the page sends its own wording along, so what each person
+  agreed to is on file even after the wording changes). THE WORDING IS A PLACEHOLDER ("I confirm
+  that the funding I received was used for this project and for the eligible expenses
+  described in my funding agreement."): Laura is to send Alumo's. Changing it is an edit to
+  the two pages' text only. If the lists are built, "Attested on" is a natural column.
+- winners.css / winners-form.js ?v=5. CI: state check carries payment_week; unticked box -> 422.
+- NOT BUILT, deliberately — the MAIN SITE's dates (the application window on the home, About,
+  Submit and Partners pages, EN + FR): 12 scheduled elements, the date sentences, and the
+  round-specific wording around them ("The Fall submission period is now open!", the Oct 22
+  extension note, the hero pill). Reasons: _tools/test_schedule_preview.py, the browser test
+  that guards that logic, cannot run on this machine (headless Edge never reports back), so a
+  rewrite of js/main.js's schedule code would ship unchecked onto the live pages; it would ride
+  into the winners go-live release, which has a deadline; and the wording needs decisions that
+  are open (Winter or Spring 2027, the open-card copy, what to show once a window closes and
+  the next is not announced). Plan, for the January reopen: a 'schedule' block in config.php
+  (opens_at, closes_at, round names EN/FR, the next window), a small api/schedule.php that
+  publishes it, apply.php gating on the same block (one source instead of three), and
+  js/main.js filling the dates into marked fragments of the hand-written sentences — inert
+  until the block exists, with today's text as the fallback.

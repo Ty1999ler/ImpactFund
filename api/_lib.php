@@ -1031,6 +1031,14 @@ function winners_parse_time(string $value): ?int {
     return $ts === false ? null : $ts;
 }
 
+/* 'YYYY-MM-DD' -> the same string when it is a real calendar date, else
+   null. For dates that are only ever SHOWN (the payment week): no clock, no
+   offset, nothing to compare. */
+function winners_parse_day(string $value): ?string {
+    if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m)) return null;
+    return checkdate((int)$m[2], (int)$m[3], (int)$m[1]) ? $value : null;
+}
+
 /* The 'winners' block of api/config.php with defaults filled in, or null when
    the page must stay CLOSED (the endpoint answers 503 'unconfigured'):
    - no 'winners' block, or an empty round / root_folder;
@@ -1064,8 +1072,19 @@ function winners_config(array $cfg, string $key = 'winners'): ?array {
         'drive_id'            => '',
         'allow_without_graph' => false,
         'send_confirmation'   => false,
+        'payment_week'        => '',
     ];
     $w['send_confirmation'] = $w['send_confirmation'] === true;
+    /* The Monday the page's payment note names ("…the week of January 11,
+       2027"): a plain calendar date, 'YYYY-MM-DD'. '' (or anything that is
+       not a real date — logged) leaves the page's own wording alone; it
+       never closes the page. */
+    $day = trim((string)$w['payment_week']);
+    if ($day !== '' && winners_parse_day($day) === null) {
+        error_log("$key: payment_week '$day' is not a real date (YYYY-MM-DD) — the page keeps its own wording");
+        $day = '';
+    }
+    $w['payment_week'] = $day;
     $w['round'] = trim((string)$w['round']);
     $w['root_folder'] = trim((string)$w['root_folder']);
     if ($w['round'] === '' || $w['root_folder'] === '') {
@@ -1256,6 +1275,26 @@ function completion_photos_text(array $record): string {
         : ($consent === 'no' ? 'do NOT share' : 'sharing not answered: do NOT share'));
 }
 
+/* "Attested:      Jane Doe on November 19, 2026" (+ the statement they
+   ticked, as the page showed it), or '' for a record without one — a winners
+   record, or a completion record from before the tick box existed. The date
+   is the day the report arrived, in Toronto time: the sender's "today", not
+   UTC's. */
+function completion_attestation_text(array $record): string {
+    $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
+    if ((string)($f['attestation'] ?? '') !== 'yes') return '';
+    $one = fn($v): string => trim((string)preg_replace('/\s+/u', ' ', (string)$v));
+    try {
+        $when = (new DateTime((string)($record['received_utc'] ?? 'now')))
+            ->setTimezone(new DateTimeZone('America/Toronto'))->format('F j, Y');
+    } catch (Throwable $e) {
+        $when = gmdate('F j, Y');
+    }
+    $statement = $one($f['attestation_text'] ?? '');
+    return 'Attested:      ' . $one($f['full_name'] ?? '') . ' on ' . $when . "\n"
+         . ($statement !== '' ? 'Statement:     "' . $statement . "\"\n" : '');
+}
+
 /* Plain-text block naming the winner, shared by every team notice and by the
    "Submission details" file that is filed with the documents. A winners
    record adds who the funds are sent to; a completion record its photos
@@ -1273,6 +1312,7 @@ function winners_details_text(array $record): string {
          . ($v('funds_sent_to') !== '' ? 'Funds sent to: ' . $v('funds_sent_to') . "\n" : '')
          . ((string)($record['region'] ?? '') !== '' ? 'Region:        ' . str_replace(["\r", "\n"], ' ', (string)$record['region']) . "\n" : '')
          . (winners_kind($record) === 'completion' ? 'Photos:        ' . completion_photos_text($record) . "\n" : '')
+         . completion_attestation_text($record)
          . 'Round:         ' . (string)($record['round'] ?? '') . "\n"
          . 'Submission id: ' . (string)($record['id'] ?? '') . "\n";
 }

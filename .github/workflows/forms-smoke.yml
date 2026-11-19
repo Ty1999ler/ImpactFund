@@ -599,6 +599,8 @@ jobs:
           test "$code" = "200"
           test "$(jq -r .state /tmp/body.json)" = "open"
           test "$(jq -r .closes_at_ts /tmp/body.json)" = "null"
+          # The payment note's date comes from config (winners.payment_week).
+          test "$(jq -r .payment_week /tmp/body.json)" = "2027-02-01"
           code=$(curl -sS -o /dev/null -w '%{http_code}' 'http://localhost:8791/api/winners.php')
           test "$code" = "405"
 
@@ -997,6 +999,14 @@ jobs:
           $expect('doc name keeps its extension when long',
               winners_doc_name('Void cheque', str_repeat('A', 150), 'jpg') === 'Void cheque - ' . str_repeat('A', 86) . '.jpg');
           $expect('doc name loses path characters', winners_doc_name('Void cheque', 'a/b:c', 'pdf') === 'Void cheque - a-b-c.pdf');
+          $expect('payment week: a real date is kept', winners_config(['winners' => ['payment_week' => '2027-01-11'] + $base['winners']] + $base)['payment_week'] === '2027-01-11');
+          foreach (['2027-02-30', '11 January 2027', '2027-1-11', '2027-01-11T00:00:00-05:00'] as $bad) {
+              $c = $base; $c['winners']['payment_week'] = $bad;
+              $w = winners_config($c);
+              $expect("payment week '$bad' -> ignored, page still open", is_array($w) && $w['payment_week'] === '');
+          }
+          $c = $base; unset($c['winners']['payment_week']);
+          $expect('payment week left out -> empty', winners_config($c)['payment_week'] === '');
           $expect('two upload slots, no finance form',
               array_keys(winners_upload_slots()) === ['file_agreement', 'file_void_cheque']);
           $k = winners_name_keys('Jane Doe');
@@ -1156,6 +1166,14 @@ jobs:
               strpos(winners_details_text($rec), "\nPhotos:        2 — ") !== false);
           $expect('details text has no photos line for a winners record',
               strpos(winners_details_text($rec2), 'Photos:') === false);
+          $att = ['kind' => 'completion', 'received_utc' => '2026-12-02T03:30:00+00:00',
+                  'fields' => ['full_name' => 'Jane Doe', 'attestation' => 'yes', 'attestation_text' => "I confirm\n  it."]];
+          $expect('attestation: name and the TORONTO date (Dec 1, not UTC Dec 2), then the statement on one line',
+              completion_attestation_text($att) === "Attested:      Jane Doe on December 1, 2026\nStatement:     \"I confirm it.\"\n");
+          $expect('attestation is part of the details text', strpos(winners_details_text($att), "\nAttested:      Jane Doe on December 1, 2026\n") !== false);
+          $att['fields']['attestation'] = 'no';
+          $expect('no attestation, no line', completion_attestation_text($att) === '');
+          $expect('a record from before the tick box has no line', completion_attestation_text(['kind' => 'completion', 'fields' => ['full_name' => 'X']]) === '');
           $expect('label: one report', completion_doc_label('Completion report', 1, 1) === 'Completion report');
           $expect('label: receipts are numbered', completion_doc_label('Receipt', 2, 3) === 'Receipt 2');
           $expect('label: one receipt is not', completion_doc_label('Receipt', 1, 1) === 'Receipt');
@@ -1227,6 +1245,7 @@ jobs:
           cat > /tmp/wfix/completion.sh <<'SH'
           CFIELDS=(-F school='University of Regina' -F full_name='CI Finisher'
                    -F project_title='CI Finished Project' -F email='ci-finisher@example.com'
+                   -F attestation=yes -F attestation_text='I confirm the funding was used as agreed.'
                    -F locale=en)
           cpost() {
             local port=$1; shift
@@ -1288,6 +1307,10 @@ jobs:
           grep -q 'project completion report' /tmp/cdetails.txt
           grep -q 'Photos:        2 — do NOT share' /tmp/cdetails.txt
           grep -q 'Receipt 2 - CI Finisher.png' /tmp/cdetails.txt
+          # The tick box: "<name> on <date>", and the statement as shown.
+          test "$(jq -r .fields.attestation /tmp/csub.json)" = "yes"
+          grep -Eq '^Attested:      CI Finisher on [A-Z][a-z]+ [0-9]{1,2}, 20[0-9]{2}' /tmp/cdetails.txt
+          grep -q 'Statement:     "I confirm the funding was used as agreed."' /tmp/cdetails.txt
           # Round-first layout: the answer goes on the project folder's name
           # (php CLI step), so no document names a sub-folder and the file
           # names stay plain.
@@ -1369,6 +1392,14 @@ jobs:
           test "$(jq -r .error /tmp/body.json)" = "fields"
           test "$(jq -r .fields.photo_consent /tmp/body.json)" = "required"
           test "$(jq -r .fields.file_receipts /tmp/body.json)" = "required"
+          # The attestation box left unticked (or sent as anything but yes).
+          code=$(cpost 8791 -F school='University of Regina' -F full_name='CI Finisher' \
+            -F project_title='CI Finished Project' -F email='ci-finisher@example.com' -F attestation=no \
+            -F file_report=@/tmp/wfix/report.pdf \
+            -F 'file_receipts[]=@/tmp/wfix/receipt-1.pdf')
+          test "$code" = "422"
+          test "$(jq -r .fields.attestation /tmp/body.json)" = "required"
+          test "$(jq -r '.fields | length' /tmp/body.json)" = "1"
           # An answer that is neither yes nor no is no answer.
           code=$(cpost 8791 "${CFIELDS[@]}" -F photo_consent=maybe \
             -F file_report=@/tmp/wfix/report.pdf \

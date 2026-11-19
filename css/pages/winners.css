@@ -243,6 +243,10 @@
 }
 .winners-form .winners-consent .field-error { margin-top: 10px; }
 
+/* Attestation tick box (completion page), above the foot of the form. The
+   box and its text are the application form's (.check-option). */
+.winners-form .winners-attest { margin: 0 0 32px; }
+
 /* Foot of the form: a rule, then the fine print on the left and the send
    button on the right, on one row (Alumo's Nov 2026 mock). The status line
    sits above the rule. Stacked, button last, on a phone. */

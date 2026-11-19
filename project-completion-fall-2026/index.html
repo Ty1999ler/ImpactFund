@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=4">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=5">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -255,6 +255,19 @@
                   </div>
                 </fieldset>
 
+                <!-- Attestation (client, Nov 2026): a required tick box, recorded
+                     with the report as "<name> on <date>" (Submission details
+                     file and the team notice). THE WORDING IS A PLACEHOLDER —
+                     Alumo is to send theirs; changing it here needs nothing
+                     else (the statement is sent along as shown, so what each
+                     person agreed to is on file). -->
+                <div class="form-field form-field-check winners-attest">
+                  <label class="check-option">
+                    <input type="checkbox" id="wf-attest" name="attestation" value="yes" required aria-required="true">
+                    <span data-winners-attest-text>I confirm that the funding I received was used for this project and for the eligible expenses described in my funding agreement.<span aria-hidden="true">*</span></span>
+                  </label>
+                </div>
+
                 <!-- Honeypot — ignored by validation, checked on submit -->
                 <div class="hp-field" aria-hidden="true">
                   <label for="af-website">Leave this field empty</label>
@@ -332,6 +345,6 @@
        unlisted URL (_tools/verify_integrity.py checks this). -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=4"></script>
+  <script src="/js/winners-form.js?v=5"></script>
 </body>
 </html>

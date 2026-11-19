@@ -104,6 +104,7 @@
       errTooManyReceipts: "Vous pouvez téléverser jusqu'à 20 reçus. Si vous en avez davantage, regroupez-les dans un seul fichier PDF.",
       errTooManyPhotos: "Vous pouvez téléverser jusqu'à 10 photos.",
       errConsent: "Veuillez nous indiquer si nous pouvons partager vos photos.",
+      errAttest: "Veuillez cocher la case pour confirmer avant d'envoyer votre rapport.",
       errIncomplete: "Certains de vos fichiers ne nous sont pas parvenus. Essayez d'en envoyer moins à la fois, ou envoyez-les par courriel à impact@alumo.ca.",
       errTotal: "Ensemble, vos fichiers dépassent 50 MB. Veuillez en retirer quelques-uns ou utiliser des fichiers moins volumineux.",
       errTooLarge: "La soumission est trop volumineuse. Chaque fichier doit être de 10 MB ou moins, et l'ensemble des fichiers, de 50 MB ou moins.",
@@ -118,6 +119,7 @@
       errTooManyReceipts: "You can upload up to 20 receipts. If you have more, combine them into one PDF.",
       errTooManyPhotos: "You can upload up to 10 photos.",
       errConsent: "Tell us whether we can share your photos.",
+      errAttest: "Tick the box to confirm before sending your report.",
       errIncomplete: "Some of your files didn't reach us. Try sending fewer files at once, or email them to impact@alumo.ca.",
       errTotal: "Together, your files are over 50 MB. Remove a few or use smaller files.",
       errTooLarge: "The submission is too large. Each file must be 10 MB or less, and all files together 50 MB or less.",
@@ -167,7 +169,8 @@
     project_title: T.errTitle,
     email: T.errEmail,
     funds_sent_to: T.errFunds,       /* winners page only */
-    photo_consent: T.errConsent      /* completion page only */
+    photo_consent: T.errConsent,     /* completion page only */
+    attestation: T.errAttest         /* completion page only */
   };
   var SLOT_BY_NAME = {};
   SLOTS.forEach(function (slot) {
@@ -183,7 +186,7 @@
   /* Page order, for "focus the first problem". */
   var FIELD_ORDER = IS_COMPLETION
     ? ["school", "school_other", "full_name", "project_title", "email",
-      "file_report", "file_receipts", "file_photos", "photo_consent"]
+      "file_report", "file_receipts", "file_photos", "photo_consent", "attestation"]
     : ["school", "school_other", "full_name", "project_title", "email", "funds_sent_to",
       "file_agreement", "file_void_cheque"];
 
@@ -333,14 +336,40 @@
     if (hint) describedBy(field("email"), hint.id, true);
   }
 
+  /* The payment note's date ("…the week of January 11, 2027"). The page
+     carries one as written; when the server's config sets
+     winners.payment_week ('YYYY-MM-DD'), that date is written over it here,
+     in the page's language: "February 1, 2027" / "1er février 2027". A
+     calendar date, so it is formatted in UTC and never shifts by a time
+     zone. Anything unexpected leaves the page's own wording. */
+  function showPaymentWeek(day) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(day || ""));
+    if (!m) return;
+    var date = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (isNaN(date.getTime()) || date.getUTCDate() !== +m[3]) return;
+    var parts = {};
+    new Intl.DateTimeFormat(IS_FR ? "fr-CA" : "en-CA", {
+      timeZone: "UTC", year: "numeric", month: "long", day: "numeric"
+    }).formatToParts(date).forEach(function (p) { parts[p.type] = p.value; });
+    var dayNumber = parseInt(parts.day, 10);
+    if (isNaN(dayNumber) || !parts.month || !parts.year) return;
+    var text = IS_FR
+      ? (dayNumber === 1 ? "1er" : String(dayNumber)) + " " + parts.month + " " + parts.year
+      : parts.month + " " + dayNumber + ", " + parts.year;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-winners-payment-week]"), function (el) {
+      el.textContent = text;
+    });
+  }
+
   function checkState() {
     var settled = false;
-    function settle(state, ts, confirmation) {
+    function settle(state, ts, confirmation, paymentWeek) {
       if (settled) return;
       settled = true;
       if (confirmation) {
         try { showConfirmationCopy(); } catch (e) { /* the copy simply stays hidden */ }
       }
+      try { showPaymentWeek(paymentWeek); } catch (e) { /* the page's own date stays */ }
       renderState(state, ts);
     }
     try {
@@ -352,7 +381,7 @@
         var j = parseJson(xhr.responseText);
         if (xhr.status === 200 && j && j.ok === true &&
             (j.state === "open" || j.state === "closed" || j.state === "not-open")) {
-          settle(j.state, j.closes_at_ts, j.confirmation === true);
+          settle(j.state, j.closes_at_ts, j.confirmation === true, j.payment_week);
         } else {
           settle("unconfigured", null); /* 503, a stray 200, or no PHP at all */
         }
@@ -708,6 +737,9 @@
       var hasPhotos = !!(photosInput && photosInput.files && photosInput.files.length);
       check(consentRadios[0], hasPhotos && !answered ? T.errConsent : "");
     }
+    /* The attestation tick box (completion page): must be ticked. */
+    var attest = field("attestation");
+    if (attest) check(attest, attest.checked ? "" : T.errAttest);
     return invalid;
   }
 
@@ -815,6 +847,13 @@
         count += input && input.files ? input.files.length : 0;
       });
       data.append("file_count", String(count));
+      /* The statement beside the tick box, as this page showed it: the
+         wording is Alumo's to change, so what was agreed to goes on file
+         with the report. */
+      var statement = form.querySelector("[data-winners-attest-text]");
+      if (statement) {
+        data.append("attestation_text", statement.textContent.replace(/\*\s*$/, "").replace(/\s+/g, " ").trim());
+      }
     }
     xhr.send(data);
   }

@@ -10,7 +10,8 @@
                      (completion.closes_at 'none').
    POST multipart -> school (+ school_other), full_name, project_title, email,
                      photo_consent ("yes" / "no"; required only when photos
-                     are sent), locale, file_count (how many files the page
+                     are sent), attestation ("yes", required: the tick box)
+                     and attestation_text (the statement as shown), locale, file_count (how many files the page
                      is sending, so dropped ones are noticed), and the
                      documents: file_report (one),
                      file_receipts[] (1 to 20), file_photos[] (0 to 10).
@@ -121,6 +122,11 @@ $FIELDS = [
     'email'         => [true, 254],
     /* "Can we share your photos?" — "yes" or "no"; checked below. */
     'photo_consent' => [false, 3],
+    /* The tick box above the button (client, Nov 2026): must be "yes".
+       attestation_text is the statement as the page showed it — the wording
+       is Alumo's to change, so what was agreed to is recorded with it. */
+    'attestation'      => [false, 3],
+    'attestation_text' => [false, 600],
     /* Hidden input ("en" / "fr"); recorded, nothing is emailed to the sender. */
     'locale'        => [false, 2],
 ];
@@ -138,6 +144,7 @@ if ($data['school'] === $SCHOOL_OTHER && $data['school_other'] === '') {
 if ($data['email'] !== '' && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
     $errors['email'] = 'invalid_email';
 }
+if (strtolower($data['attestation']) !== 'yes') $errors['attestation'] = 'required';
 /* Anything but an explicit yes or no is no answer. */
 $consent = strtolower($data['photo_consent']);
 if ($consent !== 'yes' && $consent !== 'no') $consent = '';
@@ -191,6 +198,10 @@ $fields = [
     'project_title' => $data['project_title'],
     'email'         => $data['email'],
     'photo_consent' => $consent,
+    /* Recorded as "<name> on <date>" (completion_attestation_text), the date
+       being received_utc below, in Toronto time. */
+    'attestation'      => 'yes',
+    'attestation_text' => $data['attestation_text'],
     'locale'        => $data['locale'],
 ];
 
