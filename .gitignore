@@ -18,3 +18,8 @@ msmtprc
 # Client quote/proposal documents - private, never published
 _proposal/
 __pycache__/
+
+# Written by _deploy/auto-deploy.sh in the server's staging clone: what it
+# last deployed. Ignored so that clone's working tree stays clean (cPanel's
+# own deployment wants a clean tree); the deploy still copies it to staging.
+/version.txt

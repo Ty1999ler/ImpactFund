@@ -692,3 +692,35 @@ edits may follow; the guidelines file comes later).
   publishes it, apply.php gating on the same block (one source instead of three), and
   js/main.js filling the dates into marked fragments of the hand-written sentences — inert
   until the block exists, with today's text as the fallback.
+
+## Staging auto-deploy — BUILT 2026-11-19 (branch claude/staging-auto-deploy), STAGING ONLY
+Client: deploying staging should not need a GoDaddy login each time.
+- _deploy/auto-deploy.sh, run by cron on the hosting account every 5 minutes FROM THE CLONE THAT
+  IS ON `main`: fetch origin/main; if it moved, `git merge --ff-only` and deploy. Nothing new =
+  nothing done, nothing logged. It refuses to run in a clone on any other branch, so the
+  production (`release`) clone keeps its two cPanel buttons — the client asked for staging only.
+- No credential anywhere: the repository is public (anonymous fetch) and the job runs as the
+  account that owns the files. Nothing is stored in GitHub. (If the repository is ever made
+  private — parked — this job needs a read-only deploy key on the server first.)
+- Deploys through cPanel's own deployment (uapi VersionControlDeployment create) when that
+  tool is there, then CHECKS staging shows the new version; otherwise, or if it does not, it
+  runs the tasks of .cpanel.yml itself — read from the file, not copied, and CI proves its
+  reading equals a YAML parser's. So .cpanel.yml stays the one place the deploy is defined.
+  KEEP .cpanel.yml's SHAPE: one task per line, except the one folded ("- >") rsync block.
+- What is deployed: http://staging.alumoimpact.ca/version.txt ("main <sha> deployed <time>
+  (auto)"); log: ~/impactfund-auto-deploy.log on the server. version.txt is git-ignored.
+- It only moves forward. A clone changed by hand, or a rewritten main, stops it with a line
+  in the log ("NOT DEPLOYED: this clone cannot fast-forward"); fix in cPanel.
+- Server config (api/config.php) is still edited by hand in cPanel: it lives only on the
+  server, on purpose.
+- CI: .github/workflows/deploy-script.yml runs the script end to end against a throwaway
+  origin, clone and home with the real .cpanel.yml (first deploy, no-op, new commit, removed
+  file, server-only files kept, cPanel path used / silently failing / refusing, a diverged
+  clone, the release clone refused).
+- ONE-TIME SETUP on the server (needs the cPanel login once):
+  1. Pull this once by hand (Update from Remote + Deploy HEAD Commit on the `main` repository).
+  2. cPanel > Git Version Control: copy the "Path" of the `main` repository.
+  3. cPanel > Cron Jobs: every 5 minutes (*/5 * * * *), command
+       /bin/sh <that path>/_deploy/auto-deploy.sh >/dev/null 2>&1
+- NOT VERIFIED ON THE HOST: whether cron there may call uapi, and whether `git fetch` works
+  from cron. Either failing is logged, never silent; the first automatic deploy is the test.
