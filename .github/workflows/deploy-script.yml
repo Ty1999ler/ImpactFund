@@ -1,0 +1,206 @@
+name: Staging auto-deploy script
+
+# _deploy/auto-deploy.sh runs from cron on the hosting account and deploys
+# `main` to staging. It cannot be tried on the host without doing a real
+# deploy, so it is exercised here: against a throwaway "origin", a throwaway
+# clone and a throwaway home directory, using the real .cpanel.yml.
+
+on:
+  push:
+    paths:
+      - '_deploy/**'
+      - '.cpanel.yml'
+      - '.github/workflows/deploy-script.yml'
+  workflow_dispatch:
+
+jobs:
+  auto-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The script reads .cpanel.yml exactly as a YAML parser does
+        run: |
+          set -euo pipefail
+          sed -i 's/\r$//' _deploy/auto-deploy.sh   # guard against a CRLF checkout
+          sh -n _deploy/auto-deploy.sh
+          # The script's own cpanel_tasks(), lifted out of it — not a copy.
+          sed -n '/^cpanel_tasks() {$/,/^}$/p' _deploy/auto-deploy.sh > /tmp/cpanel_tasks.sh
+          test -s /tmp/cpanel_tasks.sh
+          REPO="$PWD"
+          . /tmp/cpanel_tasks.sh
+          cpanel_tasks > /tmp/tasks-script.txt
+          python3 -c "import yaml" 2>/dev/null || pip install --quiet pyyaml
+          python3 - <<'PY'
+          import yaml
+          tasks = yaml.safe_load(open('.cpanel.yml', encoding='utf-8'))['deployment']['tasks']
+          open('/tmp/tasks-yaml.txt', 'w', encoding='utf-8').write('\n'.join(t.strip() for t in tasks) + '\n')
+          PY
+          diff /tmp/tasks-script.txt /tmp/tasks-yaml.txt
+          test "$(wc -l < /tmp/tasks-script.txt)" -ge 10
+
+      - name: Set up a throwaway origin, staging clone and home
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          rm -rf "$HOME" /tmp/work /tmp/origin.git
+          mkdir -p "$HOME/repos"
+          git config --global user.email ci@example.invalid
+          git config --global user.name CI
+          git config --global init.defaultBranch main
+          git config --global advice.detachedHead false
+          # A fresh repository from this checkout's files (the checkout itself
+          # is shallow, which a new bare repository will not accept).
+          mkdir /tmp/work
+          cp -a "$GITHUB_WORKSPACE"/. /tmp/work/
+          rm -rf /tmp/work/.git
+          git -C /tmp/work init -q
+          git -C /tmp/work add -A
+          git -C /tmp/work commit -q -m "site"
+          git init -q --bare /tmp/origin.git
+          git -C /tmp/work push -q /tmp/origin.git HEAD:refs/heads/main
+          git clone -q /tmp/origin.git "$HOME/repos/staging"
+          test "$(git -C "$HOME/repos/staging" rev-parse --abbrev-ref HEAD)" = "main"
+          # What lives only on the server must survive every deploy; what the
+          # repository no longer has must go (staging deploys with --delete).
+          mkdir -p "$HOME/staging/api"
+          echo secret > "$HOME/staging/api/config.php"
+          echo keep > "$HOME/staging/api/.htaccess"
+          echo stale > "$HOME/staging/stale-file.html"
+
+      - name: First run deploys what is checked out (no cPanel tool here, so the tasks run directly)
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          log="$HOME/impactfund-auto-deploy.log"
+          sh "$HOME/repos/staging/_deploy/auto-deploy.sh"
+          cat "$log"
+          grep -q 'deployed [0-9a-f]* to staging (direct)$' "$log"
+          for f in index.html api/winners.php api/completion.php fr/index.html js/main.js; do
+            test -f "$HOME/staging/$f"
+          done
+          test "$(cat "$HOME/staging/api/config.php")" = "secret"
+          test "$(cat "$HOME/staging/api/.htaccess")" = "keep"
+          test ! -e "$HOME/staging/stale-file.html"
+          for f in .git .github _tools _deploy ci README.md PLANS.md api/config.ci.php api/config.example.php Dockerfile.php .cpanel.yml; do
+            if [ -e "$HOME/staging/$f" ]; then echo "$f was deployed"; exit 1; fi
+          done
+          cmp "$HOME/staging/robots.txt" "$HOME/repos/staging/_deploy/robots-staging.txt"
+          grep -Eq '^main [0-9a-f]{7,} deployed [0-9TZ:-]+ \(auto\)$' "$HOME/staging/version.txt"
+          test "$(stat -c %a "$HOME/staging")" = "755"
+          # version.txt is git-ignored: the clone stays clean, so cPanel's own
+          # deployment (which wants a clean tree) is never blocked by it.
+          test -z "$(git -C "$HOME/repos/staging" status --porcelain)"
+
+      - name: Nothing new on main means nothing done and nothing logged
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          log="$HOME/impactfund-auto-deploy.log"
+          before=$(wc -l < "$log")
+          stamp=$(cat "$HOME/staging/version.txt")
+          sh "$HOME/repos/staging/_deploy/auto-deploy.sh"
+          test "$(wc -l < "$log")" = "$before"
+          test "$(cat "$HOME/staging/version.txt")" = "$stamp"
+
+      - name: A new commit on main is deployed by the next run
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          echo '<!-- ci marker -->' >> /tmp/work/index.html
+          git -C /tmp/work rm -q --cached about-the-fund/index.html
+          rm /tmp/work/about-the-fund/index.html
+          git -C /tmp/work commit -q -am "change"
+          git -C /tmp/work push -q /tmp/origin.git HEAD:refs/heads/main
+          new=$(git -C /tmp/work rev-parse HEAD)
+          sh "$HOME/repos/staging/_deploy/auto-deploy.sh"
+          test "$(git -C "$HOME/repos/staging" rev-parse HEAD)" = "$new"
+          grep -q '<!-- ci marker -->' "$HOME/staging/index.html"
+          test ! -e "$HOME/staging/about-the-fund/index.html"     # removed in the repository, removed on staging
+          test "$(cat "$HOME/staging/api/config.php")" = "secret"
+          grep -q "^main $(git -C "$HOME/repos/staging" rev-parse --short HEAD) deployed" "$HOME/staging/version.txt"
+          echo "$new" > /tmp/deployed.sha
+
+      - name: cPanel's own deployment is used when it works, and checked — not trusted
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          log="$HOME/impactfund-auto-deploy.log"
+          push_change() {
+            echo "<!-- $1 -->" >> /tmp/work/index.html
+            git -C /tmp/work commit -q -am "$1"
+            git -C /tmp/work push -q /tmp/origin.git HEAD:refs/heads/main
+          }
+          # 1. A cPanel tool that deploys: used, and the log says so.
+          sudo tee /usr/bin/uapi >/dev/null <<'SH'
+          #!/bin/sh
+          # stand-in: "deploys" by copying the stamp, as cPanel's rsync would
+          for a in "$@"; do case "$a" in repository_root=*) repo=${a#repository_root=} ;; esac; done
+          cp "$repo/version.txt" "$HOME/staging/version.txt"
+          echo '{"result":{"data":{"deploy_id":1},"errors":null,"status":1}}'
+          SH
+          sudo chmod 755 /usr/bin/uapi
+          push_change one
+          AUTO_DEPLOY_WAIT=10 sh "$HOME/repos/staging/_deploy/auto-deploy.sh"
+          tail -n 1 "$log" | grep -q 'to staging (cpanel)$'
+          # 2. A cPanel tool that says yes and deploys nothing: noticed, and
+          #    the tasks are run directly instead.
+          sudo tee /usr/bin/uapi >/dev/null <<'SH'
+          #!/bin/sh
+          echo '{"result":{"data":{"deploy_id":2},"errors":null,"status":1}}'
+          SH
+          push_change two
+          AUTO_DEPLOY_WAIT=5 sh "$HOME/repos/staging/_deploy/auto-deploy.sh"
+          grep -q 'cPanel accepted the deployment, but staging does not show' "$log"
+          tail -n 1 "$log" | grep -q 'to staging (direct)$'
+          grep -q '<!-- two -->' "$HOME/staging/index.html"
+          # 3. A cPanel tool that refuses: same fallback.
+          sudo tee /usr/bin/uapi >/dev/null <<'SH'
+          #!/bin/sh
+          echo '{"result":{"data":null,"errors":["The repository has uncommitted changes."],"status":0}}'
+          SH
+          push_change three
+          sh "$HOME/repos/staging/_deploy/auto-deploy.sh"
+          grep -q 'cPanel did not accept the deployment' "$log"
+          tail -n 1 "$log" | grep -q 'to staging (direct)$'
+          grep -q '<!-- three -->' "$HOME/staging/index.html"
+          sudo rm -f /usr/bin/uapi
+
+      - name: A clone changed by hand is not forced — it stops and says so
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          log="$HOME/impactfund-auto-deploy.log"
+          stamp=$(cat "$HOME/staging/version.txt")
+          git -C "$HOME/repos/staging" commit -q --allow-empty -m "made on the server by hand"
+          echo '<!-- four -->' >> /tmp/work/index.html
+          git -C /tmp/work commit -q -am "four"
+          git -C /tmp/work push -q /tmp/origin.git HEAD:refs/heads/main
+          if sh "$HOME/repos/staging/_deploy/auto-deploy.sh"; then
+            echo "a clone that cannot fast-forward was deployed"; exit 1
+          fi
+          grep -q 'NOT DEPLOYED: this clone cannot fast-forward' "$log"
+          test "$(cat "$HOME/staging/version.txt")" = "$stamp"
+          if grep -q '<!-- four -->' "$HOME/staging/index.html"; then echo "staging changed"; exit 1; fi
+
+      - name: It refuses to run in the production clone (the release branch)
+        run: |
+          set -euo pipefail
+          export HOME=/tmp/fakehome
+          log="$HOME/impactfund-auto-deploy.log"
+          git clone -q /tmp/origin.git "$HOME/repos/production"
+          git -C "$HOME/repos/production" checkout -q -b release
+          mkdir -p "$HOME/public_html"
+          if sh "$HOME/repos/production/_deploy/auto-deploy.sh"; then
+            echo "the script ran in a release clone"; exit 1
+          fi
+          grep -q "REFUSED: .* is on 'release', not main" "$log"
+          test -z "$(ls -A "$HOME/public_html")"
+
+      - name: The log (on failure)
+        if: failure()
+        run: |
+          cat /tmp/fakehome/impactfund-auto-deploy.log || true
+          ls -la /tmp/fakehome/staging || true

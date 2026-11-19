@@ -18,6 +18,7 @@ BUILD_NOTES.md             EN build conventions   BUILD_NOTES_FR.md  FR conventi
 PLANS.md                   forms + i18n forward plans
 _tools/mirror.py           re-downloads the live-site reference mirror into _source/
 _tools/submit_test.py      one-command [TEST] application (or winners upload) to staging, never production
+_deploy/auto-deploy.sh      cron job on the host: deploys `main` to STAGING by itself (never production); see PLANS.md
 ```
 
 `_source/` (git-ignored) is a mirror of the live WordPress site used as the
