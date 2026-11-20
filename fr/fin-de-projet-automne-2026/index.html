@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=5">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -90,6 +90,7 @@
              stays hidden when the page has none (completion.closes_at 'none'). -->
         <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Félicitations pour la réalisation de votre projet&#8239;! Envoyez-nous votre rapport de fin de projet, vos reçus et les photos que vous aimeriez partager.</p>
         <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Une fois votre rapport reçu et examiné, nous vous verserons le reste de votre financement.</p>
+        <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Veuillez soumettre votre rapport de fin de projet dans les 30&nbsp;jours suivant la réalisation de votre projet.</p>
         <p class="intro-text text-size-16-31-9-tightpx winners-deadline" data-winners-deadline hidden></p>
       </div>
     </section>
@@ -147,12 +148,12 @@
           <div class="winners-download">
             <h2 class="text-size-32-42-tight">Vous ne savez pas quoi inclure&#8239;?</h2>
             <p class="text-size-16-24-tight">Nos lignes directrices pour le rapport de fin de projet vous guident pas à pas&nbsp;: vous y trouverez ce que votre rapport doit contenir et un exemple de présentation de votre budget.</p>
-            <!-- AWAITING_CLIENT: Alumo supplies this file — see the EN page; until it
-                 lands in /assets/docs/ the link 404s, and
-                 _tools/verify_integrity.py lists it as awaiting the client
-                 rather than failing. Keep the file name when it arrives. -->
+            <!-- TEMPORARY: the ENGLISH guidelines (client, 2026-11-20). Alumo's
+                 French file is still in review; when it arrives, add it as
+                 /assets/docs/project-completion-report-guidelines-fr.pdf and
+                 point this link at it. -->
             <div class="btn btn-primary">
-              <a href="/assets/docs/project-completion-report-guidelines-fr.pdf" target="_blank" rel="noopener"><span>Télécharger les lignes directrices</span></a>
+              <a href="/assets/docs/project-completion-report-guidelines-en.pdf" target="_blank" rel="noopener"><span>Télécharger les lignes directrices</span></a>
             </div>
           </div>
         </div>
@@ -275,7 +276,7 @@
                 <!-- Fine print and button share one row under a rule, as in
                      Alumo's mock; they stack on a phone (winners.css). -->
                 <div class="winners-form-foot">
-                  <p class="form-fineprint">Vos renseignements et vos documents seront utilisés par Alumo uniquement pour le versement de votre financement et seront traités conformément à notre <a href="/fr/privacy-policy/">politique de confidentialité</a>.</p>
+                  <p class="form-fineprint">Vos renseignements et vos documents seront utilisés par Alumo uniquement pour évaluer la réalisation de votre projet et pour faire connaître votre nom et les résultats de votre projet afin de montrer l'impact du Fonds d'impact étudiant, conformément à notre <a href="/fr/privacy-policy/">politique de confidentialité</a>.</p>
                   <div class="form-nav">
                     <button type="submit" class="apply-btn apply-btn-submit"><span>Envoyer mon rapport</span></button>
                   </div>
@@ -340,6 +341,6 @@
        EN page. -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=5"></script>
+  <script src="/js/winners-form.js?v=6"></script>
 </body>
 </html>

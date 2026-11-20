@@ -98,6 +98,17 @@
   flex-shrink: 0;
   margin-top: 3px;
 }
+/* The line under the payment box ("You will receive the second half…"):
+   plain text, the box's width. */
+.winners-note-more {
+  max-width: 760px;
+  margin: 14px 0 0;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+}
 
 /* ------------------------------
    DOWNLOAD CARD (completion page) — "Not sure what to include?" and the
@@ -187,6 +198,60 @@
 .winners-form .winners-cheque-note svg {
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+/* A label with an "i" beside it (winners page, "Funds are sent to"). The
+   label is no longer the field's direct child, so apply-now.css's label rule
+   misses it: same look, restated. The "i" opens the note under the box. */
+.winners-form .winners-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.winners-form .winners-label-row label {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: var(--fs-16);
+  line-height: var(--lh-26);
+  letter-spacing: var(--ls-tight);
+  font-weight: 600;
+  color: var(--text);
+}
+.winners-form .winners-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-family: var(--font-source-serif);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--text);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.winners-form .winners-info-btn:hover,
+.winners-form .winners-info-btn[aria-expanded="true"] {
+  color: var(--primary-light-1);
+  background-color: var(--text);
+}
+.winners-form .winners-info {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  font-family: var(--font-inter);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  letter-spacing: var(--ls-tight);
+  color: var(--text);
+  background-color: var(--primary-light-1);
+  border-radius: 10px;
 }
 
 /* School box: the type-ahead's own styles are the application form's

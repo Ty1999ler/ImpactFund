@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=5">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -79,7 +79,7 @@
     <section class="apply-hero winners-hero">
       <div class="container">
         <p class="winners-kicker"><img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13"><span>Winner submission</span></p>
-        <h1 class="apply-title text-size-72-72-tight">You won. Just a few steps before you get started.</h1>
+        <h1 class="apply-title text-size-72-72-tight">You've been awarded funding. Just a few steps before you get started.</h1>
       </div>
     </section>
 
@@ -152,6 +152,8 @@
       <section class="winners-note-section">
         <div class="container">
           <p class="winners-note"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1.75" y="3.25" width="14.5" height="13" rx="2" stroke="#222222" stroke-width="1.5"/><path d="M1.75 7.5h14.5M5.5 1.5v3.5M12.5 1.5v3.5" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg><span><strong>When to expect your payment:</strong> once you submit the required documents, our team will start processing your payment the week of <span data-winners-payment-week>January 11, 2027</span>.</span></p>
+          <!-- Under the payment box (client, Nov 2026). -->
+          <p class="winners-note-more">You will receive the second half of your funding after completing the Project Completion Report. We ask that you submit your report within 30 days of your project taking place.</p>
         </div>
       </section>
 
@@ -220,8 +222,16 @@
                       <!-- Who the payment is made out to: the winner, or their
                            organization. Filed with the documents in the
                            "Submission details" text file. -->
-                      <label for="wf-funds">Funds are sent to<span aria-hidden="true">*</span></label>
+                      <!-- The "i" opens the note under the box (client, Nov 2026);
+                           /js/winners-form.js toggles it ([data-winners-info]). The
+                           label sits in a row with it, so it is styled by
+                           .winners-label-row rather than as the field's direct child. -->
+                      <div class="winners-label-row">
+                        <label for="wf-funds">Funds are sent to<span aria-hidden="true">*</span></label>
+                        <button type="button" class="winners-info-btn" data-winners-info aria-expanded="false" aria-controls="wf-funds-info" aria-label="More about who the funds are sent to">i</button>
+                      </div>
                       <input type="text" id="wf-funds" name="funds_sent_to" placeholder="Type recipient name or organization name" maxlength="255" required aria-required="true">
+                      <p class="winners-info" id="wf-funds-info" hidden>Funds can be sent directly to you, or to your club or organization if you're part of one. Enter the name of the person or group receiving the funds.</p>
                     </div>
                   </div>
                 </fieldset>
@@ -320,6 +330,6 @@
        unlisted URL (_tools/verify_integrity.py checks this). -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=5"></script>
+  <script src="/js/winners-form.js?v=6"></script>
 </body>
 </html>

@@ -899,6 +899,20 @@
     e.returnValue = "";
   });
 
+  /* "i" buttons: each shows or hides the note it names (aria-controls), and
+     while the note shows it is read with the box it explains. */
+  Array.prototype.forEach.call(form.querySelectorAll("[data-winners-info]"), function (button) {
+    var note = document.getElementById(button.getAttribute("aria-controls") || "");
+    if (!note) return;
+    var input = note.parentNode ? note.parentNode.querySelector("input, select, textarea") : null;
+    button.addEventListener("click", function () {
+      var show = note.hidden;
+      note.hidden = !show;
+      button.setAttribute("aria-expanded", show ? "true" : "false");
+      if (input) describedBy(input, note.id, show);
+    });
+  });
+
   initSchools();
   checkState();
 })();
