@@ -256,6 +256,9 @@ if ($w['graph_ready']) {
 }
 
 if ($deliveryError === '') {
+    /* Last, and never a reason to fail: the row in the page's SharePoint
+       list (winners_list_add), when one is configured. */
+    $folder['list'] = winners_list_add($cfg, $record, $folder);
     $deleted = winners_finish_delivery($dir, $stored, $folder, 'delivered', 1);
     winners_notify_delivered($cfg, $record, $folder, false, $deleted);
 } else {

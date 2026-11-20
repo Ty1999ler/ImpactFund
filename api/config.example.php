@@ -138,7 +138,11 @@ return [
            below). Left '' they file under  Region / Project title - School /
            at the top of the library, where Fall 2026's applications are.
            SET IT WHEN A NEW ROUND OPENS (e.g. 'Spring 2027'), and change it
-           at each round after. projects_folder renames the "Projects" level. */
+           at each round after. projects_folder renames the "Projects" level.
+           With round set, each application's ROW also gets a "Round" value —
+           so the list (list_id above) must have a single-line-of-text column
+           named Round BEFORE this is set: SharePoint refuses a row naming a
+           column it does not have, and applications would queue for retry. */
         'round'           => '',
         'projects_folder' => 'Projects',
 
@@ -229,6 +233,24 @@ return [
            and French. '' (or not a real date) = the page keeps the date
            typed into it. */
         'payment_week' => '',           // e.g. '2027-01-11'
+        /* A row per submission in a SharePoint list (same site as the
+           applications' list: graph.site_id): the list's NAME as Alumo
+           created it, or its id. '' = no row. One permanent list, every round
+           in it — the row carries Round. Alumo creates the list and these
+           columns, named exactly so when created (no spaces; the display
+           name can be changed afterwards):
+             Title (there already) = project title    Round, Region, School,
+             FullName, Email, FundsSentTo, SubmissionId: single line of text
+             Received: date and time                  Folder: hyperlink
+           and any of their own (Status, Paid on, Notes…), which the site
+           never touches. The row is added after the documents are filed and
+           never blocks them: if the list or a column is missing, the
+           documents are filed, a column the list lacks is left out of the
+           row, and the team notice says what to add by hand. No banking
+           detail goes in a row. list_field_map renames a column
+           ('FundsSentTo' => 'Payee') or drops it ('Email' => ''). */
+        'list'           => '',         // e.g. 'ImpactFundPayments'
+        'list_field_map' => [],
         /* false (default; anything but true counts as false): NO email at all
            to the winner's address, and the page doesn't mention one. true:
            the winner gets a confirmation (EN/FR, at most 30 a day) and the
@@ -287,6 +309,14 @@ return [
         'opens_at'    => '',            // '' = open as soon as configured
         'closes_at'   => '',            // REQUIRED: a date like the winners block's, or 'none' = no deadline; '' = page stays closed
         'close_grace_minutes' => 15,
+        /* As winners.list, for reports (NOT inherited from the winners
+           block). Columns: Title = project title; Round, Region, School,
+           FullName, Email, SubmissionId: single line of text; Photos:
+           number; OkToShare: single line of text ("Yes", "No", "No
+           photos"); Attested: single line of text ("Jane Doe on December 1,
+           2026"); Received: date and time; Folder: hyperlink. */
+        'list'           => '',         // e.g. 'ImpactFundCompletionReports'
+        'list_field_map' => [],
         // 'notify_to'   => '',         // left out = the winners block's notify_to
         // 'drive_id'    => '',         // left out = the winners block's drive
         // 'create_root' => false,      // left out = the winners block's setting
