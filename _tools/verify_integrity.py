@@ -118,11 +118,10 @@ EXPECTED_MISSING_RE = re.compile(
 # --release, where each one fails. Remove each entry the moment its file lands
 # in the repo — after that a missing file is a real break.
 AWAITING_CLIENT = {
-    # Project completion page: the report guidelines, EN + FR — from Alumo
-    # (requested Nov 2026). (The winners page's finance form, awaited here
-    # until Nov 2026, was dropped by Alumo and its links are gone.)
-    "/assets/docs/project-completion-report-guidelines-en.pdf",
-    "/assets/docs/project-completion-report-guidelines-fr.pdf",
+    # Nothing is awaited right now. The project completion guidelines arrived
+    # in English on 2026-11-19; the French page links to that same file until
+    # Alumo's French one comes (then: add ...-guidelines-fr.pdf and repoint
+    # the French page's button — no entry needed here).
 }
 awaiting_client = []  # (page, line, url)
 

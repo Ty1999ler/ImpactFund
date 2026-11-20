@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=5">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=6">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
@@ -89,6 +89,7 @@
              stays hidden when the page has none (completion.closes_at 'none'). -->
         <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Congratulations on completing your project! Send us your Project Completion Report, your receipts and any photos you'd like to share.</p>
         <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Once we've received and reviewed your report, we'll send your remaining funding.</p>
+        <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Please submit your Project Completion Report within 30 days of your project taking place.</p>
         <p class="intro-text text-size-16-31-9-tightpx winners-deadline" data-winners-deadline hidden></p>
       </div>
     </section>
@@ -146,10 +147,8 @@
           <div class="winners-download">
             <h2 class="text-size-32-42-tight">Not sure what to include?</h2>
             <p class="text-size-16-24-tight">Our Project Completion Report Guidelines walk you through it, including what to put in your report and an example of how to show your budget.</p>
-            <!-- AWAITING_CLIENT: Alumo supplies this file (EN and FR); until it
-                 lands in /assets/docs/ the link 404s, and
-                 _tools/verify_integrity.py lists it as awaiting the client
-                 rather than failing. Keep the file name when it arrives. -->
+            <!-- Alumo's guidelines (received 2026-11-19). The French page links
+                 to this same file until the French one arrives. -->
             <div class="btn btn-primary">
               <a href="/assets/docs/project-completion-report-guidelines-en.pdf" target="_blank" rel="noopener"><span>Download the guidelines</span></a>
             </div>
@@ -279,7 +278,7 @@
                 <!-- Fine print and button share one row under a rule, as in
                      Alumo's mock; they stack on a phone (winners.css). -->
                 <div class="winners-form-foot">
-                  <p class="form-fineprint">Your information and documents will be used by Alumo only to process your funding and will be handled in accordance with our <a href="/privacy-policy/">privacy policy</a>.</p>
+                  <p class="form-fineprint">Your information and documents will be used by Alumo only to review your project completion and to share your name and project results to show the impact of the Student Impact Fund, in accordance with our <a href="/privacy-policy/">privacy policy</a>.</p>
                   <div class="form-nav">
                     <button type="submit" class="apply-btn apply-btn-submit"><span>Send my report</span></button>
                   </div>
@@ -345,6 +344,6 @@
        unlisted URL (_tools/verify_integrity.py checks this). -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=5"></script>
+  <script src="/js/winners-form.js?v=6"></script>
 </body>
 </html>

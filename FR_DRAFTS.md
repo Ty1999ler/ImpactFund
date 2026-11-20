@@ -289,6 +289,17 @@ wherever the two pages say the same thing (school, name, title, email, file type
 | Completion page, box left unticked | Tick the box to confirm before sending your report. | Veuillez cocher la case pour confirmer avant d'envoyer votre rapport. |
 | Winners page, payment note date — now written by the site from the server's setting | January 11, 2027 | 11 janvier 2027 *(day 1 → "1er février 2027")* |
 
+## G. Laura's second edits, 2026-11-19 evening — French written directly (client: "just write them in French")
+
+| Where | English (Laura) | French |
+|---|---|---|
+| Winners page, title | You've been awarded funding. Just a few steps before you get started. | Vous avez obtenu du financement. Encore quelques étapes avant de vous lancer. |
+| Winners page, line under the payment box | You will receive the second half of your funding after completing the Project Completion Report. We ask that you submit your report within 30 days of your project taking place. | Vous recevrez la seconde moitié de votre financement après avoir soumis votre rapport de fin de projet. Nous vous demandons de soumettre votre rapport dans les 30 jours suivant la réalisation de votre projet. |
+| Winners page, "i" beside "Funds are sent to" | Funds can be sent directly to you, or to your club or organization if you're part of one. Enter the name of the person or group receiving the funds. | Les fonds peuvent vous être versés directement, ou être versés à votre club ou à votre organisation si vous en faites partie. Inscrivez le nom de la personne ou du groupe qui recevra les fonds. |
+| Completion page, new line above the guidelines card | Please submit your Project Completion Report within 30 days of your project taking place. | Veuillez soumettre votre rapport de fin de projet dans les 30 jours suivant la réalisation de votre projet. |
+| Completion page, privacy line | Your information and documents will be used by Alumo only to review your project completion and to share your name and project results to show the impact of the Student Impact Fund, in accordance with our privacy policy. | Vos renseignements et vos documents seront utilisés par Alumo uniquement pour évaluer la réalisation de votre projet et pour faire connaître votre nom et les résultats de votre projet afin de montrer l'impact du Fonds d'impact étudiant, conformément à notre politique de confidentialité. |
+| Completion page, guidelines button (French page) | — | Opens the ENGLISH guidelines for now; Alumo's French file is in review. |
+
 ## Parked with the private link (translated, not needed until the key is built)
 | English | French |
 |---|---|

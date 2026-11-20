@@ -724,3 +724,20 @@ Client: deploying staging should not need a GoDaddy login each time.
        /bin/sh <that path>/_deploy/auto-deploy.sh >/dev/null 2>&1
 - NOT VERIFIED ON THE HOST: whether cron there may call uapi, and whether `git fetch` works
   from cron. Either failing is logged, never silent; the first automatic deploy is the test.
+
+## Laura's second edits + guidelines — BUILT 2026-11-20 (branch claude/laura-nov19-second-edits)
+From Laura's email of 2026-11-19, 5:20 pm, and the client's answers on 2026-11-20.
+- Winners page: H1 "You've been awarded funding. Just a few steps before you get started."
+  (she named the first words; the rest is kept); a line under the payment box (second half of
+  the funding after the Project Completion Report; report within 30 days of the project); an
+  "i" button beside "Funds are sent to" opening her note under the box.
+- Completion page: "Please submit your Project Completion Report within 30 days of your
+  project taking place." above the guidelines card; the privacy line now says the information
+  is used to review the completion and to share the name and project results (client: do not
+  worry about how that reads beside the photo question).
+- Guidelines: assets/docs/project-completion-report-guidelines-en.pdf is Alumo's file. The
+  FRENCH page's button opens the same English file for now, with no note (client's call), until
+  the French one arrives. AWAITING_CLIENT is empty, so verify_integrity.py --release passes.
+- Attestation tick box: stays, still with placeholder wording.
+- French written directly, no review round (client): FR_DRAFTS.md section G.
+- winners.css / winners-form.js ?v=6.
