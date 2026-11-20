@@ -1216,6 +1216,57 @@ jobs:
           $expect('completion: received notice subject', $subject($m) === '[TEST] Completion report received — Jane Doe (R)');
           $expect('completion: the notice goes to the completion address', (bool)preg_match('/^To: .*completion-ci@example\.invalid/m', $m));
           $expect('completion: filed-after-retry subject', $subject($notice(['test' => false] + $rec, true)) === 'Completion report filed after retry — Jane Doe (R)');
+          // ---- The SharePoint list row (winners.list / completion.list) ----
+          $pay = ['id' => '20261120-150000-abcd1234', 'round' => 'Fall 2026', 'region' => 'Ontario', 'test' => false,
+                  'received_utc' => '2026-11-20T15:00:00+00:00',
+                  'fields' => ['school' => 'Algonquin College', 'full_name' => " Jane \n Doe ", 'email' => 'jane@example.com',
+                               'project_title' => 'Campus Pantry', 'funds_sent_to' => 'Algonquin Students Association']];
+          $expect('payments row: the documented columns, and only those',
+              winners_list_fields($pay) === ['Title' => 'Campus Pantry', 'Round' => 'Fall 2026', 'Region' => 'Ontario',
+                  'School' => 'Algonquin College', 'FullName' => 'Jane Doe', 'Email' => 'jane@example.com',
+                  'Received' => '2026-11-20T15:00:00Z', 'SubmissionId' => '20261120-150000-abcd1234',
+                  'FundsSentTo' => 'Algonquin Students Association']);
+          $expect('a test record: [TEST] in front of the title', winners_list_fields(['test' => true] + $pay)['Title'] === '[TEST] Campus Pantry');
+          $long = winners_list_fields(['test' => true, 'fields' => ['project_title' => str_repeat('T', 400)] + $pay['fields']] + $pay)['Title'];
+          $expect('a long title is cut to the column, keeping [TEST]', mb_strlen($long) === 255 && strpos($long, '[TEST] ') === 0);
+          $rep = ['kind' => 'completion', 'id' => 'x', 'round' => 'Fall 2026', 'region' => 'West',
+                  'received_utc' => '2026-12-02T03:30:00+00:00',
+                  'fields' => ['school' => 'Douglas College', 'full_name' => 'Jane Doe', 'email' => 'j@example.com',
+                               'project_title' => 'P', 'photo_consent' => 'no', 'attestation' => 'yes'],
+                  'documents' => [['slot' => 'file_report'], ['slot' => 'file_photos'], ['slot' => 'file_photos']]];
+          $row = winners_list_fields($rep);
+          $expect('report row: photos counted, the answer, who attested and when (Toronto date)',
+              $row['Photos'] === 2 && $row['OkToShare'] === 'No' && $row['Attested'] === 'Jane Doe on December 1, 2026'
+              && !array_key_exists('FundsSentTo', $row) && $row['Region'] === 'West');
+          $rep['fields']['photo_consent'] = 'yes';
+          $expect('report row: OK to share', winners_list_fields($rep)['OkToShare'] === 'Yes');
+          $rep['documents'] = [['slot' => 'file_report']];
+          $expect('report row: no photos', winners_list_fields($rep)['OkToShare'] === 'No photos' && winners_list_fields($rep)['Photos'] === 0);
+          $expect('no banking detail can reach a row: no column is fed from a document',
+              !array_intersect(array_keys(winners_list_fields($pay)), ['VoidCheque', 'Cheque', 'Documents', 'Files']));
+          $expect('list_field_map renames and drops columns',
+              winners_list_map(['Title' => 'T', 'FundsSentTo' => 'A', 'Email' => 'e'], ['FundsSentTo' => 'Payee', 'Email' => ''])
+                  === ['Title' => 'T', 'Payee' => 'A']);
+          $expect('the column SharePoint does not have is read from its error',
+              winners_list_unknown_field('HTTP 400 from https://x: {"error":{"code":"invalidRequest","message":"Field \'FundsSentTo\' is not recognized"}}') === 'FundsSentTo');
+          $expect('any other error names no column', winners_list_unknown_field('HTTP 403 from https://x: accessDenied') === '');
+          $expect('no list configured: no row, no error', winners_list_add($base, $pay, []) === ['status' => 'none']);
+          $c = $base; $c['winners']['list'] = 'ImpactFundPayments';
+          $r = winners_list_add($c, $pay, ['webUrl' => 'https://x']);
+          $expect('a list that cannot be reached is reported, never thrown',
+              $r['status'] === 'failed' && $r['list'] === 'ImpactFundPayments' && $r['error'] !== '');
+          $expect('completion.list is its own (not the winners list)', winners_list_add($c, $rep, []) === ['status' => 'none']);
+          $expect('notice: silent without a list', winners_list_notice([]) === '' && winners_list_notice(['list' => ['status' => 'none']]) === '');
+          $expect('notice: says the row was added',
+              winners_list_notice(['list' => ['status' => 'added', 'list' => 'L', 'item_id' => '7', 'skipped' => []]]) === "A row was added to the list 'L'.\n");
+          $expect('notice: names a column the list lacks',
+              strpos(winners_list_notice(['list' => ['status' => 'added', 'list' => 'L', 'skipped' => ['Region']]]), 'no column named Region') !== false);
+          $expect('notice: a failed row is a WARNING with the reason',
+              strpos(winners_list_notice(['list' => ['status' => 'failed', 'list' => 'L', 'error' => "boom\nbang"]]), "WARNING: the row could NOT be added to the list 'L':\n  boom bang\n") === 0);
+          // Applications: the round goes on the row only when graph.round is set.
+          $expect('attestation line still reads the same', completion_attestation_text(['kind' => 'completion',
+              'received_utc' => '2026-12-02T03:30:00+00:00', 'fields' => ['full_name' => 'Jane Doe', 'attestation' => 'yes']])
+              === "Attested:      Jane Doe on December 1, 2026\n");
           $tmp = sys_get_temp_dir() . '/winners-sep-' . getmypid();
           foreach (['real-a' => false, 'test-b' => true] as $sid => $t) {
               @mkdir("$tmp/$sid", 0700, true);

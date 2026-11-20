@@ -618,6 +618,13 @@ function graph_deliver(array $g, string $submissionId, array $fields, array $fil
        within the 255 characters a single line of text column holds (the cap
        in apply.php's $FIELDS). */
     $segments = apply_folder_segments($g, $fields, $test);
+    /* The round, on the row as well as in the path — one list holds every
+       term, and this column is what tells them apart (Nov 2026). Only with
+       graph.round set, like the round folder: SharePoint refuses a row that
+       names a column the list does not have, so the "Round" column has to
+       exist BEFORE graph.round is set. */
+    $round = trim((string)($g['round'] ?? ''));
+    if ($round !== '') $fields['Round'] = $round;
     if ($test) {
         $fields['Title'] = test_prefix(true, mb_substr((string)($fields['Title'] ?? ''), 0,
             255 - mb_strlen(test_prefix(true, ''))));
@@ -1281,17 +1288,10 @@ function completion_photos_text(array $record): string {
    is the day the report arrived, in Toronto time: the sender's "today", not
    UTC's. */
 function completion_attestation_text(array $record): string {
-    $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
-    if ((string)($f['attestation'] ?? '') !== 'yes') return '';
-    $one = fn($v): string => trim((string)preg_replace('/\s+/u', ' ', (string)$v));
-    try {
-        $when = (new DateTime((string)($record['received_utc'] ?? 'now')))
-            ->setTimezone(new DateTimeZone('America/Toronto'))->format('F j, Y');
-    } catch (Throwable $e) {
-        $when = gmdate('F j, Y');
-    }
-    $statement = $one($f['attestation_text'] ?? '');
-    return 'Attested:      ' . $one($f['full_name'] ?? '') . ' on ' . $when . "\n"
+    $attested = completion_attested($record);
+    if ($attested === '') return '';
+    $statement = trim((string)preg_replace('/\s+/u', ' ', (string)($record['fields']['attestation_text'] ?? '')));
+    return 'Attested:      ' . $attested . "\n"
          . ($statement !== '' ? 'Statement:     "' . $statement . "\"\n" : '');
 }
 
@@ -1839,6 +1839,8 @@ function winners_finish_delivery(string $dir, array $docs, array $folder, string
         /* Folder-name clash only; same-name repeats are 'earlier_submissions'
            at the top of the record. */
         'folder_existed'    => !empty($folder['second']),
+        /* The list row (winners_list_add): none | added | failed. */
+        'list'              => is_array($folder['list'] ?? null) ? $folder['list'] : ['status' => 'none'],
     ]];
     if ($left) {
         error_log("winners: delivered, but could not delete the server copy of: " . implode(', ', $left) . " ($dir)");
@@ -1875,6 +1877,7 @@ function winners_notify_delivered(array $cfg, array $record, array $folder, bool
                . "\n" . winners_details_text($record) . "\n"
                . ($labels ? wordwrap('Documents: ' . implode(', ', $labels) . '.', 76, "\n", false) . "\n" : '')
                . 'They are NOT attached — ' . $words['only'] . " only ever go to SharePoint.\n"
+               . winners_list_notice($folder)
                . ($copiesDeleted
                    ? "The copies on the web server have been deleted.\n"
                    : "WARNING: the copies on the web server could NOT all be deleted — see\n"
@@ -2076,6 +2079,7 @@ function winners_redeliver_one(array $cfg, string $dir, string $id, string $kind
 
     if ($error === '') {
         @unlink($markerPath);
+        $folder['list'] = winners_list_add($cfg, $record, $folder);
         $deleted = winners_finish_delivery($dir, $docs, $folder, 'delivered-after-retry', $attempts);
         winners_notify_delivered($cfg, $record, $folder, true, $deleted);
         return "$label: delivered after retry (attempt $attempts)";
@@ -2094,6 +2098,176 @@ function winners_redeliver_one(array $cfg, string $dir, string $id, string $kind
     }
     @file_put_contents($markerPath, json_encode($marker, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     return "$label: still failing (attempt $attempts) — " . mb_substr($error, 0, 200);
+}
+
+/* ======================================================================
+   A SharePoint LIST ROW per winners / completion submission (Nov 2026).
+
+   Until now these two pages left no list item: the folder and the notice
+   email were the record. The client wants what was typed in a list, as
+   applications are — one permanent list per page (never one per term),
+   each row carrying its Round:
+     winners.list     e.g. 'ImpactFundPayments'
+     completion.list  e.g. 'ImpactFundCompletionReports'
+   (the list's NAME as it was created, or its id; '' = no row, the default).
+   Alumo creates the lists and their columns — the app's permission
+   (Sites.Selected) can add rows but cannot create lists or columns.
+
+   The row is added LAST, after the documents are filed, and NEVER fails a
+   delivery: a missing list or column must not leave banking documents
+   waiting on the web server. A problem is logged, recorded in
+   submission.json and said in the team notice, which carries the same
+   details so the row can be added by hand. A column the list does not have
+   is dropped and the row is tried again without it, so one misnamed column
+   costs that column, not the row.
+   No banking detail is ever put in a row — only what winners_details_text
+   prints, plus a link to the folder.
+   ====================================================================== */
+
+/* "Jane Doe on December 1, 2026" — who ticked the attestation box and the
+   day the report arrived (Toronto time) — or '' when the record has none. */
+function completion_attested(array $record): string {
+    $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
+    if ((string)($f['attestation'] ?? '') !== 'yes') return '';
+    try {
+        $when = (new DateTime((string)($record['received_utc'] ?? 'now')))
+            ->setTimezone(new DateTimeZone('America/Toronto'))->format('F j, Y');
+    } catch (Throwable $e) {
+        $when = gmdate('F j, Y');
+    }
+    return trim((string)preg_replace('/\s+/u', ' ', (string)($f['full_name'] ?? ''))) . ' on ' . $when;
+}
+
+/* The row for a record: column (as documented in api/config.example.php) =>
+   value. Columns common to both lists first, then the kind's own. Title is
+   the project title — "[TEST] " in front for a test record, as on
+   application rows. Received is UTC, which SharePoint shows in the site's
+   own time zone. The folder link is not here: hyperlink columns are written
+   in a second step (graph_write_links). */
+function winners_list_fields(array $record): array {
+    $f = is_array($record['fields'] ?? null) ? $record['fields'] : [];
+    $one = fn($v): string => trim((string)preg_replace('/\s+/u', ' ', (string)$v));
+    $cap = fn(string $v): string => mb_substr($v, 0, 255);   /* a single line of text column */
+    $test = winners_is_test($record);
+    $title = $one($f['project_title'] ?? '');
+    $received = strtotime((string)($record['received_utc'] ?? ''));
+    $row = [
+        'Title'        => test_prefix($test, mb_substr($title, 0, 255 - mb_strlen(test_prefix($test, '')))),
+        'Round'        => $cap($one($record['round'] ?? '')),
+        'Region'       => $cap($one($record['region'] ?? '')),
+        'School'       => $cap($one($f['school'] ?? '')),
+        'FullName'     => $cap($one($f['full_name'] ?? '')),
+        'Email'        => $cap($one($f['email'] ?? '')),
+        'Received'     => gmdate('Y-m-d\TH:i:s\Z', $received !== false ? $received : time()),
+        'SubmissionId' => $cap($one($record['id'] ?? '')),
+    ];
+    if (winners_kind($record) === 'completion') {
+        $photos = 0;
+        foreach ((array)($record['documents'] ?? []) as $doc) {
+            if (is_array($doc) && ($doc['slot'] ?? '') === 'file_photos') $photos++;
+        }
+        $consent = (string)($f['photo_consent'] ?? '');
+        $row['Photos']    = $photos;
+        $row['OkToShare'] = $photos === 0 ? 'No photos' : ($consent === 'yes' ? 'Yes' : 'No');
+        $row['Attested']  = $cap(completion_attested($record));
+    } else {
+        $row['FundsSentTo'] = $cap($one($f['funds_sent_to'] ?? ''));
+    }
+    return $row;
+}
+
+/* Our column names onto the list's own: $map is <block>.list_field_map,
+   ours => theirs. A name left out of the map is sent as it is; mapped to ''
+   it is not sent at all. */
+function winners_list_map(array $fields, array $map): array {
+    $mapped = [];
+    foreach ($fields as $name => $value) {
+        $column = array_key_exists($name, $map) ? trim((string)$map[$name]) : $name;
+        if ($column !== '') $mapped[$column] = $value;
+    }
+    return $mapped;
+}
+
+/* The column SharePoint says it does not have ("Field 'Foo' is not
+   recognized"), from the text of a failed request, or ''. */
+function winners_list_unknown_field(string $error): string {
+    return preg_match("/Field '([^']+)' is not recognized/", $error, $m) === 1 ? $m[1] : '';
+}
+
+/* Add the record's row to its list. Never throws. Returns what happened, for
+   submission.json and the team notice:
+     ['status' => 'none']                          no list configured
+     ['status' => 'added', 'list', 'item_id', 'skipped' => [columns the list lacks]]
+     ['status' => 'failed', 'list', 'error'] */
+function winners_list_add(array $cfg, array $record, array $folder): array {
+    $list = '';
+    try {
+        [$kindCfg, $key] = winners_record_cfg($cfg, $record);
+        $block = is_array($kindCfg[$key] ?? null) ? $kindCfg[$key] : [];
+        $list = trim((string)($block['list'] ?? ''));
+        if ($list === '') return ['status' => 'none'];
+
+        $g = apply_graph_config($cfg);
+        $site = trim((string)($g['site_id'] ?? ''));
+        if ($site === '') throw new RuntimeException('graph.site_id is not set');
+        $auth = ['Authorization: Bearer ' . graph_token($g)];
+        $map = is_array($block['list_field_map'] ?? null) ? $block['list_field_map'] : [];
+        $fields = winners_list_map(winners_list_fields($record), $map);
+        $listRef = rawurlencode($list);
+        $url = "https://graph.microsoft.com/v1.0/sites/$site/lists/$listRef/items";
+
+        $skipped = [];
+        $item = [];
+        for ($try = 0; $try < 15; $try++) {
+            try {
+                $item = http_json($url, json_encode(['fields' => (object)$fields]),
+                    array_merge($auth, ['Content-Type: application/json']));
+                break;
+            } catch (Throwable $e) {
+                $unknown = winners_list_unknown_field($e->getMessage());
+                if ($unknown === '' || !array_key_exists($unknown, $fields)) throw $e;
+                unset($fields[$unknown]);
+                $skipped[] = $unknown;
+            }
+        }
+        if (empty($item['id'])) throw new RuntimeException('SharePoint did not return the new row');
+
+        /* The folder link, in the hyperlink column 'Folder' (list_field_map
+           can rename or drop it). Its own failure is logged there, not here. */
+        $linkColumn = array_key_exists('Folder', $map) ? trim((string)$map['Folder']) : 'Folder';
+        if ($linkColumn !== '' && (string)($folder['webUrl'] ?? '') !== '') {
+            graph_write_links(['site_id' => $site, 'list_id' => $listRef, 'link_field' => $linkColumn, 'file_links' => []],
+                $auth, (string)$item['id'], ['webUrl' => (string)$folder['webUrl']], []);
+        }
+        if ($skipped) {
+            error_log("list '$list': row added for " . (string)($record['id'] ?? '?')
+                . ' without the column(s) the list does not have: ' . implode(', ', $skipped));
+        }
+        return ['status' => 'added', 'list' => $list, 'item_id' => (string)$item['id'], 'skipped' => $skipped];
+    } catch (Throwable $e) {
+        $error = mb_substr($e->getMessage(), 0, 400);
+        error_log("list '$list': row NOT added for " . (string)($record['id'] ?? '?') . ": $error");
+        return ['status' => 'failed', 'list' => $list, 'error' => $error];
+    }
+}
+
+/* What the team notice says about the row, or '' when no list is configured. */
+function winners_list_notice(array $folder): string {
+    $r = is_array($folder['list'] ?? null) ? $folder['list'] : [];
+    $status = (string)($r['status'] ?? 'none');
+    $list = (string)($r['list'] ?? '');
+    if ($status === 'added') {
+        $skipped = array_map('strval', (array)($r['skipped'] ?? []));
+        return "A row was added to the list '$list'.\n"
+             . ($skipped ? 'WARNING: the list has no column named ' . implode(', ', $skipped)
+                 . " — that part of the row was left out. Add the column(s), then fill them in from the details above.\n" : '');
+    }
+    if ($status === 'failed') {
+        return "WARNING: the row could NOT be added to the list '$list':\n  "
+             . str_replace(["\r", "\n"], ' ', (string)($r['error'] ?? '')) . "\n"
+             . "The documents are filed as usual. Add the row by hand from the details above.\n";
+    }
+    return '';
 }
 
 /* ======================================================================

@@ -741,3 +741,33 @@ From Laura's email of 2026-11-19, 5:20 pm, and the client's answers on 2026-11-2
 - Attestation tick box: stays, still with placeholder wording.
 - French written directly, no review round (client): FR_DRAFTS.md section G.
 - winners.css / winners-form.js ?v=6.
+
+## SharePoint list rows for the winners and completion pages — BUILT 2026-11-20 (branch claude/sharepoint-lists)
+Client (2026-11-20): the lists are to exist BEFORE go-live.
+- Three permanent lists, one per form, every round in each (never a list per term):
+  ImpactFundApplications (exists), ImpactFundPayments, ImpactFundCompletionReports. Alumo
+  creates them — Sites.Selected lets the app add rows, not create lists or columns.
+- winners.list / completion.list in config.php name the list (its name as created, or its id);
+  '' = no row, so nothing changes until the keys are set. completion.list is NOT inherited.
+- The row is added LAST, after the documents are filed (and after All Void), on the first try
+  and on a retry. It NEVER fails a delivery: a missing list or a bad column must not leave
+  banking documents waiting on the server. Result in submission.json (delivery.list: none |
+  added | failed) and in the team notice. A column the list lacks ("Field 'X' is not
+  recognized") is dropped and the row retried without it, and the notice names it. A failed
+  row is NOT retried later — the notice carries the details to add it by hand.
+- Columns (created with exactly these names, no spaces; display names can change after):
+  both: Title (= project title; "[TEST] " in front from a test host), Round, Region, School,
+  FullName, Email, SubmissionId (text), Received (date and time), Folder (hyperlink, written in
+  a second step by graph_write_links — a URL over 255 characters is skipped and logged).
+  Payments: FundsSentTo. Completion reports: Photos (number), OkToShare ("Yes" / "No" /
+  "No photos"), Attested ("Jane Doe on December 1, 2026"). list_field_map renames or drops.
+  No banking detail is ever written to a row.
+- Applications: with graph.round set, the row also gets Round — so the Round column must
+  exist on ImpactFundApplications BEFORE graph.round is set (SharePoint refuses a row naming
+  an unknown column, and applications would queue). Alumo fills Round = "Fall 2026" on the
+  existing rows by hand.
+- NOT RUN against SharePoint (CI has none): list addressing by name
+  (/sites/{id}/lists/{name}/items), the hyperlink write, the unknown-column retry. One winner
+  and one completion test upload on staging, with the lists in place, is the test.
+- Server config for go-live, in each config.php:  winners 'list' => 'ImpactFundPayments',
+  completion 'list' => 'ImpactFundCompletionReports'.
