@@ -53,7 +53,7 @@
     errEmail: "Veuillez indiquer votre adresse courriel.",
     errEmailInvalid: "Veuillez entrer une adresse courriel valide.",
     errFunds: "Veuillez indiquer à qui les fonds sont versés.",
-    errAgreement: "Veuillez téléverser votre entente signée.",
+    errAgreement: "Veuillez téléverser votre contrat signé.",
     errCheque: "Veuillez téléverser votre spécimen de chèque.",
     errTypeDocs: "Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, DOCX, JPG ou PNG.",
     errTypeCheque: "Ce type de fichier n'est pas autorisé. Veuillez utiliser un fichier PDF, JPG ou PNG.",

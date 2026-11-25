@@ -300,6 +300,34 @@ wherever the two pages say the same thing (school, name, title, email, file type
 | Completion page, privacy line | Your information and documents will be used by Alumo only to review your project completion and to share your name and project results to show the impact of the Student Impact Fund, in accordance with our privacy policy. | Vos renseignements et vos documents seront utilisés par Alumo uniquement pour évaluer la réalisation de votre projet et pour faire connaître votre nom et les résultats de votre projet afin de montrer l'impact du Fonds d'impact étudiant, conformément à notre politique de confidentialité. |
 | Completion page, guidelines button (French page) | — | Opens the ENGLISH guidelines for now; Alumo's French file is in review. |
 
+## H. Hafsa's review of the French, 2026-11-24 — REVIEWED BY ALUMO, replaces the wording in B to G
+Hafsa Ahmed's email of 2026-11-24. Where a line below differs from sections B to G, this one is on the page.
+Two points are ours, agreed with Tyler the same day and reported back to her:
+- "entente" becomes "contrat" EVERYWHERE, including her own tick-box sentence, which still said "mon entente de
+  financement" — one word for the document on both pages.
+- Her tick-box sentence said "dépenses éligibles"; the page keeps "admissibles", the word the rest of the French
+  site uses (five pages, "éligible" on none).
+- Her guide sentence read "Notre Guide … vous guident": the verb is singular on the page ("vous guide").
+
+| Where | French now on the page |
+|---|---|
+| Winners page, title | Vous avez obtenu du financement. Il ne vous reste plus que quelques étapes avant de pouvoir commencer. |
+| Winners page, intro | Envoyez-nous votre contrat signé et votre spécimen de chèque. |
+| Winners page, payment note | **Quand recevrez-vous votre paiement&nbsp;:** une fois que vous aurez fourni les documents requis, notre équipe commencera à traiter votre paiement au cours de la semaine du 11 janvier 2027. (the date still comes from winners.payment_week) |
+| Winners page, upload 1 | Contrat de financement signé |
+| Winners page, error under upload 1 | Veuillez téléverser votre contrat signé. |
+| Winners page, "Les fonds sont versés à" | The box takes the whole row (EN page too: .winners-field-wide) and its hint is shorter, so it also fits a 375 px phone: Nom de la personne ou du groupe |
+| Winners page and completion page, 30-day line | … dans les 30 jours après la fin de votre projet. |
+| Winners confirmation email (only if send_confirmation is ever on) | … votre contrat de financement signé et votre spécimen de chèque. |
+| Completion page, intro line 2 | Une fois votre rapport reçu et examiné, nous vous verserons le reste des fonds. |
+| Completion page, success text | … communiquerons avec vous au sujet du reste des fonds. |
+| Completion page, guide card, text | Notre Guide de rapport de fin de projet vous guide pas à pas&nbsp;: ce qu'il faut inclure dans votre rapport et un exemple de présentation de votre budget. |
+| Completion page, guide card, button | Téléchargez le guide de rapport |
+| Completion page, tick box | Je confirme que les fonds que j'ai reçus ont été utilisés pour ce projet et pour les dépenses admissibles décrites dans mon contrat de financement. |
+
+Still open: the ENGLISH tick-box sentence is our placeholder (Alumo checking); the French guide PDF is in
+review at Alumo, so the French button still opens the English file.
+
 ## Parked with the private link (translated, not needed until the key is built)
 | English | French |
 |---|---|

@@ -2006,8 +2006,8 @@ function winners_ack(array $cfg, array $record): void {
         $subject = "Nous avons bien reçu vos documents — Fonds d'impact étudiant";
         $body = ($name !== '' ? "Bonjour $name,\n\n" : "Bonjour,\n\n")
               . 'Merci ! Nous avons bien reçu vos documents '
-              . ($title !== '' ? "pour « $title »" : 'pour votre projet') . ' : votre entente de '
-              . "financement signée et votre spécimen de chèque.\n\n"
+              . ($title !== '' ? "pour « $title »" : 'pour votre projet') . ' : votre contrat de '
+              . "financement signé et votre spécimen de chèque.\n\n"
               . "Notre équipe les examinera et communiquera avec vous au sujet de votre paiement. "
               . "S'il faut modifier quoi que ce soit, répondez simplement à ce courriel.\n\n"
               . "Fonds d'impact étudiant par Alumo\n";
