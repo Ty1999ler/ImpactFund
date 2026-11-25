@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/css/style.css?v=9">
   <link rel="stylesheet" href="/css/pages/apply-now.css?v=9">
   <link rel="stylesheet" href="/css/pages/how-to-apply.css?v=6">
-  <link rel="stylesheet" href="/css/pages/winners.css?v=6">
+  <link rel="stylesheet" href="/css/pages/winners.css?v=7">
 </head>
 <body>
   <a class="skip-link" href="#content">Aller au contenu</a>
@@ -80,7 +80,7 @@
     <section class="apply-hero winners-hero">
       <div class="container">
         <p class="winners-kicker"><img src="/assets/img/icon-m-ticker.svg" alt="" width="28" height="13"><span>Projet gagnant&nbsp;: envoi des documents</span></p>
-        <h1 class="apply-title text-size-72-72-tight">Vous avez obtenu du financement. Encore quelques étapes avant de vous lancer.</h1>
+        <h1 class="apply-title text-size-72-72-tight">Vous avez obtenu du financement. Il ne vous reste plus que quelques étapes avant de pouvoir commencer.</h1>
       </div>
     </section>
 
@@ -89,7 +89,7 @@
       <div class="container">
         <!-- Intro + deadline line: open state only — see the EN page. The
              deadline comes from the server's closes_at (heure de Toronto). -->
-        <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Envoyez-nous votre entente signée et votre spécimen de chèque.</p>
+        <p class="intro-text text-size-16-31-9-tightpx" data-winners-intro hidden>Envoyez-nous votre contrat signé et votre spécimen de chèque.</p>
         <p class="intro-text text-size-16-31-9-tightpx winners-deadline" data-winners-deadline hidden></p>
       </div>
     </section>
@@ -142,8 +142,8 @@
       <!-- French of Alumo's Nov 2026 wording — see the EN page. -->
       <section class="winners-note-section">
         <div class="container">
-          <p class="winners-note"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1.75" y="3.25" width="14.5" height="13" rx="2" stroke="#222222" stroke-width="1.5"/><path d="M1.75 7.5h14.5M5.5 1.5v3.5M12.5 1.5v3.5" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg><span><strong>Quand prévoir votre paiement&nbsp;:</strong> une fois les documents requis envoyés, notre équipe commencera à traiter votre paiement dans la semaine du <span data-winners-payment-week>11 janvier 2027</span>.</span></p>
-          <p class="winners-note-more">Vous recevrez la seconde moitié de votre financement après avoir soumis votre rapport de fin de projet. Nous vous demandons de soumettre votre rapport dans les 30&nbsp;jours suivant la réalisation de votre projet.</p>
+          <p class="winners-note"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1.75" y="3.25" width="14.5" height="13" rx="2" stroke="#222222" stroke-width="1.5"/><path d="M1.75 7.5h14.5M5.5 1.5v3.5M12.5 1.5v3.5" stroke="#222222" stroke-width="1.5" stroke-linecap="round"/></svg><span><strong>Quand recevrez-vous votre paiement&nbsp;:</strong> une fois que vous aurez fourni les documents requis, notre équipe commencera à traiter votre paiement au cours de la semaine du <span data-winners-payment-week>11 janvier 2027</span>.</span></p>
+          <p class="winners-note-more">Vous recevrez la seconde moitié de votre financement après avoir soumis votre rapport de fin de projet. Nous vous demandons de soumettre votre rapport dans les 30&nbsp;jours après la fin de votre projet.</p>
         </div>
       </section>
 
@@ -197,14 +197,14 @@
                       <!-- data-winners-confirmation: see the EN page. -->
                       <p class="field-hint" id="wf-email-hint" data-winners-confirmation hidden>Nous vous enverrons une confirmation à cette adresse.</p>
                     </div>
-                    <div class="form-field">
+                    <div class="form-field winners-field-wide">
                       <!-- Who the payment is made out to — see the EN page. -->
                       <!-- The "i" opens the note under the box: see the EN page. -->
                       <div class="winners-label-row">
                         <label for="wf-funds">Les fonds sont versés à<span aria-hidden="true">*</span></label>
                         <button type="button" class="winners-info-btn" data-winners-info aria-expanded="false" aria-controls="wf-funds-info" aria-label="En savoir plus sur le destinataire des fonds">i</button>
                       </div>
-                      <input type="text" id="wf-funds" name="funds_sent_to" placeholder="Écrivez le nom de la personne ou de l'organisation" maxlength="255" required aria-required="true">
+                      <input type="text" id="wf-funds" name="funds_sent_to" placeholder="Nom de la personne ou du groupe" maxlength="255" required aria-required="true">
                       <p class="winners-info" id="wf-funds-info" hidden>Les fonds peuvent vous être versés directement, ou être versés à votre club ou à votre organisation si vous en faites partie. Inscrivez le nom de la personne ou du groupe qui recevra les fonds.</p>
                     </div>
                   </div>
@@ -215,7 +215,7 @@
                   <!-- Accepted types: see the EN page. -->
                   <div class="form-grid-2 file-grid">
                     <div class="form-field form-field-file">
-                      <label for="wf-file-agreement">Entente de financement signée<span aria-hidden="true">*</span></label>
+                      <label for="wf-file-agreement">Contrat de financement signé<span aria-hidden="true">*</span></label>
                       <p class="field-desc" id="wf-file-agreement-desc">Assurez-vous qu'elle est signée par vous et par votre deuxième signataire, s'il y a lieu.</p>
                       <input type="file" id="wf-file-agreement" name="file_agreement" accept=".pdf,.docx,.jpg,.jpeg,.png" required aria-required="true" aria-describedby="wf-file-agreement-desc wf-file-agreement-types">
                       <p class="field-filetypes" id="wf-file-agreement-types">Types de fichier acceptés&nbsp;: pdf, docx, jpg, jpeg, png. Taille maximum des fichiers&nbsp;: 10&nbsp;MB.</p>
@@ -299,6 +299,6 @@
        EN page. -->
   <script src="/js/main.js?v=8"></script>
   <script src="/js/winners-schools-fall-2026.js?v=1"></script>
-  <script src="/js/winners-form.js?v=6"></script>
+  <script src="/js/winners-form.js?v=7"></script>
 </body>
 </html>

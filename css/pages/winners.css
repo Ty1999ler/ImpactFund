@@ -200,6 +200,12 @@
   margin-top: 2px;
 }
 
+/* A field that takes the whole row of the three-column grid (winners page,
+   "Funds are sent to": at a third of the row the box cut off its hint and
+   an organization's name — client, Nov 2026). 1 / -1 is every column the
+   grid has at that width, so it is right at three, two and one. */
+.winners-form .form-grid-3 > .winners-field-wide { grid-column: 1 / -1; }
+
 /* A label with an "i" beside it (winners page, "Funds are sent to"). The
    label is no longer the field's direct child, so apply-now.css's label rule
    misses it: same look, restated. The "i" opens the note under the box. */
